@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Sob_Need_Server.Models.Categories;
 using Sob_Need_Server.Models.Locations;
 using Sob_Need_Server.Models.Products;
 
@@ -11,6 +12,8 @@ namespace Sob_Need_Server.Context
             
         }
         public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Location> Locations{ get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<State> States { get; set; }
         public DbSet<Region> Regions { get; set; }
