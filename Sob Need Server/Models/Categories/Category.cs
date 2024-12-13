@@ -4,9 +4,9 @@ namespace Sob_Need_Server.Models.Categories
 {
     public class Category
     {
-        public bool CategoryId { get; set; }
+        public int CategoryId { get; set; }
         public string CategoryName { get; set; }
-        public int ParentCategoryId { get; set; }
+        public int? ParentCategoryId { get; set; }
         [Required]
         public bool IsActive { get; set; } = true;
 

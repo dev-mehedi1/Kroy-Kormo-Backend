@@ -12,8 +12,8 @@ using Sob_Need_Server.Context;
 namespace Sob_Need_Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241213120521_Mdified the product model and add location-1")]
-    partial class Mdifiedtheproductmodelandaddlocation1
+    [Migration("20241213141132_Added table")]
+    partial class Addedtable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,8 +27,11 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Categories.Category", b =>
                 {
-                    b.Property<bool>("CategoryId")
-                        .HasColumnType("boolean");
+                    b.Property<int>("CategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
 
                     b.Property<string>("CategoryName")
                         .IsRequired()
@@ -44,7 +47,7 @@ namespace Sob_Need_Server.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("ParentCategoryId")
+                    b.Property<int?>("ParentCategoryId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")

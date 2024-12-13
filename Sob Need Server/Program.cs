@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.Interface;
 using Sob_Need_Server.Mappings;
+using Sob_Need_Server.Services.CategoryService;
 using Sob_Need_Server.Services.ProductService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 builder.Services.AddAutoMapper(typeof(MappingProfile)); // Register AutoMapper
-builder.Services.AddScoped<IProductService, ProductService>(); // Register ProductService
+// Register ProductService
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+;
 
 
 var app = builder.Build();
