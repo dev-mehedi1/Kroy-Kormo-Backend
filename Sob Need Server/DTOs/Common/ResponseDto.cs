@@ -1,4 +1,4 @@
-﻿namespace Sob_Need_Server.DTOs
+﻿namespace Sob_Need_Server.DTOs.Common
 {
     public class ResponseDto<T>
     {

@@ -7,16 +7,10 @@ using Sob_Need_Server.Models.Products;
 
 namespace Sob_Need_Server.Services.ProductService
 {
-    public class ProductService : IProductService
+    public class ProductService(AppDbContext context, IMapper mapper) : IProductService
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
-
-        public ProductService(AppDbContext context, IMapper mapper)
-        {
-            _context = context;
-            _mapper = mapper;
-        }
+        private readonly AppDbContext _context = context;
+        private readonly IMapper _mapper = mapper;
 
         public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
         {

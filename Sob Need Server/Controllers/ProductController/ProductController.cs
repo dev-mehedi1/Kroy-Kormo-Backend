@@ -2,20 +2,15 @@
 using Sob_Need_Server.DTOs.Product;
 using Sob_Need_Server.Interface;
 using Sob_Need_Server.Utils;
-using Sob_Need_Server.DTOs;
+using Sob_Need_Server.DTOs.Common;
 
 namespace Sob_Need_Server.Controllers.ProductController
 {
     [Route(Constants.BasePath + "/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductController(IProductService productService) : ControllerBase
     {
-        private readonly IProductService _productService;
-
-        public ProductController(IProductService productService)
-        {
-            _productService = productService;
-        }
+        private readonly IProductService _productService = productService;
 
         // GET: api/product
         [HttpGet]

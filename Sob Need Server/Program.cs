@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Sob_Need_Server;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.Interface;
+using Sob_Need_Server.Mappings;
 using Sob_Need_Server.Services.ProductService;
 
 var builder = WebApplication.CreateBuilder(args);
