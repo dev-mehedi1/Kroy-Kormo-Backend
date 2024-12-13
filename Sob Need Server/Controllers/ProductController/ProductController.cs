@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sob_Need_Server.DTOs.Product;
 using Sob_Need_Server.Interface;
+using Sob_Need_Server.Utils;
 
 namespace Sob_Need_Server.Controllers.ProductController
 {
-    [Route("api/[controller]")]
+    [Route(Constants.BasePath + "/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
     {
