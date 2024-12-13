@@ -1,0 +1,12 @@
+# Ignore Visual Studio folder
+.vs/
+
+# Ignore user-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+# Ignore build output directories
+bin/
+obj/
