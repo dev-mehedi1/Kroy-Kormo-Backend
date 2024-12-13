@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Sob_Need_Server;
 using Sob_Need_Server.Context;
+using Sob_Need_Server.Interface;
+using Sob_Need_Server.Services.ProductService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+builder.Services.AddAutoMapper(typeof(MappingProfile)); // Register AutoMapper
+builder.Services.AddScoped<IProductService, ProductService>(); // Register ProductService
+
 
 var app = builder.Build();
 
