@@ -9,7 +9,7 @@ namespace Sob_Need_Server.Controllers.CategoryController
 {
     [Route(Constants.BasePath + "/[controller]")]
     [ApiController]
-    public class CategoryController (ICategoryService categoryService) : ControllerBase
+    public class CategoryController(ICategoryService categoryService) : ControllerBase
     {
         private readonly ICategoryService _categoryService = categoryService;
 
@@ -31,5 +31,17 @@ namespace Sob_Need_Server.Controllers.CategoryController
             return BadRequest(response);
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> GetCategory([FromQuery] CategoryFilterDto filter)
+        {
+            var response = await _categoryService.GetAllAsync(filter);
+            if (response.IsSuccess)
+            {
+                return Ok(response);
+            }
+
+            return BadRequest(response);
+        }
     }
 }

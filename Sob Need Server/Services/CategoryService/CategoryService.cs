@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.Category;
@@ -49,9 +48,64 @@ namespace Sob_Need_Server.Services.CategoryService
             throw new NotImplementedException();
         }
 
-        public Task<ResponseDto<IEnumerable<CategoryDto>>> GetAllAsync()
+        public async Task<ResponseDto<IEnumerable<CategoryDto>>> GetAllAsync(CategoryFilterDto filter)
         {
-            throw new NotImplementedException();
+            try
+            {
+                // Start with the full set of categories
+                var query = _context.Categories.AsQueryable();
+
+                // Apply the search text filter (if any)
+                if (!string.IsNullOrEmpty(filter.SearchText))
+                {
+                    query = query.Where(x => x.CategoryName.Contains(filter.SearchText));
+                }
+
+                // Apply the parentId filter (if any)
+                if (filter.ParentCategoryId.HasValue)
+                {
+                    query = query.Where(x => x.ParentCategoryId == filter.ParentCategoryId.Value);
+                }
+
+                // Apply sorting based on the OrderByAsc flag
+                if (filter.OrderByAsc.HasValue)
+                {
+                    query = filter.OrderByAsc.Value
+                        ? query.OrderBy(x => x.CategoryName) // Ascending order
+                        : query.OrderByDescending(x => x.CategoryName); // Descending order
+                }
+
+                // Apply pagination
+                if (filter.Page.HasValue && filter.PageSize.HasValue)
+                {
+                    query = query.Skip((filter.Page.Value - 1) * filter.PageSize.Value)
+                                 .Take(filter.PageSize.Value);
+                }
+
+                // Execute the query and map to CategoryDto
+                var categories = await query
+                    .Select(x => _mapper.Map<CategoryDto>(x))
+                    .ToListAsync();
+
+                // Total count for pagination
+                var totalCount = await query.CountAsync();
+
+                // Prepare the response
+                var response = new ResponseDto<IEnumerable<CategoryDto>>(
+                    true,
+                    "Categories fetched successfully",
+                    categories)
+                {
+                    TotalCount = totalCount
+                };
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception if necessary
+                return new ResponseDto<IEnumerable<CategoryDto>>(false, $"Error: {ex.Message}", null!);
+            }
         }
 
         public Task<ResponseDto<CategoryDto>> GetByIdAsync(int id)
