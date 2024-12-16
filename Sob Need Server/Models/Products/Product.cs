@@ -8,11 +8,19 @@ namespace Sob_Need_Server.Models.Products
         public string Title { get; set; } = null!;
         public string Description { get; set; } = null!;
         public string Price { get; set; } = null!;
+        public string? Discount { get; set; }
         public int ConditionId { get; set; }
         public int CategoryId { get; set; }
         public int LocationId { get; set; }
         public int StatusId { get; set; }
         public int AttachmentId { get; set; }
+        public bool IsVerified { get; set; }
+        public bool IsJobAd { get; set; }
+        public bool IsUrgentAd { get; set; }
+        public bool IsFeaturedMember { get; set; }
+        public bool IsDeliveryFree { get; set; }
+        public string Slug { get; set; } = null!;
+        public bool IsTopAd { get; set; }
         public bool IsActive { get; set; } = true;
         public string? CreatedBy { get; set; }
         public string? UpdatedBy { get; set; }

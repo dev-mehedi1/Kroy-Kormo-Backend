@@ -270,13 +270,38 @@ namespace Sob_Need_Server.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Discount")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeliveryFree")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFeaturedMember")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsJobAd")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsTopAd")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsUrgentAd")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsVerified")
                         .HasColumnType("boolean");
 
                     b.Property<int>("LocationId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Price")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Slug")
                         .IsRequired()
                         .HasColumnType("text");
 
