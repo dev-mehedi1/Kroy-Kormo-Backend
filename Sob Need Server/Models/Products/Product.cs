@@ -13,7 +13,6 @@ namespace Sob_Need_Server.Models.Products
         public int CategoryId { get; set; }
         public int LocationId { get; set; }
         public int StatusId { get; set; }
-        public int AttachmentId { get; set; }
         public bool IsVerified { get; set; }
         public bool IsJobAd { get; set; }
         public bool IsUrgentAd { get; set; }

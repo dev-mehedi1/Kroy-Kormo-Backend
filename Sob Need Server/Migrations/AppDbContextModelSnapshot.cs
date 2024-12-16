@@ -155,6 +155,9 @@ namespace Sob_Need_Server.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("RegionId")
                         .HasColumnType("integer");
 
@@ -250,9 +253,6 @@ namespace Sob_Need_Server.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ProductId"));
-
-                    b.Property<int>("AttachmentId")
-                        .HasColumnType("integer");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");

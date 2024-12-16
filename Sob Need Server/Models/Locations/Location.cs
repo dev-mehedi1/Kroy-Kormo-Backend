@@ -10,6 +10,7 @@ namespace Sob_Need_Server.Models.Locations
         public int? CityId { get; set; }
         public int? RegionId { get; set; }
         public int? StateId { get; set; }
+        public int ProductId { get; set; }
 
         [Required]
         public bool IsActive { get; set; } = true;
