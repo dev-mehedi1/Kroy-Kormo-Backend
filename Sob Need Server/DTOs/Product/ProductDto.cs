@@ -13,7 +13,6 @@ namespace Sob_Need_Server.DTOs.Product
         public string? Discount { get; set; }
         public int ConditionId { get; set; }
         public int CategoryId { get; set; }
-        public int LocationId { get; set; }
         public LocationDto Location { get; set; } = null!;
         public List<ImageDto> Images { get; set; } = null!;
         public int StatusId { get; set; }

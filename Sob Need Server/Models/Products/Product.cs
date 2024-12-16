@@ -11,7 +11,6 @@ namespace Sob_Need_Server.Models.Products
         public string? Discount { get; set; }
         public int ConditionId { get; set; }
         public int CategoryId { get; set; }
-        public int LocationId { get; set; }
         public int StatusId { get; set; }
         public bool IsVerified { get; set; }
         public bool IsJobAd { get; set; }
