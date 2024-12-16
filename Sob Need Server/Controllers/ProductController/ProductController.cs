@@ -16,33 +16,36 @@ namespace Sob_Need_Server.Controllers.ProductController
         [HttpGet]
         public async Task<ActionResult<ResponseDto<IEnumerable<ProductDto>>>> GetAllProducts()
         {
-            var products = await _productService.GetAllProductsAsync();
-            return Ok(new ResponseDto<IEnumerable<ProductDto>>(true, "Products retrieved successfully", products));
+            var response = await _productService.GetAllProductsAsync();
+            if (!response.IsSuccess)
+                return BadRequest(response);
+
+            return Ok(response);
         }
 
         // GET: api/product/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ResponseDto<ProductDto>>> GetProductById(int id)
         {
-            var product = await _productService.GetProductByIdAsync(id);
+            var response = await _productService.GetByIdAsync(id);
+            if (!response.IsSuccess)
+                return BadRequest(response);
 
-            if (product == null)
-            {
-                return NotFound(new ResponseDto<ProductDto>(false, "Product not found", null));
-            }
-
-            return Ok(new ResponseDto<ProductDto>(true, "Product retrieved successfully", product));
+            return Ok(response);
         }
 
         // POST: api/product
         [HttpPost]
         public async Task<ActionResult<ResponseDto<ProductDto>>> CreateProduct(ProductDto productDto)
         {
-            var createdProduct = await _productService.CreateProductAsync(productDto);
+            var response = await _productService.CreateAsync(productDto);
+            if (!response.IsSuccess)
+                return BadRequest( response);
+
             return CreatedAtAction(
                 nameof(GetProductById),
-                new { id = createdProduct.ProductId },
-                new ResponseDto<ProductDto>(true, "Product created successfully", createdProduct)
+                new { id = response.Data?.ProductId },
+                response
             );
         }
 
@@ -50,28 +53,11 @@ namespace Sob_Need_Server.Controllers.ProductController
         [HttpPut("{id}")]
         public async Task<ActionResult<ResponseDto<ProductDto>>> UpdateProduct(int id, ProductDto productDto)
         {
-            var updatedProduct = await _productService.UpdateProductAsync(id, productDto);
+            var response = await _productService.UpdateAsync(id, productDto);
+            if (!response.IsSuccess)
+                return BadRequest(response);
 
-            if (updatedProduct == null)
-            {
-                return NotFound(new ResponseDto<ProductDto>(false, "Product not found", null));
-            }
-
-            return Ok(new ResponseDto<ProductDto>(true, "Product updated successfully", updatedProduct));
-        }
-
-        // DELETE: api/product/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<ResponseDto<object>>> DeleteProduct(int id)
-        {
-            var success = await _productService.DeleteProductAsync(id);
-
-            if (!success)
-            {
-                return NotFound(new ResponseDto<object>(false, "Product not found", null));
-            }
-
-            return Ok(new ResponseDto<object>(true, "Product deleted successfully", null));
+            return Ok(response);
         }
     }
 }
