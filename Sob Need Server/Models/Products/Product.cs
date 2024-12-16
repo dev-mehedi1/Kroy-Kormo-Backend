@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sob_Need_Server.DTOs.Attachment;
+using Sob_Need_Server.Models.Attachment;
+using Sob_Need_Server.Models.Locations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Sob_Need_Server.Models.Products
 {

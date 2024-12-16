@@ -7,6 +7,8 @@ using Sob_Need_Server.Interface;
 using Sob_Need_Server.Models.Attachment;
 using Sob_Need_Server.Models.Locations;
 using Sob_Need_Server.Models.Products;
+using Sob_Need_Server.DTOs.Location;
+using Sob_Need_Server.DTOs.Attachment;
 
 namespace Sob_Need_Server.Services.ProductService
 {
@@ -19,15 +21,38 @@ namespace Sob_Need_Server.Services.ProductService
         {
             try
             {
-                var products = await _context.Products.ToListAsync();
-                var productDtos = _mapper.Map<IEnumerable<ProductDto>>(products);
-                return new ResponseDto<IEnumerable<ProductDto>>(true, "Products retrieved successfully", productDtos);
+                var products = await (from product in _context.Products
+                                      join location in _context.Locations
+                                      on product.ProductId equals location.ProductId into locationGroup
+                                      from loc in locationGroup.DefaultIfEmpty()
+                                      join attachment in _context.Attachments
+                                      on product.ProductId equals attachment.ProductId into attachmentGroup
+                                      select new ProductDto
+                                      {
+                                          ProductId = product.ProductId,
+                                          Title = product.Title,
+                                          Description = product.Description,
+                                          Price = product.Price,
+                                          Location = new LocationDto
+                                          {
+                                             AddressLine = loc.AddressLine,
+                                             CountryId =loc.CountryId,
+                                          },
+                                          Images = attachmentGroup.Select(a => new ImageDto
+                                          {
+                                              ImageUrl = a.ImageUrl,
+                                              AltName = a.AltName
+                                          }).ToList()
+                                      }).ToListAsync();
+
+                return new ResponseDto<IEnumerable<ProductDto>>(true, "Products retrieved successfully", products);
             }
             catch (Exception ex)
             {
                 return new ResponseDto<IEnumerable<ProductDto>>(false, ex.Message, null!);
             }
         }
+
 
         public async Task<ResponseDto<ProductDto>> GetByIdAsync(int id)
         {
