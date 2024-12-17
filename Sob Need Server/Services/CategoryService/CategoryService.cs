@@ -43,7 +43,7 @@ namespace Sob_Need_Server.Services.CategoryService
             }
         }
 
-        public Task<ResponseDto<bool>> DeleteAsync(int id)
+        public Task<ResponseDto<CategoryDto>> DeleteAsync(int id)
         {
             throw new NotImplementedException();
         }

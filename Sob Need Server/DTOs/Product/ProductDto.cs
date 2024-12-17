@@ -21,5 +21,6 @@ namespace Sob_Need_Server.DTOs.Product
         public bool IsDeliveryFree { get; set; }
         public bool IsTopAd { get; set; }
         public bool IsUrgentAd { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

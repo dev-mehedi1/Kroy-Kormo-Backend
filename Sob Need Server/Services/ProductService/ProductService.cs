@@ -33,6 +33,7 @@ namespace Sob_Need_Server.Services.ProductService
                                           Title = product.Title,
                                           Description = product.Description,
                                           Price = product.Price,
+                                          CreatedAt = product.CreatedAt,
                                           Location = new LocationDto
                                           {
                                              AddressLine = loc.AddressLine,
@@ -53,23 +54,6 @@ namespace Sob_Need_Server.Services.ProductService
             }
         }
 
-
-        public async Task<ResponseDto<ProductDto>> GetByIdAsync(int id)
-        {
-            try
-            {
-                var product = await _context.Products.FindAsync(id);
-                if (product == null)
-                    return new ResponseDto<ProductDto>(false, "Product not found", null!);
-
-                var productDto = _mapper.Map<ProductDto>(product);
-                return new ResponseDto<ProductDto>(true, "Product retrieved successfully", productDto);
-            }
-            catch (Exception ex)
-            {
-                return new ResponseDto<ProductDto>(false, ex.Message, null!);
-            }
-        }
 
         public async Task<ResponseDto<ProductDto>> CreateAsync(ProductDto productDto)
         {
@@ -141,6 +125,53 @@ namespace Sob_Need_Server.Services.ProductService
         }
 
         public Task<ResponseDto<bool>> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<ResponseDto<ProductDto>> GetByIdAsync(int id)
+        {
+            try
+            {
+                var productDto = await (from p in _context.Products
+                                        join location in _context.Locations
+                                        on p.ProductId equals location.ProductId into locationGroup
+                                        from loc in locationGroup.DefaultIfEmpty()
+                                        join attachment in _context.Attachments
+                                        on p.ProductId equals attachment.ProductId into attachmentGroup
+                                        where p.ProductId == id
+                                        select new ProductDto
+                                        {
+                                            ProductId = p.ProductId,
+                                            Title = p.Title,
+                                            Description = p.Description,
+                                            Price = p.Price,
+                                            CreatedAt = p.CreatedAt,
+                                            Location = new LocationDto 
+                                            {
+                                                AddressLine = loc.AddressLine,
+                                                CountryId = loc.CountryId
+                                            },
+                                            Images = attachmentGroup.Select(a => new ImageDto
+                                            {
+                                                ImageUrl = a.ImageUrl,
+                                                AltName = a.AltName
+                                            }).ToList()
+                                        }).FirstOrDefaultAsync();
+
+                if (productDto == null)
+                    return new ResponseDto<ProductDto>(false, "Product not found", null!);
+
+                return new ResponseDto<ProductDto>(true, "Product retrieved successfully", productDto);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto<ProductDto>(false, ex.Message, null!);
+            }
+        }
+
+
+        Task<ResponseDto<ProductDto>> IGenericService<ProductDto, int>.DeleteAsync(int id)
         {
             throw new NotImplementedException();
         }

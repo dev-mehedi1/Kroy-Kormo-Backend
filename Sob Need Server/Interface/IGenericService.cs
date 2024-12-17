@@ -7,6 +7,6 @@ namespace Sob_Need_Server.Interface
         Task<ResponseDto<T>> GetByIdAsync(TKey id);
         Task<ResponseDto<T>> CreateAsync(T entity);
         Task<ResponseDto<T>> UpdateAsync(TKey id, T entity);
-        Task<ResponseDto<bool>> DeleteAsync(TKey id);
+        Task<ResponseDto<T>> DeleteAsync(TKey id);
     }
 }
