@@ -28,7 +28,7 @@ namespace Sob_Need_Server.Controllers.ProductController
         }
 
         // GET: api/product/5
-        [HttpGet("{id}")]
+        [HttpGet("byid/{id}")]
         public async Task<ActionResult<ResponseDto<ProductDto>>> GetProductById(int id)
         {
             var response = await _productService.GetByIdAsync(id);
@@ -62,6 +62,16 @@ namespace Sob_Need_Server.Controllers.ProductController
                 return BadRequest(response);
 
             return Ok(response);
+        }
+
+        // Get Product by using slug
+        [HttpGet("{slug}")]
+        public async Task<ActionResult<ResponseDto<ProductDto>>> GetProductBySlug(string slug)
+        {
+            var resonse = await _productService.GetProductBySlugAsync(slug);
+            if (!resonse.IsSuccess) BadRequest(resonse);
+            return Ok(resonse);
+            
         }
     }
 }

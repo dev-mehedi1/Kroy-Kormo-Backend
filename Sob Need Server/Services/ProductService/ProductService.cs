@@ -9,6 +9,8 @@ using Sob_Need_Server.Models.Locations;
 using Sob_Need_Server.Models.Products;
 using Sob_Need_Server.DTOs.Location;
 using Sob_Need_Server.DTOs.Attachment;
+using Sob_Need_Server.Utils.Helpers;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Sob_Need_Server.Services.ProductService
 {
@@ -94,6 +96,7 @@ namespace Sob_Need_Server.Services.ProductService
                     Description = x.product.Description,
                     Price = x.product.Price,
                     CreatedAt = x.product.CreatedAt,
+                    Slug = x.product.Slug,
                     CategoryName = x.category.CategoryName,
                     Location = x.loc != null ? new LocationDto
                     {
@@ -117,16 +120,18 @@ namespace Sob_Need_Server.Services.ProductService
             }
         }
 
-
-
-
-
         public async Task<ResponseDto<ProductDto>> CreateAsync(ProductDto productDto)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                //Check is already exist slug
+                var existSlug = await _context.Categories.AnyAsync(x => x.Slug == productDto.Slug);
+                if (existSlug) return new ResponseDto<ProductDto>(false, "A product with the same slug already exists.", null!);
+
                 var product = _mapper.Map<Product>(productDto);
+                var slug = StringUtilities.GenerateSlug(product.Slug);
+                product.Slug = slug;
 
                 // Handle Location
                 if (productDto.Location != null)
@@ -240,6 +245,47 @@ namespace Sob_Need_Server.Services.ProductService
         Task<ResponseDto<ProductDto>> IGenericService<ProductDto, int>.DeleteAsync(int id)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<ResponseDto<ProductDto>> GetProductBySlugAsync(string Slug)
+        {
+            try
+            {
+                var productDto = await (from p in _context.Products
+                                        join location in _context.Locations
+                                        on p.ProductId equals location.ProductId into locationGroup
+                                        from loc in locationGroup.DefaultIfEmpty()
+                                        join attachment in _context.Attachments
+                                        on p.ProductId equals attachment.ProductId into attachmentGroup
+                                        where p.Slug == Slug
+                                        select new ProductDto
+                                        {
+                                            ProductId = p.ProductId,
+                                            Title = p.Title,
+                                            Description = p.Description,
+                                            Price = p.Price,
+                                            CreatedAt = p.CreatedAt,
+                                            Slug= p.Slug,
+                                            Location = new LocationDto
+                                            {
+                                                AddressLine = loc.AddressLine,
+                                                CountryId = loc.CountryId
+                                            },
+                                            Images = attachmentGroup.Select(a => new ImageDto
+                                            {
+                                                ImageUrl = a.ImageUrl,
+                                                AltName = a.AltName
+                                            }).ToList()
+                                        }).FirstOrDefaultAsync();
+
+                if (productDto == null) return new ResponseDto<ProductDto>(false, "Product not found", null!);
+
+                return new ResponseDto<ProductDto>(true, "Product retrieved successfully", productDto);
+            }
+            catch(Exception ex)
+            {
+                return new ResponseDto<ProductDto>(false, $"{ex.Message}", null!);
+            }
         }
     }
 }
