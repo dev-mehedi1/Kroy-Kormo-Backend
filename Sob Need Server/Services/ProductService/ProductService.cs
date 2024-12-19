@@ -17,11 +17,34 @@ namespace Sob_Need_Server.Services.ProductService
         private readonly AppDbContext _context = context;
         private readonly IMapper _mapper = mapper;
 
+
         public async Task<ResponseDto<IEnumerable<ProductDto>>> GetAllProductsAsync(ProductFilterDto filters)
         {
             try
             {
-                // Base query to fetch raw data
+                // If CategorySlug is provided, fetch the category and its subcategories
+                List<int> categoryIds = new();
+                if (!string.IsNullOrWhiteSpace(filters.CategorySlug))
+                {
+                    var category = await _context.Categories
+                        .FirstOrDefaultAsync(c => c.Slug == filters.CategorySlug);
+
+                    if (category == null)
+                    {
+                        return new ResponseDto<IEnumerable<ProductDto>>(false, "Category not found", null!);
+                    }
+
+                    // Fetch subcategories of the specified category
+                    var subCategoryIds = await _context.Categories
+                        .Where(c => c.ParentCategoryId == category.CategoryId)
+                        .Select(c => c.CategoryId)
+                        .ToListAsync();
+
+                    categoryIds.Add(category.CategoryId);
+                    categoryIds.AddRange(subCategoryIds);
+                }
+
+                // Base query to fetch products
                 var query = from product in _context.Products
                             join location in _context.Locations
                             on product.ProductId equals location.ProductId into locationGroup
@@ -36,9 +59,9 @@ namespace Sob_Need_Server.Services.ProductService
                             };
 
                 // Apply filters
-                if (filters.CategoryId.HasValue)
+                if (categoryIds.Any())
                 {
-                    query = query.Where(x => x.product.CategoryId == filters.CategoryId.Value);
+                    query = query.Where(x => categoryIds.Contains(x.product.CategoryId));
                 }
 
                 if (!string.IsNullOrWhiteSpace(filters.SearchText))
@@ -55,17 +78,15 @@ namespace Sob_Need_Server.Services.ProductService
                         : query.OrderByDescending(x => x.product.CreatedAt);
                 }
 
-                // Apply pagination
                 if (filters.Page.HasValue && filters.PageSize.HasValue)
                 {
                     var skip = (filters.Page.Value - 1) * filters.PageSize.Value;
                     query = query.Skip(skip).Take(filters.PageSize.Value);
                 }
 
-                // Execute the query and fetch data
+                // Execute query and process the data
                 var rawData = await query.ToListAsync();
 
-                // Process attachments (client-side processing)
                 var products = rawData.Select(x => new ProductDto
                 {
                     ProductId = x.product.ProductId,
@@ -95,6 +116,7 @@ namespace Sob_Need_Server.Services.ProductService
                 return new ResponseDto<IEnumerable<ProductDto>>(false, ex.Message, null!);
             }
         }
+
 
 
 

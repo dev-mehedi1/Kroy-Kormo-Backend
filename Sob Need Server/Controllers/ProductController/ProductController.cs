@@ -12,7 +12,11 @@ namespace Sob_Need_Server.Controllers.ProductController
     {
         private readonly IProductService _productService = productService;
 
-        // GET: api/product
+      /// <summary>
+      /// Get All products with filters
+      /// </summary>
+      /// <param name="Filters"></param>
+      /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult<ResponseDto<IEnumerable<ProductDto>>>> GetAllProducts([FromQuery] ProductFilterDto Filters)
         {

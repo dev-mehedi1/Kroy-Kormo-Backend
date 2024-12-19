@@ -5,6 +5,7 @@ using Sob_Need_Server.DTOs.Category;
 using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.Interface;
 using Sob_Need_Server.Models.Categories;
+using Sob_Need_Server.Utils.Helpers;
 
 namespace Sob_Need_Server.Services.CategoryService
 {
@@ -26,13 +27,27 @@ namespace Sob_Need_Server.Services.CategoryService
                     return new ResponseDto<CategoryDto>(false, "Category name already exists.", null!);
                 }
 
+                // Generate slug from the category name
+                string slug = StringUtilities.GenerateSlug(entity.CategoryName);
+
+                // Check if the slug already exists
+                bool slugExists = await _context.Categories.AnyAsync(x => x.Slug == slug);
+                if (slugExists)
+                {
+                    return new ResponseDto<CategoryDto>(false, "A category with the same slug already exists.", null!);
+                }
+
                 // Map DTO to Entity
                 var categoryEntity = _mapper.Map<Category>(entity);
+
+                // Assign the generated slug to the entity
+                categoryEntity.Slug = slug;
 
                 // Add to the database and save changes
                 await _context.Categories.AddAsync(categoryEntity);
                 await _context.SaveChangesAsync();
 
+                // Map back to DTO for the response
                 var categoryDto = _mapper.Map<CategoryDto>(categoryEntity);
 
                 return new ResponseDto<CategoryDto>(true, "Category created successfully.", categoryDto);
@@ -42,6 +57,7 @@ namespace Sob_Need_Server.Services.CategoryService
                 return new ResponseDto<CategoryDto>(false, $"An error occurred: {ex.Message}", null!);
             }
         }
+
 
         public Task<ResponseDto<CategoryDto>> DeleteAsync(int id)
         {

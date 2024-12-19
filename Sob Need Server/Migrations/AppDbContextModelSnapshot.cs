@@ -85,6 +85,10 @@ namespace Sob_Need_Server.Migrations
                     b.Property<int?>("ParentCategoryId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 

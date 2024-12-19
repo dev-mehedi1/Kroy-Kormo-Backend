@@ -14,6 +14,7 @@ namespace Sob_Need_Server.DTOs.Product
         public int ConditionId { get; set; }
         public int CategoryId { get; set; }
         public string? CategoryName{ get; set; }
+        public string? ParentCategoryName { get; set; }
         public LocationDto Location { get; set; } = null!;
         public List<ImageDto> Images { get; set; } = null!;
         public int StatusId { get; set; }
