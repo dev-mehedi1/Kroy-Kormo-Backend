@@ -17,34 +17,76 @@ namespace Sob_Need_Server.Services.ProductService
         private readonly AppDbContext _context = context;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<ResponseDto<IEnumerable<ProductDto>>> GetAllProductsAsync()
+        public async Task<ResponseDto<IEnumerable<ProductDto>>> GetAllProductsAsync(ProductFilterDto filters)
         {
             try
             {
-                var products = await (from product in _context.Products
-                                      join location in _context.Locations
-                                      on product.ProductId equals location.ProductId into locationGroup
-                                      from loc in locationGroup.DefaultIfEmpty()
-                                      join attachment in _context.Attachments
-                                      on product.ProductId equals attachment.ProductId into attachmentGroup
-                                      select new ProductDto
-                                      {
-                                          ProductId = product.ProductId,
-                                          Title = product.Title,
-                                          Description = product.Description,
-                                          Price = product.Price,
-                                          CreatedAt = product.CreatedAt,
-                                          Location = new LocationDto
-                                          {
-                                             AddressLine = loc.AddressLine,
-                                             CountryId =loc.CountryId,
-                                          },
-                                          Images = attachmentGroup.Select(a => new ImageDto
-                                          {
-                                              ImageUrl = a.ImageUrl,
-                                              AltName = a.AltName
-                                          }).ToList()
-                                      }).ToListAsync();
+                // Base query to fetch raw data
+                var query = from product in _context.Products
+                            join location in _context.Locations
+                            on product.ProductId equals location.ProductId into locationGroup
+                            from loc in locationGroup.DefaultIfEmpty()
+                            join category in _context.Categories
+                            on product.CategoryId equals category.CategoryId
+                            select new
+                            {
+                                product,
+                                loc,
+                                category
+                            };
+
+                // Apply filters
+                if (filters.CategoryId.HasValue)
+                {
+                    query = query.Where(x => x.product.CategoryId == filters.CategoryId.Value);
+                }
+
+                if (!string.IsNullOrWhiteSpace(filters.SearchText))
+                {
+                    query = query.Where(x =>
+                        x.product.Title.Contains(filters.SearchText) ||
+                        x.product.Description.Contains(filters.SearchText));
+                }
+
+                if (filters.OrderByAsc.HasValue)
+                {
+                    query = filters.OrderByAsc.Value
+                        ? query.OrderBy(x => x.product.CreatedAt)
+                        : query.OrderByDescending(x => x.product.CreatedAt);
+                }
+
+                // Apply pagination
+                if (filters.Page.HasValue && filters.PageSize.HasValue)
+                {
+                    var skip = (filters.Page.Value - 1) * filters.PageSize.Value;
+                    query = query.Skip(skip).Take(filters.PageSize.Value);
+                }
+
+                // Execute the query and fetch data
+                var rawData = await query.ToListAsync();
+
+                // Process attachments (client-side processing)
+                var products = rawData.Select(x => new ProductDto
+                {
+                    ProductId = x.product.ProductId,
+                    Title = x.product.Title,
+                    Description = x.product.Description,
+                    Price = x.product.Price,
+                    CreatedAt = x.product.CreatedAt,
+                    CategoryName = x.category.CategoryName,
+                    Location = x.loc != null ? new LocationDto
+                    {
+                        AddressLine = x.loc.AddressLine,
+                        CountryId = x.loc.CountryId
+                    } : null!,
+                    Images = _context.Attachments
+                        .Where(a => a.ProductId == x.product.ProductId)
+                        .Select(a => new ImageDto
+                        {
+                            ImageUrl = a.ImageUrl,
+                            AltName = a.AltName
+                        }).ToList()
+                }).ToList();
 
                 return new ResponseDto<IEnumerable<ProductDto>>(true, "Products retrieved successfully", products);
             }
@@ -53,6 +95,8 @@ namespace Sob_Need_Server.Services.ProductService
                 return new ResponseDto<IEnumerable<ProductDto>>(false, ex.Message, null!);
             }
         }
+
+
 
 
         public async Task<ResponseDto<ProductDto>> CreateAsync(ProductDto productDto)

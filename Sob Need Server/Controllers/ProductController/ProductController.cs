@@ -14,9 +14,9 @@ namespace Sob_Need_Server.Controllers.ProductController
 
         // GET: api/product
         [HttpGet]
-        public async Task<ActionResult<ResponseDto<IEnumerable<ProductDto>>>> GetAllProducts()
+        public async Task<ActionResult<ResponseDto<IEnumerable<ProductDto>>>> GetAllProducts([FromQuery] ProductFilterDto Filters)
         {
-            var response = await _productService.GetAllProductsAsync();
+            var response = await _productService.GetAllProductsAsync(Filters);
             if (!response.IsSuccess)
                 return BadRequest(response);
 
