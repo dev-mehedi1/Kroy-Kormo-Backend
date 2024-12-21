@@ -5,7 +5,7 @@
         // Generate slug 
         public static string GenerateSlug(string slug)
         {
-            if (!string.IsNullOrEmpty(slug)) return string.Empty;
+            if (string.IsNullOrEmpty(slug)) return string.Empty;
             return slug
                 .ToLower()
                 .Replace(" ", "-")
