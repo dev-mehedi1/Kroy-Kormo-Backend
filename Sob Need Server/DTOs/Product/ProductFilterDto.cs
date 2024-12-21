@@ -7,5 +7,7 @@
         public string? SearchText { get; set; }
         public bool? OrderByAsc { get; set; }
         public string? CategorySlug{ get; set; }
+        public bool? IsTop{ get; set; }
+        public bool? IsArgent{ get; set; }
     }
 }

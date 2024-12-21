@@ -73,12 +73,26 @@ namespace Sob_Need_Server.Services.ProductService
                         x.product.Description.Contains(filters.SearchText));
                 }
 
+                // Is Argent
+                if (filters.IsArgent.HasValue)
+                {
+                    query = query.Where(x => x.product.IsUrgentAd == filters.IsArgent);
+                }
+
+                // Is top ads
+                if (filters.IsTop.HasValue)
+                {
+                    query = query.Where(x => x.product.IsTopAd == filters.IsTop);
+                }
+
                 if (filters.OrderByAsc.HasValue)
                 {
                     query = filters.OrderByAsc.Value
                         ? query.OrderBy(x => x.product.CreatedAt)
                         : query.OrderByDescending(x => x.product.CreatedAt);
                 }
+                // Total count before paging
+                var totalCount = await query.CountAsync();
 
                 if (filters.Page.HasValue && filters.PageSize.HasValue)
                 {
@@ -112,7 +126,10 @@ namespace Sob_Need_Server.Services.ProductService
                         }).ToList()
                 }).ToList();
 
-                return new ResponseDto<IEnumerable<ProductDto>>(true, "Products retrieved successfully", products);
+                return new ResponseDto<IEnumerable<ProductDto>>(true, "Products retrieved successfully", products)
+                {
+                    TotalCount = totalCount // total count add here
+                };
             }
             catch (Exception ex)
             {
@@ -154,6 +171,7 @@ namespace Sob_Need_Server.Services.ProductService
                         {
                             ImageUrl = imageDto.ImageUrl,
                             AltName = imageDto.AltName,
+                            ProductId = product.ProductId,
                             CreatedAt = DateTime.UtcNow,
                             IsActive = true
                         };
