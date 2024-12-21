@@ -228,6 +228,7 @@ namespace Sob_Need_Server.Services.ProductService
                                         from loc in locationGroup.DefaultIfEmpty()
                                         join attachment in _context.Attachments
                                         on p.ProductId equals attachment.ProductId into attachmentGroup
+                                        join category in _context.Categories on p.CategoryId equals category.CategoryId
                                         where p.ProductId == id
                                         select new ProductDto
                                         {
@@ -235,6 +236,10 @@ namespace Sob_Need_Server.Services.ProductService
                                             Title = p.Title,
                                             Description = p.Description,
                                             Price = p.Price,
+                                            IsDeliveryFree = p.IsDeliveryFree,
+                                            CategoryName = category.CategoryName,
+                                            IsTopAd = p.IsTopAd,
+                                            IsJobAd = p.IsJobAd,
                                             CreatedAt = p.CreatedAt,
                                             Location = new LocationDto 
                                             {
