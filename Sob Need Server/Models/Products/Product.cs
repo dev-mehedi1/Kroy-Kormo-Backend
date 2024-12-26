@@ -17,6 +17,7 @@
         public bool IsDeliveryFree { get; set; }
         public string Slug { get; set; } = null!;
         public bool IsTopAd { get; set; }
+        public bool IsSell { get; set; }
         public bool IsActive { get; set; } = true;
         public string? CreatedBy { get; set; }
         public string? UpdatedBy { get; set; }

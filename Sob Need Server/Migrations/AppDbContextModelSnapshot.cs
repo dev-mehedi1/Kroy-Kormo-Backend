@@ -60,6 +60,33 @@ namespace Sob_Need_Server.Migrations
                     b.ToTable("Attachments");
                 });
 
+            modelBuilder.Entity("Sob_Need_Server.Models.Authentication.User", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("Sob_Need_Server.Models.Categories.Category", b =>
                 {
                     b.Property<int>("CategoryId")
@@ -325,6 +352,9 @@ namespace Sob_Need_Server.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsJobAd")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSell")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsTopAd")

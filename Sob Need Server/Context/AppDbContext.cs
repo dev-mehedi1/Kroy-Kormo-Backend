@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sob_Need_Server.Models.Attachment;
+using Sob_Need_Server.Models.Authentication;
 using Sob_Need_Server.Models.Categories;
 using Sob_Need_Server.Models.Locations;
 using Sob_Need_Server.Models.Products;
@@ -20,5 +21,6 @@ namespace Sob_Need_Server.Context
         public DbSet<Region> Regions { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }

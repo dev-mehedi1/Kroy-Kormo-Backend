@@ -111,6 +111,7 @@ namespace Sob_Need_Server.Services.ProductService
                     Price = x.product.Price,
                     CreatedAt = x.product.CreatedAt,
                     Slug = x.product.Slug,
+                    IsSell = x.product.IsSell,
                     CategoryName = x.category.CategoryName,
                     Location = x.loc != null ? new LocationDto
                     {
@@ -149,6 +150,7 @@ namespace Sob_Need_Server.Services.ProductService
                 var product = _mapper.Map<Product>(productDto);
                 var slug = StringUtilities.GenerateSlug(product.Slug);
                 product.Slug = slug;
+                product.IsSell = false;
 
                 // Handle Location
                 if (productDto.Location != null)
