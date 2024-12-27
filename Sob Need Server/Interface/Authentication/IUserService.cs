@@ -6,5 +6,6 @@ namespace Sob_Need_Server.Interface.Authentication
     public interface IUserService
     {
         public Task<ResponseDto<UserDto>> RegistrationAsync(UserDto entity);
+        public Task<ResponseDto<UserDto>> LoginAsync(string UserName, string Password);
     }
 }

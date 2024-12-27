@@ -11,7 +11,9 @@ namespace Sob_Need_Server.Controllers.Authentication
     public class UserController(IUserService userService) : ControllerBase
     {
         private readonly IUserService _userService = userService;
-        [HttpPost]
+
+        // Registratin user controller
+        [HttpPost("register")]
         public async Task<ActionResult<ResponseDto<UserDto>>> Registration (UserDto userDto)
         {
             var response =  await _userService.RegistrationAsync(userDto);
@@ -19,6 +21,15 @@ namespace Sob_Need_Server.Controllers.Authentication
             return BadRequest(response);
         }
 
-        
+        // Login user controller
+        [HttpPost("login")]
+        public async Task<ActionResult<ResponseDto<UserDto>>> Login(string UserName , string Password)
+        {
+            var response = await _userService.LoginAsync(UserName, Password);
+            if (response.IsSuccess) return Ok(response);
+            return BadRequest(response);
+        }
+
+
     }
 }

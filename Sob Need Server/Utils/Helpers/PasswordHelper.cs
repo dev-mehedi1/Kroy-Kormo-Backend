@@ -4,6 +4,7 @@ namespace Sob_Need_Server.Utils.Helpers
 {
     public class PasswordHelper
     {
+        // Create a PasswordHasher object for the type of user you're working with (e.g., User)
         private static readonly PasswordHasher<object> PasswordHasher = new();
 
         /// <summary>
@@ -13,10 +14,9 @@ namespace Sob_Need_Server.Utils.Helpers
         /// <returns>The hashed password.</returns>
         public static string GenerateHashedPassword(string password)
         {
+
             return PasswordHasher.HashPassword(null!, password);
-
         }
-
 
         /// <summary>
         /// Verifies a hashed password with a provided plain text password.
@@ -24,16 +24,12 @@ namespace Sob_Need_Server.Utils.Helpers
         /// <param name="hashedPassword">The stored hashed password.</param>
         /// <param name="plainPassword">The plain text password to verify.</param>
         /// <returns>True if the password matches; otherwise, false.</returns>
-        /// 
-       
         public static bool VerifyPassword(string hashedPassword, string plainPassword)
         {
-           var result = PasswordHasher.VerifyHashedPassword(null!, hashedPassword, plainPassword);
+            // Verify the hashed password using the plain password
+            var result = PasswordHasher.VerifyHashedPassword(null!, hashedPassword, plainPassword);
 
-           return result == PasswordVerificationResult.Success;
+            return result == PasswordVerificationResult.Success;
         }
-
-
-
     }
 }

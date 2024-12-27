@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.Authentication;
 using Sob_Need_Server.DTOs.Common;
@@ -9,11 +10,38 @@ using Sob_Need_Server.Utils.Helpers;
 
 namespace Sob_Need_Server.Services.Authentication
 {
-    public class UserService (AppDbContext dbContext, IConfiguration configuration, IMapper mapper) : IUserService
+    public class UserService (AppDbContext dbContext, IConfiguration configuration, TokenHelper tokenHelper, IMapper mapper) : IUserService
     {
         public readonly AppDbContext _context = dbContext;
         public readonly IMapper _mapper = mapper;
         public readonly IConfiguration _configuration = configuration;
+        private readonly TokenHelper _tokenHelper = tokenHelper;
+
+
+        public async Task<ResponseDto<UserDto>> LoginAsync(string UserName, string Password)
+        {
+            try
+            {
+                // CHeck User is exist
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == UserName);
+                if (user == null) return new ResponseDto<UserDto>(false, "User not exist using this user name", null!);
+
+                // Verify password
+                var isPasswordValid = PasswordHelper.VerifyPassword(user.Password ,Password);
+                if (!isPasswordValid) return new ResponseDto<UserDto>(false, "Invalid password", null!);
+
+                // Generate JWT token
+                var token = _tokenHelper.GenerateJwtToken(user);
+                // Map user to UserDto
+                var userDto = _mapper.Map<UserDto>(user);
+                userDto.Token = token;
+                return new ResponseDto<UserDto>(true, "Login successful", userDto);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto<UserDto>(false, ex.Message, null!);
+            }
+        }
 
         public async Task<ResponseDto<UserDto>> RegistrationAsync(UserDto entity)
         {
