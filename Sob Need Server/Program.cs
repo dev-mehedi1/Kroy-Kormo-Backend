@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.Interface;
+using Sob_Need_Server.Interface.Authentication;
 using Sob_Need_Server.Mappings;
+using Sob_Need_Server.Services.Authentication;
 using Sob_Need_Server.Services.CategoryService;
 using Sob_Need_Server.Services.ProductService;
 
@@ -22,6 +24,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfile)); // Register AutoMapper
 // Register ProductService
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Add CORS policy
 builder.Services.AddCors(options =>

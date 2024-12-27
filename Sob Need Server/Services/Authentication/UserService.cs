@@ -9,7 +9,7 @@ using Sob_Need_Server.Utils.Helpers;
 
 namespace Sob_Need_Server.Services.Authentication
 {
-    public class AuthService (AppDbContext dbContext, IConfiguration configuration, IMapper mapper) : IUserService
+    public class UserService (AppDbContext dbContext, IConfiguration configuration, IMapper mapper) : IUserService
     {
         public readonly AppDbContext _context = dbContext;
         public readonly IMapper _mapper = mapper;
