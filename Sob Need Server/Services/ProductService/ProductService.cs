@@ -11,13 +11,16 @@ using Sob_Need_Server.DTOs.Location;
 using Sob_Need_Server.DTOs.Attachment;
 using Sob_Need_Server.Utils.Helpers;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.AspNetCore.SignalR;
+using Sob_Need_Server.SignalR;
 
 namespace Sob_Need_Server.Services.ProductService
 {
-    public class ProductService(AppDbContext context, IMapper mapper) : IProductService
+    public class ProductService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext) : IProductService
     {
         private readonly AppDbContext _context = context;
         private readonly IMapper _mapper = mapper;
+        private readonly IHubContext<NotificationHub> _hubContext = hubContext;
 
 
         public async Task<ResponseDto<IEnumerable<ProductDto>>> GetAllProductsAsync(ProductFilterDto filters)
@@ -183,6 +186,11 @@ namespace Sob_Need_Server.Services.ProductService
                 }
 
                 await transaction.CommitAsync();
+
+                // send notification 
+                // Create a notification message
+                string notificationMessage = $"Product '{product.Title}' was created at {DateTime.UtcNow}.";
+                await _hubContext.Clients.All.SendAsync(notificationMessage);
 
                 var createdProductDto = _mapper.Map<ProductDto>(product);
                 return new ResponseDto<ProductDto>(true, "Product created successfully", createdProductDto);

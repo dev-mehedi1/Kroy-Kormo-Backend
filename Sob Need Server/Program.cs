@@ -7,6 +7,7 @@ using Sob_Need_Server.Mappings;
 using Sob_Need_Server.Services.Authentication;
 using Sob_Need_Server.Services.CategoryService;
 using Sob_Need_Server.Services.ProductService;
+using Sob_Need_Server.SignalR;
 using Sob_Need_Server.Utils.Helpers;
 using System.Text;
 
@@ -16,6 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+// Add services to the container.
+builder.Services.AddSignalR(); 
 
 // Register db context
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -47,16 +50,32 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<TokenHelper>();
 
 
-// Add CORS policy
+//// Add CORS policy
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowLocalhost", policy =>
+//    {
+//        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+//    });
+//});
+
+
+
+// Update CORS policy to allow credentials
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost", policy =>
     {
-        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        // Specify the exact origin (don't use '*')
+        policy.WithOrigins("http://localhost:5173")  // Vue.js running on localhost:5173
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();  // Allow credentials (cookies, authorization headers, etc.)
     });
 });
 
 var app = builder.Build();
+app.UseCors("AllowLocalhost");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -71,6 +90,8 @@ app.UseHttpsRedirection();
 app.UseCors("AllowLocalhost");
 
 app.UseAuthorization();
+// SignalR Configure
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.MapControllers();
 app.UseAuthentication();
