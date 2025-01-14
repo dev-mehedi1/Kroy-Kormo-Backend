@@ -3,9 +3,11 @@ using Microsoft.IdentityModel.Tokens;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.Interface;
 using Sob_Need_Server.Interface.Authentication;
+using Sob_Need_Server.Interface.Notification;
 using Sob_Need_Server.Mappings;
 using Sob_Need_Server.Services.Authentication;
 using Sob_Need_Server.Services.CategoryService;
+using Sob_Need_Server.Services.Notifications;
 using Sob_Need_Server.Services.ProductService;
 using Sob_Need_Server.SignalR;
 using Sob_Need_Server.Utils.Helpers;
@@ -47,6 +49,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfile)); // Register AutoMapper
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<TokenHelper>();
 
 

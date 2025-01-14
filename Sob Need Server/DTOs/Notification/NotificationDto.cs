@@ -2,8 +2,9 @@
 {
     public class NotificationDto
     {
+        public int NotificationId { get; set; }
         public string Title { get; set; } = null!;
         public string Message { get; set; } = null!;
-        public DateTime Time { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }
