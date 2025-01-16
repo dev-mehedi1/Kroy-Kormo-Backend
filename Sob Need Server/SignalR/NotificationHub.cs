@@ -71,7 +71,7 @@ namespace Sob_Need_Server.SignalR
         // Send a message to a specific group
         public async Task SendMessageToGroup(string groupName, NotificationDto notificationDto)
         {
-            await Clients.Group(groupName).SendAsync("ReceiveGroupMessage", notificationDto);
+            await Clients.Group(groupName).SendAsync("ReceiveNotification", notificationDto);
         }
     }
 }
