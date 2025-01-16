@@ -339,6 +339,48 @@ namespace Sob_Need_Server.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("Sob_Need_Server.Models.Notifications.GroupMembers", b =>
+                {
+                    b.Property<int>("GroupMembersId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("GroupMembersId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("GroupMembersId");
+
+                    b.ToTable("GroupMembers");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Notifications.NotificationGroup", b =>
+                {
+                    b.Property<int>("NotificationGroupId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("NotificationGroupId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GroupName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("NotificationGroupId");
+
+                    b.ToTable("NotificationGroup");
+                });
+
             modelBuilder.Entity("Sob_Need_Server.Models.Products.Product", b =>
                 {
                     b.Property<int>("ProductId")

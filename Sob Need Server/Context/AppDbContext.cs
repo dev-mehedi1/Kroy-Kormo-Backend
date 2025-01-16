@@ -4,6 +4,7 @@ using Sob_Need_Server.Models.Authentication;
 using Sob_Need_Server.Models.Categories;
 using Sob_Need_Server.Models.Locations;
 using Sob_Need_Server.Models.Notification;
+using Sob_Need_Server.Models.Notifications;
 using Sob_Need_Server.Models.Products;
 
 namespace Sob_Need_Server.Context
@@ -24,5 +25,7 @@ namespace Sob_Need_Server.Context
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<NotificationGroup> NotificationGroup { get; set; }
+        public DbSet<GroupMembers> GroupMembers { get; set; }
     }
 }

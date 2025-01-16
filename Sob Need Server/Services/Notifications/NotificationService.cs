@@ -14,6 +14,40 @@ namespace Sob_Need_Server.Services.Notifications
         private readonly AppDbContext _context = context;
         private readonly IMapper _mapper = mapper;
         private readonly IHubContext<NotificationHub> _hubContext = hubContext;
+        //public async Task<ResponseDto<NotificationDto>> CreateAsync(NotificationDto entity)
+        //{
+        //    try
+        //    {
+        //        // Map DTO to Entity
+        //        var notificationEntity = _mapper.Map<Notification>(entity);
+        //        notificationEntity.CreatedAt = DateTime.UtcNow;
+
+        //        await _context.Notifications.AddAsync(notificationEntity);
+        //        await _context.SaveChangesAsync();
+
+        //        var notificationDto = _mapper.Map<NotificationDto>(notificationEntity);
+        //        // for testing token user 
+        //        //var userId = "65c8bed2-dbcb-4044-a6ef-050935f542aa";
+        //        var groupName = "sample";
+        //        //await _hubContext.Clients.User(userId)
+        //        //   .SendAsync("ReceiveNotification", notificationDto);
+
+        //        // Send notification to a group if groupName is provided
+        //        if (!string.IsNullOrEmpty(groupName))
+        //        {
+        //            await _hubContext.Clients.Group(groupName)
+        //                .SendAsync("ReceiveNotification", notificationDto);
+        //        }
+
+
+        //        return new ResponseDto<NotificationDto>(true, $"Notification Created Successful", notificationDto);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //       return new ResponseDto<NotificationDto>(false, $"{ex.Message}", null!);
+        //    }
+        //}
+
         public async Task<ResponseDto<NotificationDto>> CreateAsync(NotificationDto entity)
         {
             try
@@ -26,11 +60,8 @@ namespace Sob_Need_Server.Services.Notifications
                 await _context.SaveChangesAsync();
 
                 var notificationDto = _mapper.Map<NotificationDto>(notificationEntity);
-                // for testing token user 
-                //var userId = "65c8bed2-dbcb-4044-a6ef-050935f542aa";
+
                 var groupName = "sample";
-                //await _hubContext.Clients.User(userId)
-                //   .SendAsync("ReceiveNotification", notificationDto);
 
                 // Send notification to a group if groupName is provided
                 if (!string.IsNullOrEmpty(groupName))
@@ -44,7 +75,7 @@ namespace Sob_Need_Server.Services.Notifications
             }
             catch (Exception ex)
             {
-               return new ResponseDto<NotificationDto>(false, $"{ex.Message}", null!);
+                return new ResponseDto<NotificationDto>(false, $"{ex.Message}", null!);
             }
         }
 
