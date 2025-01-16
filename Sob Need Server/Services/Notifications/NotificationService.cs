@@ -28,8 +28,16 @@ namespace Sob_Need_Server.Services.Notifications
                 var notificationDto = _mapper.Map<NotificationDto>(notificationEntity);
                 // for testing token user 
                 var userId = "65c8bed2-dbcb-4044-a6ef-050935f542aa";
+                var groupName = "sample";
                 await _hubContext.Clients.User(userId)
                    .SendAsync("ReceiveNotification", notificationDto);
+
+                // Send notification to a group if groupName is provided
+                if (!string.IsNullOrEmpty(groupName))
+                {
+                    await _hubContext.Clients.Group(groupName)
+                        .SendAsync("ReceiveGroupNotification", notificationDto);
+                }
 
 
                 return new ResponseDto<NotificationDto>(true, $"Notification Created Successful", notificationDto);

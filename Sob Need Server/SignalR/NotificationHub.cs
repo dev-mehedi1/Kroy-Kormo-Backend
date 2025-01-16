@@ -13,7 +13,7 @@ namespace Sob_Need_Server.SignalR
             var userId = Context.UserIdentifier; // Assuming you use UserIdentifier
             if (!string.IsNullOrEmpty(userId))
             {
-                Console.WriteLine("User Connected" + userId);
+                Console.WriteLine("User Connected:" + userId);
                 UserConnections[userId] = Context.ConnectionId;
             }
 
@@ -38,6 +38,40 @@ namespace Sob_Need_Server.SignalR
             {
                 await Clients.Client(connectionId).SendAsync("ReceiveNotification", notificationDto);
             }
+        }
+
+        // Dynamically join a group using groupName and userId
+        public async Task JoinGroup(string groupName, string userId)
+        {
+            if (UserConnections.TryGetValue(userId, out var connectionId))
+            {
+                await Groups.AddToGroupAsync(connectionId, groupName);
+                Console.WriteLine($"User {userId} (Connection: {connectionId}) joined group {groupName}");
+            }
+            else
+            {
+                Console.WriteLine($"User {userId} is not connected. Unable to join group {groupName}.");
+            }
+        }
+
+        // Leave a group
+        public async Task LeaveGroup(string groupName, string userId)
+        {
+            if (UserConnections.TryGetValue(userId, out var connectionId))
+            {
+                await Groups.RemoveFromGroupAsync(connectionId, groupName);
+                Console.WriteLine($"User {userId} (Connection: {connectionId}) left group {groupName}");
+            }
+            else
+            {
+                Console.WriteLine($"User {userId} is not connected. Unable to leave group {groupName}.");
+            }
+        }
+
+        // Send a message to a specific group
+        public async Task SendMessageToGroup(string groupName, NotificationDto notificationDto)
+        {
+            await Clients.Group(groupName).SendAsync("ReceiveGroupMessage", notificationDto);
         }
     }
 }
