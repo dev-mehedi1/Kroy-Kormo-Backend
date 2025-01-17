@@ -9,6 +9,7 @@ namespace Sob_Need_Server.Models.Locations
         [Required]
         [MaxLength(255)]
         public string CountryName { get; set; }
+        public int StateId { get; set; }
 
         [Required]
         public bool IsActive { get; set; } = true;
