@@ -13,6 +13,7 @@ using Sob_Need_Server.Utils.Helpers;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.AspNetCore.SignalR;
 using Sob_Need_Server.SignalR;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Sob_Need_Server.Services.ProductService
 {
@@ -154,6 +155,7 @@ namespace Sob_Need_Server.Services.ProductService
                 var slug = StringUtilities.GenerateSlug(product.Slug);
                 product.Slug = slug;
                 product.IsSell = false;
+                product.CreatedAt = DateTime.UtcNow;
 
                 // Handle Location
                 if (productDto.Location != null)
