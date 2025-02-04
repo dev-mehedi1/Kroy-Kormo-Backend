@@ -160,7 +160,7 @@ namespace Sob_Need_Server.Services.ProductService
                 // Handle Location
                 if (productDto.Location != null)
                 {
-                    var location = _mapper.Map<Location>(productDto.Location);
+                    var location = _mapper.Map<Locations>(productDto.Location);
                     _context.Locations.Add(location);
                     await _context.SaveChangesAsync();
                 }
