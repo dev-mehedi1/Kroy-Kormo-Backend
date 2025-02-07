@@ -76,6 +76,7 @@ builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<IStateServices, StateService>();
 builder.Services.AddScoped<ICityServices, CityService>();
+builder.Services.AddScoped<IRegionServices, RegionService>();
 
 
 //// Add CORS policy
