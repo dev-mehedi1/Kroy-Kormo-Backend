@@ -74,6 +74,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<TokenHelper>();
 builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 builder.Services.AddScoped<ICountryService, CountryService>();
+builder.Services.AddScoped<IStateServices, StateService>();
 
 
 //// Add CORS policy
