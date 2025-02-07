@@ -26,6 +26,7 @@ namespace Sob_Need_Server.Mappings
             CreateMap<Notification, NotificationDto>().ReverseMap();
             CreateMap<Country, CountryDto>().ReverseMap();
             CreateMap<State, StateDto>().ReverseMap();
+            CreateMap<City, CityDto>().ReverseMap();
         }
     }
 }
