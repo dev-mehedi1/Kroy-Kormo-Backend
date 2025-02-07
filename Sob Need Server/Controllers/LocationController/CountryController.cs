@@ -11,10 +11,19 @@ namespace Sob_Need_Server.Controllers.LocationController
     public class CountryController(ICountryService countryService) : ControllerBase
     {
         private readonly ICountryService _countryService = countryService;
+
         [HttpPost]
-        public async Task<ActionResult<ResponseDto<CountryDto>>> CreateProduct ([FromBody] CountryDto countryDto)
+        public async Task<IActionResult> CreateCountry ([FromBody] CountryDto countryDto)
         {
             var response = await _countryService.CreateAsync(countryDto);
+            if (response.IsSuccess) return Ok(response);
+            return BadRequest(response);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCountries([FromQuery] FilterDto filterDto)
+        {
+            var response = await _countryService.GetAllAsync(filterDto);
             if (response.IsSuccess) return Ok(response);
             return BadRequest(response);
         }
