@@ -8,7 +8,7 @@ namespace Sob_Need_Server.Models.Locations
 
         [Required]
         [MaxLength(255)]
-        public string CityName { get; set; }
+        public string CityName { get; set; } = null!;
         public int StateId { get; set; }
 
         [Required]
