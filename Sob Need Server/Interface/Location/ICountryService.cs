@@ -6,7 +6,7 @@ namespace Sob_Need_Server.Interface.Location
 {
     public interface ICountryService : IGenericService<CountryDto, int>
     {
-        Task<ResponseDto<IEnumerable<CategoryDto>>> GetAllAsync(FilterDto Filter);
+        Task<ResponseDto<IEnumerable<CountryDto>>> GetAllAsync(FilterDto Filter);
 
     }
 }

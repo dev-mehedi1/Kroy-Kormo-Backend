@@ -24,6 +24,7 @@ namespace Sob_Need_Server.Mappings
             CreateMap<Attachment, ImageDto>().ReverseMap();
             CreateMap<User, UserDto>().ReverseMap();
             CreateMap<Notification, NotificationDto>().ReverseMap();
+            CreateMap<Country, CountryDto>().ReverseMap();
         }
     }
 }
