@@ -155,17 +155,20 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             product.IsSell = false;
             product.CreatedAt = DateTime.UtcNow;
 
+            // Add Product
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+
             // Handle Location
             if (productDto.Location != null)
             {
                 var location = _mapper.Map<Location>(productDto.Location);
+                location.ProductId = product.ProductId;
                 _context.Locations.Add(location);
                 await _context.SaveChangesAsync();
             }
 
-            // Add Product
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+
 
             // Handle Images (Attachments)
             if (productDto.Images != null && productDto.Images.Count > 0)
