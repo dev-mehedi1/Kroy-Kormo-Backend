@@ -12,14 +12,17 @@ using Sob_Need_Server.DTOs.Attachment;
 using Sob_Need_Server.Utils.Helpers;
 using Microsoft.AspNetCore.SignalR;
 using Sob_Need_Server.SignalR;
+using Microsoft.AspNetCore.Http;
 
 namespace Sob_Need_Server.Services.ProductService;
 
-public class ProductService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext) : IProductService
+public class ProductService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext, IHttpContextAccessor httpContextAccessor) : IProductService
 {
     private readonly AppDbContext _context = context;
     private readonly IMapper _mapper = mapper;
     private readonly IHubContext<NotificationHub> _hubContext = hubContext;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+
 
 
     public async Task<ResponseDto<IEnumerable<ProductDto>>> GetAllProductsAsync(ProductFilterDto filters)
@@ -148,12 +151,15 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             //Check is already exist slug
             var existSlug = await _context.Categories.AnyAsync(x => x.Slug == productDto.Slug);
             if (existSlug) return new ResponseDto<ProductDto>(false, "A product with the same slug already exists.", null!);
-
+            // Get UserId from token
+            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
+            var userId = JwtHelper.GetUserIdFromToken(authHeader!);
             var product = _mapper.Map<Product>(productDto);
             var slug = StringUtilities.GenerateSlug(product.Slug);
             product.Slug = slug;
             product.IsSell = false;
             product.CreatedAt = DateTime.UtcNow;
+            product.CreatedBy = userId;
 
             // Add Product
             _context.Products.Add(product);
