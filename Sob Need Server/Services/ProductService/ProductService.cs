@@ -169,7 +169,6 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             }
 
 
-
             // Handle Images (Attachments)
             if (productDto.Images != null && productDto.Images.Count > 0)
             {
