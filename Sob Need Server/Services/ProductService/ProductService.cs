@@ -33,13 +33,8 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             List<int> categoryIds = new();
             if (!string.IsNullOrWhiteSpace(filters.CategorySlug))
             {
-                var category = await _context.Categories
-                    .FirstOrDefaultAsync(c => c.Slug == filters.CategorySlug);
-
-                if (category == null)
-                {
-                    return new ResponseDto<IEnumerable<ProductDto>>(false, "Category not found", null!);
-                }
+                var category = await _context.Categories.FirstOrDefaultAsync(c => c.Slug == filters.CategorySlug);
+                if (category == null) return new ResponseDto<IEnumerable<ProductDto>>(false, "Category not found", null!);
 
                 // Fetch subcategories of the specified category
                 var subCategoryIds = await _context.Categories
@@ -53,48 +48,61 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
 
             // Base query to fetch products
             var query = from product in _context.Products
-                        join location in _context.Locations
-                        on product.ProductId equals location.ProductId into locationGroup
+                        join location in _context.Locations on product.ProductId equals location.ProductId into locationGroup
                         from loc in locationGroup.DefaultIfEmpty()
-                        join category in _context.Categories
-                        on product.CategoryId equals category.CategoryId
+
+                        join category in _context.Categories on product.CategoryId equals category.CategoryId into categoryG
+                        from category in categoryG.DefaultIfEmpty()
+
+                        join c in _context.Countries on loc != null ? loc.CountryId : (int?)null equals c.CountryId into cGroup
+                        from c in cGroup.DefaultIfEmpty()
+
+                        join s in _context.States on loc != null ? loc.StateId : (int?)null equals s.StateId into sGroup
+                        from s in sGroup.DefaultIfEmpty()
+
+                        join ci in _context.Cities on loc != null ? loc.CityId : (int?)null equals ci.CityId into ciGroup
+                        from ci in ciGroup.DefaultIfEmpty()
+
+                        join r in _context.Regions on loc != null ? loc.RegionId : (int?)null equals r.RegionId into rGroup
+                        from r in rGroup.DefaultIfEmpty()
+
                         select new
                         {
-                            product,
-                            loc,
-                            category
+                            Product = product,
+                            Location = loc,
+                            Category = category,
+                            CountryId = c != null ? c.CountryId : (int?)null,
+                            CountryName = c != null ? c.CountryName : null,
+                            StateId = s != null ? s.StateId : (int?)null,
+                            StateName = s != null ? s.StateName : null,
+                            CityId = ci != null ? ci.CityId : (int?)null,
+                            CityName = ci != null ? ci.CityName : null,
+                            RegionId = r != null ? r.RegionId : (int?)null,
+                            RegionName = r != null ? r.RegionName : null
                         };
 
             // Apply filters
-            if (categoryIds.Any())
-            {
-                query = query.Where(x => categoryIds.Contains(x.product.CategoryId));
-            }
-
-            if (!string.IsNullOrWhiteSpace(filters.SearchText))
-            {
-                query = query.Where(x =>
-                    x.product.Title.Contains(filters.SearchText) ||
-                    x.product.Description.Contains(filters.SearchText));
-            }
+            if (categoryIds.Count != 0) query = query.Where(x => categoryIds.Contains(x.Product.CategoryId));
+            
+            if (!string.IsNullOrWhiteSpace(filters.SearchText)) query = query.Where(x => x.Product.Title.Contains(filters.SearchText) || x.Product.Description.Contains(filters.SearchText));
 
             // Is Argent
-            if (filters.IsArgent.HasValue)
-            {
-                query = query.Where(x => x.product.IsUrgentAd == filters.IsArgent);
-            }
+            if (filters.IsArgent.HasValue) query = query.Where(x => x.Product.IsUrgentAd == filters.IsArgent);
+
+            if (!string.IsNullOrWhiteSpace(filters.UserId)) query = query.Where(x => x.Product.CreatedBy == filters.UserId);
+            //if (filters.CountryId.HasValue) query = query.Where(x => x.product.loc == filters.UserId);
 
             // Is top ads
             if (filters.IsTop.HasValue)
             {
-                query = query.Where(x => x.product.IsTopAd == filters.IsTop);
+                query = query.Where(x => x.Product.IsTopAd == filters.IsTop);
             }
 
             if (filters.OrderByAsc.HasValue)
             {
                 query = filters.OrderByAsc.Value
-                    ? query.OrderBy(x => x.product.CreatedAt)
-                    : query.OrderByDescending(x => x.product.CreatedAt);
+                    ? query.OrderBy(x => x.Product.CreatedAt)
+                    : query.OrderByDescending(x => x.Product.CreatedAt);
             }
             // Total count before paging
             var totalCount = await query.CountAsync();
@@ -110,21 +118,24 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
 
             var products = rawData.Select(x => new ProductDto
             {
-                ProductId = x.product.ProductId,
-                Title = x.product.Title,
-                Description = x.product.Description,
-                Price = x.product.Price,
-                CreatedAt = x.product.CreatedAt,
-                Slug = x.product.Slug,
-                IsSell = x.product.IsSell,
-                CategoryName = x.category.CategoryName,
-                Location = x.loc != null ? new LocationDto
+                ProductId = x.Product.ProductId,
+                Title = x.Product.Title,
+                Description = x.Product.Description,
+                Price = x.Product.Price,
+                CreatedAt = x.Product.CreatedAt,
+                Slug = x.Product.Slug,
+                IsSell = x.Product.IsSell,
+                CategoryName = x?.Category?.CategoryName,
+                Location = x?.Location != null ? new LocationDto
                 {
-                    AddressLine = x.loc.AddressLine,
-                    CountryId = x.loc.CountryId
+                    AddressLine = x.Location.AddressLine ?? null,
+                    CountryName = x.CountryName ?? null,
+                    CityName = x.CityName ?? null,
+                    StateName = x.StateName ?? null,
+                    RegionName = x.RegionName ?? null,
                 } : null!,
                 Images = _context.Attachments
-                    .Where(a => a.ProductId == x.product.ProductId)
+                    .Where(a => a.ProductId == x.Product.ProductId)
                     .Select(a => new ImageDto
                     {
                         ImageUrl = a.ImageUrl,

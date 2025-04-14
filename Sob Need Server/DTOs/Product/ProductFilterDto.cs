@@ -9,5 +9,10 @@
         public string? CategorySlug{ get; set; }
         public bool? IsTop{ get; set; }
         public bool? IsArgent{ get; set; }
+        public string? UserId{ get; set; }
+        public int? CountryId{ get; set; }
+        public int? CityId{ get; set; }
+        public int? RegionId{ get; set; }
+        public int? StateId{ get; set; }
     }
 }
