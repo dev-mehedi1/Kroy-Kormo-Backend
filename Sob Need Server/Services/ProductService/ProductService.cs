@@ -90,7 +90,11 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             if (filters.IsArgent.HasValue) query = query.Where(x => x.Product.IsUrgentAd == filters.IsArgent);
 
             if (!string.IsNullOrWhiteSpace(filters.UserId)) query = query.Where(x => x.Product.CreatedBy == filters.UserId);
-            //if (filters.CountryId.HasValue) query = query.Where(x => x.product.loc == filters.UserId);
+
+            if (filters.CountryId.HasValue) query = query.Where(x => x.CountryId == filters.CountryId);
+            if (filters.StateId.HasValue) query = query.Where(x => x.StateId == filters.StateId);
+            if (filters.CityId.HasValue) query = query.Where(x => x.CityId == filters.CityId);
+            if (filters.RegionId.HasValue) query = query.Where(x => x.RegionId == filters.RegionId);
 
             // Is top ads
             if (filters.IsTop.HasValue)
