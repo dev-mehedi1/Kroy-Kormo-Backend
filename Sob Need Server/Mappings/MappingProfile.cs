@@ -19,7 +19,9 @@ namespace Sob_Need_Server.Mappings
         public MappingProfile()
         {
             CreateMap<Product, ProductDto>().ReverseMap();
-            CreateMap<Category, CategoryDto>().ReverseMap();
+            //CreateMap<Category, CategoryDto>().ReverseMap();
+            CreateMap<Category, CategoryDto>()
+                .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => src.Products.Count));
             CreateMap<Location, LocationDto>().ReverseMap();
             CreateMap<Attachment, ImageDto>().ReverseMap();
             CreateMap<User, UserDto>().ReverseMap();

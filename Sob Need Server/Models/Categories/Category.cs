@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sob_Need_Server.Models.Products;
+using System.ComponentModel.DataAnnotations;
 
 namespace Sob_Need_Server.Models.Categories
 {
@@ -18,5 +19,8 @@ namespace Sob_Need_Server.Models.Categories
         public string? UpdatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
+
+        public virtual ICollection<Product> Products { get; set; } = [];
+
     }
 }

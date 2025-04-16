@@ -1,4 +1,6 @@
-﻿namespace Sob_Need_Server.Models.Products
+﻿using Sob_Need_Server.Models.Categories;
+
+namespace Sob_Need_Server.Models.Products
 {
     public class Product
     {
@@ -23,5 +25,7 @@
         public string? UpdatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
+        public virtual Category? Category { get; set; }
+
     }
 }

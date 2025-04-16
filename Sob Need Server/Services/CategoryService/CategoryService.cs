@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.Category;
@@ -99,9 +100,13 @@ namespace Sob_Need_Server.Services.CategoryService
                 }
 
                 // Execute the query and map to CategoryDto
+                //var categories = await query
+                //    .Select(x => _mapper.Map<CategoryDto>(x))
+                //    .ToListAsync();
+
                 var categories = await query
-                    .Select(x => _mapper.Map<CategoryDto>(x))
-                    .ToListAsync();
+                   .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
+                   .ToListAsync();
 
                 // Total count for pagination
                 var totalCount = await query.CountAsync();
