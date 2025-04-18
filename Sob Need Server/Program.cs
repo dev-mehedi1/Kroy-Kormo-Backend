@@ -1,20 +1,10 @@
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Sob_Need_Server.Context;
-using Sob_Need_Server.Interface;
-using Sob_Need_Server.Interface.Authentication;
-using Sob_Need_Server.Interface.Location;
-using Sob_Need_Server.Interface.Notification;
+using Sob_Need_Server.Extensions;
 using Sob_Need_Server.Mappings;
-using Sob_Need_Server.Services.Authentication;
-using Sob_Need_Server.Services.CategoryService;
-using Sob_Need_Server.Services.LocationService;
-using Sob_Need_Server.Services.Notifications;
-using Sob_Need_Server.Services.ProductService;
 using Sob_Need_Server.SignalR;
-using Sob_Need_Server.Utils.Helpers;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -98,17 +88,8 @@ builder.Services.AddAuthentication("Bearer")
 builder.Services.AddAutoMapper(typeof(MappingProfile)); // Register AutoMapper
 builder.Services.AddHttpContextAccessor();
 
-// Register ProductService
-builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<TokenHelper>();
-builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
-builder.Services.AddScoped<ICountryService, CountryService>();
-builder.Services.AddScoped<IStateServices, StateService>();
-builder.Services.AddScoped<ICityServices, CityService>();
-builder.Services.AddScoped<IRegionServices, RegionService>();
+// Register extension 
+builder.Services.AddApplicationServices();
 
 
 //// Add CORS policy
