@@ -32,6 +32,7 @@ namespace Sob_Need_Server.Controllers.Authentication
         }
 
         // Get user by user id
+        [Authorize]
         [HttpGet("user/{UserId}")]
         public async Task<ActionResult<ResponseDto<UserDto>>> GetUserById(Guid UserId)
         {
