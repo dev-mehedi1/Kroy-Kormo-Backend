@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Sob_Need_Server.DTOs.Authentication;
 using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.Interface.Authentication;
@@ -30,6 +31,13 @@ namespace Sob_Need_Server.Controllers.Authentication
             return BadRequest(response);
         }
 
-
+        // Get user by user id
+        [HttpGet("user/{UserId}")]
+        public async Task<ActionResult<ResponseDto<UserDto>>> GetUserById(Guid UserId)
+        {
+            var response = await _userService.GetUserById(UserId);
+            if (response.IsSuccess) return Ok(response);
+            return BadRequest(response);
+        }
     }
 }

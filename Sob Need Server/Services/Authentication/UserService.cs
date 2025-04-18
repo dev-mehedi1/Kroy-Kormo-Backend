@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+
 using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.Authentication;
 using Sob_Need_Server.DTOs.Common;
@@ -17,6 +17,24 @@ namespace Sob_Need_Server.Services.Authentication
         public readonly IConfiguration _configuration = configuration;
         private readonly TokenHelper _tokenHelper = tokenHelper;
 
+        public async Task<ResponseDto<UserDto>> GetUserById(Guid UserId)
+        {
+            try
+            {
+                var isUser = await _context.Users.AnyAsync(u => u.UserId == UserId);
+                if (!isUser) return new ResponseDto<UserDto>(false, "User Not Found", null!);
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == UserId);
+                user.Password = null!;
+                var userDto = _mapper.Map<UserDto>(user);
+
+                return new ResponseDto<UserDto>(true, "User Retriving Successful", userDto!);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto<UserDto>(false, ex.Message, null!);
+            }
+        }
 
         public async Task<ResponseDto<UserDto>> LoginAsync(string UserName, string Password)
         {
