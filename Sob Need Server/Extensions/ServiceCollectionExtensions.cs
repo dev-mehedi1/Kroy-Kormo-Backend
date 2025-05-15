@@ -11,25 +11,24 @@ using Sob_Need_Server.Utils.Helpers;
 using Sob_Need_Server.SignalR;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Sob_Need_Server.Extensions
-{
-    public static class ServiceCollectionExtensions
-    {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-        {
-            // Register application-level services
-            services.AddScoped<IProductService, ProductService>();
-            services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<INotificationService, NotificationService>();
-            services.AddScoped<TokenHelper>();
-            services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
-            services.AddScoped<ICountryService, CountryService>();
-            services.AddScoped<IStateServices, StateService>();
-            services.AddScoped<ICityServices, CityService>();
-            services.AddScoped<IRegionServices, RegionService>();
+namespace Sob_Need_Server.Extensions;
 
-            return services;
-        }
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    {
+        // Register application-level services
+        services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<TokenHelper>();
+        services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
+        services.AddScoped<ICountryService, CountryService>();
+        services.AddScoped<IStateServices, StateService>();
+        services.AddScoped<ICityServices, CityService>();
+        services.AddScoped<IRegionServices, RegionService>();
+
+        return services;
     }
 }

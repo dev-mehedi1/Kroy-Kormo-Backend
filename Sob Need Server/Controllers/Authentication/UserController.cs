@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Sob_Need_Server.DTOs.Authentication;
 using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.Interface.Authentication;
@@ -32,8 +31,7 @@ namespace Sob_Need_Server.Controllers.Authentication
         }
 
         // Get user by user id
-        [Authorize]
-        [HttpGet("user/{UserId}")]
+        [HttpGet("{UserId}")]
         public async Task<ActionResult<ResponseDto<UserDto>>> GetUserById(Guid UserId)
         {
             var response = await _userService.GetUserById(UserId);
