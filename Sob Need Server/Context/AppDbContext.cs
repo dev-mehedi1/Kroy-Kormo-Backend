@@ -1,4 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Sob_Need_Server.Models.Attachment;
+using Sob_Need_Server.Models.Authentication;
+using Sob_Need_Server.Models.Categories;
+using Sob_Need_Server.Models.Locations;
+using Sob_Need_Server.Models.Notification;
+using Sob_Need_Server.Models.Notifications;
 using Sob_Need_Server.Models.Products;
 
 namespace Sob_Need_Server.Context
@@ -10,5 +16,16 @@ namespace Sob_Need_Server.Context
             
         }
         public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Location> Locations { get; set; }
+        public DbSet<Country> Countries { get; set; }
+        public DbSet<State> States { get; set; }
+        public DbSet<Region> Regions { get; set; }
+        public DbSet<City> Cities { get; set; }
+        public DbSet<Attachment> Attachments { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<NotificationGroup> NotificationGroup { get; set; }
+        public DbSet<GroupMembers> GroupMembers { get; set; }
     }
 }
