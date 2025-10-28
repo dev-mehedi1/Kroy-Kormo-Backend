@@ -21,7 +21,8 @@ namespace Sob_Need_Server.Mappings
             CreateMap<Product, ProductDto>().ReverseMap();
             //CreateMap<Category, CategoryDto>().ReverseMap();
             CreateMap<Category, CategoryDto>()
-                .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => src.Products.Count));
+                        .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => src.Products.Count))
+                        .ReverseMap();
             CreateMap<Location, LocationDto>().ReverseMap();
             CreateMap<Attachment, ImageDto>().ReverseMap();
             CreateMap<User, UserDto>().ReverseMap();
@@ -29,7 +30,7 @@ namespace Sob_Need_Server.Mappings
             CreateMap<Country, CountryDto>().ReverseMap();
             CreateMap<State, StateDto>().ReverseMap();
             CreateMap<City, CityDto>().ReverseMap();
-            CreateMap<Region, RegionDto>().ReverseMap();
+            CreateMap<Region, RegionDto>().ReverseMap();      
         }
     }
 }

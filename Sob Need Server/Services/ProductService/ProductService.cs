@@ -178,7 +178,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
 
             // Add Product
             _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+     
 
             // Handle Location
             if (productDto.Location != null)
@@ -186,7 +186,6 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 var location = _mapper.Map<Location>(productDto.Location);
                 location.ProductId = product.ProductId;
                 _context.Locations.Add(location);
-                await _context.SaveChangesAsync();
             }
 
 
@@ -205,11 +204,10 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                     };
                     _context.Attachments.Add(attachment);
                 }
-                await _context.SaveChangesAsync();
             }
 
+            await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-
             // send notification 
             // Create a notification message
             string notificationMessage = $"Product '{product.Title}' was created at {DateTime.UtcNow}.";
