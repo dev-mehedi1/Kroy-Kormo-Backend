@@ -6,18 +6,18 @@ namespace Sob_Need_Server.DTOs.Product
 {
     public class ProductDto
     {
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public string Title { get; set; } = null!;
         public string Description { get; set; } = null!;
         public string Price { get; set; } = null!;
         public string? Discount { get; set; }
-        public int ConditionId { get; set; }
-        public int CategoryId { get; set; }
+        public Guid ConditionId { get; set; }
+        public Guid CategoryId { get; set; }
         public string? CategoryName{ get; set; }
         public string? ParentCategoryName { get; set; }
         public LocationDto Location { get; set; } = null!;
         public List<ImageDto> Images { get; set; } = null!;
-        public int StatusId { get; set; }
+        public Guid StatusId { get; set; }
         public string Slug { get; set; } = null!;
         public bool IsJobAd { get; set; }
         public bool IsDeliveryFree { get; set; }

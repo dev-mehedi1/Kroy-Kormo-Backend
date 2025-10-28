@@ -30,7 +30,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         try
         {
             // If CategorySlug is provided, fetch the category and its subcategories
-            List<int> categoryIds = new();
+            List<Guid> categoryIds = new();
             if (!string.IsNullOrWhiteSpace(filters.CategorySlug))
             {
                 var category = await _context.Categories.FirstOrDefaultAsync(c => c.Slug == filters.CategorySlug);
@@ -54,16 +54,16 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                         join category in _context.Categories on product.CategoryId equals category.CategoryId into categoryG
                         from category in categoryG.DefaultIfEmpty()
 
-                        join c in _context.Countries on loc != null ? loc.CountryId : (int?)null equals c.CountryId into cGroup
+                        join c in _context.Countries on loc != null ? loc.CountryId : null equals c.CountryId into cGroup
                         from c in cGroup.DefaultIfEmpty()
 
-                        join s in _context.States on loc != null ? loc.StateId : (int?)null equals s.StateId into sGroup
+                        join s in _context.States on loc != null ? loc.StateId : null equals s.StateId into sGroup
                         from s in sGroup.DefaultIfEmpty()
 
-                        join ci in _context.Cities on loc != null ? loc.CityId : (int?)null equals ci.CityId into ciGroup
+                        join ci in _context.Cities on loc != null ? loc.CityId : null equals ci.CityId into ciGroup
                         from ci in ciGroup.DefaultIfEmpty()
 
-                        join r in _context.Regions on loc != null ? loc.RegionId : (int?)null equals r.RegionId into rGroup
+                        join r in _context.Regions on loc != null ? loc.RegionId : null equals r.RegionId into rGroup
                         from r in rGroup.DefaultIfEmpty()
 
                         select new
@@ -71,13 +71,13 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                             Product = product,
                             Location = loc,
                             Category = category,
-                            CountryId = c != null ? c.CountryId : (int?)null,
+                            c.CountryId,
                             CountryName = c != null ? c.CountryName : null,
-                            StateId = s != null ? s.StateId : (int?)null,
+                            s.StateId,
                             StateName = s != null ? s.StateName : null,
-                            CityId = ci != null ? ci.CityId : (int?)null,
+                            ci.CityId,
                             CityName = ci != null ? ci.CityName : null,
-                            RegionId = r != null ? r.RegionId : (int?)null,
+                            r.RegionId,
                             RegionName = r != null ? r.RegionName : null
                         };
 
@@ -223,7 +223,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         }
     }
 
-    public async Task<ResponseDto<ProductDto>> UpdateAsync(int id, ProductDto productDto)
+    public async Task<ResponseDto<ProductDto>> UpdateAsync(Guid id, ProductDto productDto)
     {
         try
         {
@@ -244,12 +244,12 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         }
     }
 
-    public Task<ResponseDto<bool>> DeleteAsync(int id)
+    public Task<ResponseDto<bool>> DeleteAsync(Guid id)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<ResponseDto<ProductDto>> GetByIdAsync(int id)
+    public async Task<ResponseDto<ProductDto>> GetByIdAsync(Guid id)
     {
         try
         {
@@ -296,11 +296,6 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
     }
 
 
-    Task<ResponseDto<ProductDto>> IGenericService<ProductDto, int>.DeleteAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<ResponseDto<ProductDto>> GetProductBySlugAsync(string Slug)
     {
         try
@@ -340,5 +335,10 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         {
             return new ResponseDto<ProductDto>(false, $"{ex.Message}", null!);
         }
+    }
+
+    Task<ResponseDto<ProductDto>> IGenericService<ProductDto, Guid>.DeleteAsync(Guid id)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -53,7 +53,7 @@ namespace Sob_Need_Server.Services.LocationService
                 }
                 if (Filter.StateId.HasValue)
                 {
-                    query = query.Where(x => x.StateId == Filter.StateId);
+                    //query = query.Where(x => x.StateId == Filter.StateId);
                 }
 
 

@@ -2,8 +2,8 @@
 {
     public class Attachment
     {
-        public int AttachmentId { get; set; }
-        public int ProductId { get; set; }
+        public Guid AttachmentId { get; set; }
+        public Guid ProductId { get; set; }
         public string ImageUrl { get; set; } = null!;
         public string? AltName { get; set; }
         public bool IsActive { get; set; } = true;

@@ -16,9 +16,8 @@ namespace Sob_Need_Server.Migrations
                 name: "Attachments",
                 columns: table => new
                 {
-                    AttachmentId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ProductId = table.Column<int>(type: "integer", nullable: false),
+                    AttachmentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
                     ImageUrl = table.Column<string>(type: "text", nullable: false),
                     AltName = table.Column<string>(type: "text", nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
@@ -36,11 +35,10 @@ namespace Sob_Need_Server.Migrations
                 name: "Categories",
                 columns: table => new
                 {
-                    CategoryId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
                     CategoryName = table.Column<string>(type: "text", nullable: false),
                     Slug = table.Column<string>(type: "text", nullable: false),
-                    ParentCategoryId = table.Column<int>(type: "integer", nullable: true),
+                    ParentCategoryId = table.Column<Guid>(type: "uuid", nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -56,10 +54,9 @@ namespace Sob_Need_Server.Migrations
                 name: "Cities",
                 columns: table => new
                 {
-                    CityId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CityId = table.Column<Guid>(type: "uuid", nullable: false),
                     CityName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    StateId = table.Column<int>(type: "integer", nullable: false),
+                    StateId = table.Column<Guid>(type: "uuid", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -75,10 +72,9 @@ namespace Sob_Need_Server.Migrations
                 name: "Countries",
                 columns: table => new
                 {
-                    CountryId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CountryId = table.Column<Guid>(type: "uuid", nullable: false),
                     CountryName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    StateId = table.Column<int>(type: "integer", nullable: false),
+                    StateId = table.Column<Guid>(type: "uuid", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -109,14 +105,13 @@ namespace Sob_Need_Server.Migrations
                 name: "Locations",
                 columns: table => new
                 {
-                    LocationId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    LocationId = table.Column<Guid>(type: "uuid", nullable: false),
                     AddressLine = table.Column<string>(type: "text", nullable: true),
-                    CountryId = table.Column<int>(type: "integer", nullable: true),
-                    CityId = table.Column<int>(type: "integer", nullable: true),
-                    RegionId = table.Column<int>(type: "integer", nullable: true),
-                    StateId = table.Column<int>(type: "integer", nullable: true),
-                    ProductId = table.Column<int>(type: "integer", nullable: false),
+                    CountryId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CityId = table.Column<Guid>(type: "uuid", nullable: true),
+                    RegionId = table.Column<Guid>(type: "uuid", nullable: true),
+                    StateId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -161,10 +156,9 @@ namespace Sob_Need_Server.Migrations
                 name: "Regions",
                 columns: table => new
                 {
-                    RegionId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RegionId = table.Column<Guid>(type: "uuid", nullable: false),
                     RegionName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    CityId = table.Column<int>(type: "integer", nullable: false),
+                    CityId = table.Column<Guid>(type: "uuid", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -180,10 +174,9 @@ namespace Sob_Need_Server.Migrations
                 name: "States",
                 columns: table => new
                 {
-                    StateId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    StateId = table.Column<Guid>(type: "uuid", nullable: false),
                     StateName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    CountryId = table.Column<int>(type: "integer", nullable: false),
+                    CountryId = table.Column<Guid>(type: "uuid", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -214,15 +207,14 @@ namespace Sob_Need_Server.Migrations
                 name: "Products",
                 columns: table => new
                 {
-                    ProductId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
                     Title = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     Price = table.Column<string>(type: "text", nullable: false),
                     Discount = table.Column<string>(type: "text", nullable: true),
-                    ConditionId = table.Column<int>(type: "integer", nullable: false),
-                    CategoryId = table.Column<int>(type: "integer", nullable: false),
-                    StatusId = table.Column<int>(type: "integer", nullable: false),
+                    ConditionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
+                    StatusId = table.Column<Guid>(type: "uuid", nullable: false),
                     IsVerified = table.Column<bool>(type: "boolean", nullable: false),
                     IsJobAd = table.Column<bool>(type: "boolean", nullable: false),
                     IsUrgentAd = table.Column<bool>(type: "boolean", nullable: false),

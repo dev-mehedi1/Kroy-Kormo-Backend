@@ -4,14 +4,14 @@ namespace Sob_Need_Server.Models.Products
 {
     public class Product
     {
-        public int ProductId  { get; set; }
+        public Guid ProductId  { get; set; }
         public string Title { get; set; } = null!;
         public string Description { get; set; } = null!;
         public string Price { get; set; } = null!;
         public string? Discount { get; set; }
-        public int ConditionId { get; set; }
-        public int CategoryId { get; set; }
-        public int StatusId { get; set; }
+        public Guid ConditionId { get; set; }
+        public Guid CategoryId { get; set; }
+        public Guid StatusId { get; set; }
         public bool IsVerified { get; set; }
         public bool IsJobAd { get; set; }
         public bool IsUrgentAd { get; set; }

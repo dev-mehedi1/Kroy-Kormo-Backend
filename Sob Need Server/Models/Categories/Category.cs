@@ -5,10 +5,10 @@ namespace Sob_Need_Server.Models.Categories
 {
     public class Category
     {
-        public int CategoryId { get; set; }
+        public Guid CategoryId { get; set; }
         public string CategoryName { get; set; } = null!;
         public string Slug { get; set; } = null!;
-        public int? ParentCategoryId { get; set; }
+        public Guid? ParentCategoryId { get; set; }
         [Required]
         public bool IsActive { get; set; } = true;
 

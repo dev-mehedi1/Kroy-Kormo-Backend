@@ -29,7 +29,7 @@ namespace Sob_Need_Server.Controllers.ProductController
 
         // GET: api/product/5
         [HttpGet("byid/{id}")]
-        public async Task<ActionResult<ResponseDto<ProductDto>>> GetProductById(int id)
+        public async Task<ActionResult<ResponseDto<ProductDto>>> GetProductById(Guid id)
         {
             var response = await _productService.GetByIdAsync(id);
             if (!response.IsSuccess)
@@ -55,7 +55,7 @@ namespace Sob_Need_Server.Controllers.ProductController
 
         // PUT: api/product/5
         [HttpPut("{id}")]
-        public async Task<ActionResult<ResponseDto<ProductDto>>> UpdateProduct(int id, ProductDto productDto)
+        public async Task<ActionResult<ResponseDto<ProductDto>>> UpdateProduct(Guid id, ProductDto productDto)
         {
             var response = await _productService.UpdateAsync(id, productDto);
             if (!response.IsSuccess)

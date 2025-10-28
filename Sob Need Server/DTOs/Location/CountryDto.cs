@@ -4,7 +4,7 @@ namespace Sob_Need_Server.DTOs.Location
 {
     public class CountryDto
     {
-        public int CountryId { get; set; }
+        public Guid CountryId { get; set; }
         public string CountryName { get; set; }
     }
 }

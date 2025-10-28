@@ -4,13 +4,13 @@ namespace Sob_Need_Server.Models.Locations
 {
     public class State
     {
-        public int StateId { get; set; }
+        public Guid StateId { get; set; }
 
         [Required]
         [MaxLength(255)]
         public string StateName { get; set; }
 
-        public int CountryId { get; set; }
+        public Guid CountryId { get; set; }
 
         [Required]
         public bool IsActive { get; set; } = true;

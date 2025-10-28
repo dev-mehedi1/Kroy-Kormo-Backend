@@ -10,8 +10,8 @@ public class ProductFilterDto
     public bool? IsTop{ get; set; }
     public bool? IsArgent{ get; set; }
     public string? UserId{ get; set; }
-    public int? CountryId{ get; set; }
-    public int? CityId{ get; set; }
-    public int? RegionId{ get; set; }
-    public int? StateId{ get; set; }
+    public Guid? CountryId{ get; set; }
+    public Guid? CityId{ get; set; }
+    public Guid? RegionId{ get; set; }
+    public Guid? StateId{ get; set; }
 }

@@ -3,14 +3,14 @@
     public class LocationDto
     {
         public string? AddressLine { get; set; }
-        public int? CountryId { get; set; }
+        public Guid? CountryId { get; set; }
         public string? CountryName { get; set; }
-        public int? CityId { get; set; }
+        public Guid? CityId { get; set; }
         public string? CityName { get; set; }
-        public int? RegionId { get; set; }
+        public Guid? RegionId { get; set; }
         public string? RegionName { get; set; }
-        public int ProductId { get; set; }
-        public int? StateId { get; set; }
+        public Guid ProductId { get; set; }
+        public Guid? StateId { get; set; }
         public string? StateName { get; set; }
     }
 }

@@ -24,11 +24,9 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Attachment.Attachment", b =>
                 {
-                    b.Property<int>("AttachmentId")
+                    b.Property<Guid>("AttachmentId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AttachmentId"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("AltName")
                         .HasColumnType("text");
@@ -46,8 +44,8 @@ namespace Sob_Need_Server.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -89,11 +87,9 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Categories.Category", b =>
                 {
-                    b.Property<int>("CategoryId")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CategoryName")
                         .IsRequired()
@@ -109,8 +105,8 @@ namespace Sob_Need_Server.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("ParentCategoryId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("ParentCategoryId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -130,11 +126,9 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Locations.City", b =>
                 {
-                    b.Property<int>("CityId")
+                    b.Property<Guid>("CityId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CityId"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CityName")
                         .IsRequired()
@@ -151,8 +145,8 @@ namespace Sob_Need_Server.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("StateId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("StateId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -168,11 +162,9 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Locations.Country", b =>
                 {
-                    b.Property<int>("CountryId")
+                    b.Property<Guid>("CountryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CountryId"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CountryName")
                         .IsRequired()
@@ -189,8 +181,8 @@ namespace Sob_Need_Server.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("StateId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("StateId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -206,20 +198,18 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Locations.Location", b =>
                 {
-                    b.Property<int>("LocationId")
+                    b.Property<Guid>("LocationId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("LocationId"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("AddressLine")
                         .HasColumnType("text");
 
-                    b.Property<int?>("CityId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("CityId")
+                        .HasColumnType("uuid");
 
-                    b.Property<int?>("CountryId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("CountryId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -230,14 +220,14 @@ namespace Sob_Need_Server.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
 
-                    b.Property<int?>("RegionId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("RegionId")
+                        .HasColumnType("uuid");
 
-                    b.Property<int?>("StateId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("StateId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -253,14 +243,12 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Locations.Region", b =>
                 {
-                    b.Property<int>("RegionId")
+                    b.Property<Guid>("RegionId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RegionId"));
-
-                    b.Property<int>("CityId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("CityId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -291,14 +279,12 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Locations.State", b =>
                 {
-                    b.Property<int>("StateId")
+                    b.Property<Guid>("StateId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("StateId"));
-
-                    b.Property<int>("CountryId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("CountryId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -395,17 +381,15 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Products.Product", b =>
                 {
-                    b.Property<int>("ProductId")
+                    b.Property<Guid>("ProductId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ProductId"));
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ConditionId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ConditionId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -452,8 +436,8 @@ namespace Sob_Need_Server.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("StatusId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("StatusId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .IsRequired()

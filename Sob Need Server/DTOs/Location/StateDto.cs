@@ -2,8 +2,8 @@
 {
     public class StateDto
     {
-        public int StateId { get; set; }
+        public Guid StateId { get; set; }
         public string StateName { get; set; }
-        public int CountryId { get; set; }
+        public Guid CountryId { get; set; }
     }
 }

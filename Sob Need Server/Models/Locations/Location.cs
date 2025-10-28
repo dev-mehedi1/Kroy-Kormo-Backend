@@ -4,13 +4,13 @@ namespace Sob_Need_Server.Models.Locations
 {
     public class Location
     {
-        public int LocationId { get; set; }
+        public Guid LocationId { get; set; }
         public string? AddressLine { get; set; }
-        public int? CountryId { get; set; }
-        public int? CityId { get; set; }
-        public int? RegionId { get; set; }
-        public int? StateId { get; set; }
-        public int ProductId { get; set; }
+        public Guid? CountryId { get; set; }
+        public Guid? CityId { get; set; }
+        public Guid? RegionId { get; set; }
+        public Guid? StateId { get; set; }
+        public Guid ProductId { get; set; }
 
         [Required]
         public bool IsActive { get; set; } = true;

@@ -1,4 +1,5 @@
-﻿using Sob_Need_Server.Interface;
+﻿using Microsoft.AspNetCore.SignalR;
+using Sob_Need_Server.Interface;
 using Sob_Need_Server.Interface.Authentication;
 using Sob_Need_Server.Interface.Location;
 using Sob_Need_Server.Interface.Notification;
@@ -7,9 +8,8 @@ using Sob_Need_Server.Services.CategoryService;
 using Sob_Need_Server.Services.LocationService;
 using Sob_Need_Server.Services.Notifications;
 using Sob_Need_Server.Services.ProductService;
-using Sob_Need_Server.Utils.Helpers;
 using Sob_Need_Server.SignalR;
-using Microsoft.AspNetCore.SignalR;
+using Sob_Need_Server.Utils.Helpers;
 
 namespace Sob_Need_Server.Extensions;
 
