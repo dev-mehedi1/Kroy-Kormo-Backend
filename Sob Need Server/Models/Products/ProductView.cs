@@ -5,6 +5,7 @@ namespace Sob_Need_Server.Models.Products
 {
     public class ProductView
     {
+        [Key]
         public Guid ViewId { get; set; } = Guid.NewGuid();
         
         [Required]

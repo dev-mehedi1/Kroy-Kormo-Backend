@@ -6,6 +6,7 @@ namespace Sob_Need_Server.Models.Users
 {
     public class Review
     {
+        [Key]
         public Guid ReviewId { get; set; } = Guid.NewGuid();
         
         [Required]

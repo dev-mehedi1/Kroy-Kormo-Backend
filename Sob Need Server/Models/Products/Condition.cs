@@ -4,6 +4,7 @@ namespace Sob_Need_Server.Models.Products
 {
     public class Condition
     {
+        [Key]
         public Guid ConditionId { get; set; } = Guid.NewGuid();
         
         [Required]

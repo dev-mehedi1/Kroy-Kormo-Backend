@@ -4,6 +4,7 @@ namespace Sob_Need_Server.Models.Products
 {
     public class ProductAttributeValue
     {
+        [Key]
         public Guid ValueId { get; set; } = Guid.NewGuid();
         
         [Required]

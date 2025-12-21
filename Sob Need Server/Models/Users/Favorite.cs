@@ -6,6 +6,7 @@ namespace Sob_Need_Server.Models.Users
 {
     public class Favorite
     {
+        [Key]
         public Guid FavoriteId { get; set; } = Guid.NewGuid();
         
         [Required]

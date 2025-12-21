@@ -4,6 +4,7 @@ namespace Sob_Need_Server.Models.Products
 {
     public class ProductStatus
     {
+        [Key]
         public Guid StatusId { get; set; } = Guid.NewGuid();
         
         [Required]

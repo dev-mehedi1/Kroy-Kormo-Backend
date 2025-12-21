@@ -4,6 +4,7 @@ namespace Sob_Need_Server.Models.Authentication
 {
     public class UserType
     {
+        [Key]
         public Guid UserTypeId { get; set; } = Guid.NewGuid();
         
         [Required]

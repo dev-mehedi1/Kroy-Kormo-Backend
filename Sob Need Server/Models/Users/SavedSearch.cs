@@ -5,6 +5,7 @@ namespace Sob_Need_Server.Models.Users
 {
     public class SavedSearch
     {
+        [Key]
         public Guid SearchId { get; set; } = Guid.NewGuid();
         
         [Required]

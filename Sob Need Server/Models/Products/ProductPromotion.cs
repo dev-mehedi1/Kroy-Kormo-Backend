@@ -4,6 +4,7 @@ namespace Sob_Need_Server.Models.Products
 {
     public class ProductPromotion
     {
+        [Key]
         public Guid PromotionId { get; set; } = Guid.NewGuid();
         
         [Required]
