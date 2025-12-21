@@ -14,7 +14,7 @@ namespace Sob_Need_Server.Controllers.Authentication
 
         // Registratin user controller
         [HttpPost("register")]
-        public async Task<ActionResult<ResponseDto<UserDto>>> Registration (UserDto userDto)
+        public async Task<ActionResult<ResponseDto<UserDto>>> Registration (UserRegistrationDto userDto)
         {
             var response =  await _userService.RegistrationAsync(userDto);
             if (response.IsSuccess) return Ok(response);

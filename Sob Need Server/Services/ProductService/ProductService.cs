@@ -48,7 +48,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
 
             // Base query to fetch products
             var query = from product in _context.Products
-                        join location in _context.Locations on product.ProductId equals location.ProductId into locationGroup
+                        join location in _context.Locations on product.LocationId equals location.LocationId into locationGroup
                         from loc in locationGroup.DefaultIfEmpty()
 
                         join category in _context.Categories on product.CategoryId equals category.CategoryId into categoryG
@@ -86,10 +86,10 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             
             if (!string.IsNullOrWhiteSpace(filters.SearchText)) query = query.Where(x => x.Product.Title.Contains(filters.SearchText) || x.Product.Description.Contains(filters.SearchText));
 
-            // Is Argent
-            if (filters.IsArgent.HasValue) query = query.Where(x => x.Product.IsUrgentAd == filters.IsArgent);
+            // Is Urgent
+            if (filters.IsUrgentAd.HasValue) query = query.Where(x => x.Product.IsUrgentAd == filters.IsUrgentAd);
 
-            if (!string.IsNullOrWhiteSpace(filters.UserId)) query = query.Where(x => x.Product.CreatedBy == filters.UserId);
+            if (filters.UserId.HasValue) query = query.Where(x => x.Product.UserId == filters.UserId);
 
             if (filters.CountryId.HasValue) query = query.Where(x => x.CountryId == filters.CountryId);
             if (filters.StateId.HasValue) query = query.Where(x => x.StateId == filters.StateId);
@@ -97,9 +97,9 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             if (filters.RegionId.HasValue) query = query.Where(x => x.RegionId == filters.RegionId);
 
             // Is top ads
-            if (filters.IsTop.HasValue)
+            if (filters.IsTopAd.HasValue)
             {
-                query = query.Where(x => x.Product.IsTopAd == filters.IsTop);
+                query = query.Where(x => x.Product.IsTopAd == filters.IsTopAd);
             }
 
             if (filters.OrderByAsc.HasValue)
@@ -184,8 +184,8 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             if (productDto.Location != null)
             {
                 var location = _mapper.Map<Location>(productDto.Location);
-                location.ProductId = product.ProductId;
                 _context.Locations.Add(location);
+                product.LocationId = location.LocationId;
             }
 
 
@@ -255,7 +255,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         {
             var productDto = await (from p in _context.Products
                                     join location in _context.Locations
-                                    on p.ProductId equals location.ProductId into locationGroup
+                                    on p.LocationId equals location.LocationId into locationGroup
                                     from loc in locationGroup.DefaultIfEmpty()
                                     join attachment in _context.Attachments
                                     on p.ProductId equals attachment.ProductId into attachmentGroup
@@ -302,7 +302,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         {
             var productDto = await (from p in _context.Products
                                     join location in _context.Locations
-                                    on p.ProductId equals location.ProductId into locationGroup
+                                    on p.LocationId equals location.LocationId into locationGroup
                                     from loc in locationGroup.DefaultIfEmpty()
                                     join attachment in _context.Attachments
                                     on p.ProductId equals attachment.ProductId into attachmentGroup

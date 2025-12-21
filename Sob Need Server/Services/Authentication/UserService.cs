@@ -24,7 +24,6 @@ public class UserService (AppDbContext dbContext, IConfiguration configuration, 
             if (!isUser) return new ResponseDto<UserDto>(false, "User Not Found", null!);
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == UserId);
-            user.Password = null!;
             var userDto = _mapper.Map<UserDto>(user);
 
             return new ResponseDto<UserDto>(true, "User Retriving Successful", userDto!);
@@ -60,7 +59,7 @@ public class UserService (AppDbContext dbContext, IConfiguration configuration, 
         }
     }
 
-    public async Task<ResponseDto<UserDto>> RegistrationAsync(UserDto entity)
+    public async Task<ResponseDto<UserDto>> RegistrationAsync(UserRegistrationDto entity)
     {
        try
         {
@@ -72,10 +71,10 @@ public class UserService (AppDbContext dbContext, IConfiguration configuration, 
 
             // Hash Password
             var hashPassword = PasswordHelper.GenerateHashedPassword(entity.Password);
-            entity.Password = hashPassword;
 
-            // Map UserDto to User model
-            var user = _mapper.Map<User>(entity);
+            // Map UserRegistrationDto to User model
+            var user = _mapper.Map<Models.Authentication.User>(entity);
+            user.Password = hashPassword;
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
 
