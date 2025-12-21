@@ -538,7 +538,7 @@ namespace Sob_Need_Server.Migrations
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ConditionId")
+                    b.Property<Guid?>("ConditionId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -597,7 +597,7 @@ namespace Sob_Need_Server.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
-                    b.Property<Guid>("StatusId")
+                    b.Property<Guid?>("StatusId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Title")
@@ -612,7 +612,7 @@ namespace Sob_Need_Server.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("ViewCount")

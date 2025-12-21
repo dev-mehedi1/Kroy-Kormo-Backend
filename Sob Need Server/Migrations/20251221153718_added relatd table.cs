@@ -23,6 +23,22 @@ namespace Sob_Need_Server.Migrations
                 name: "ProductId",
                 table: "Locations");
 
+            migrationBuilder.AlterColumn<Guid>(
+                name: "ConditionId",
+                table: "Products",
+                type: "uuid",
+                nullable: true,
+                oldClrType: typeof(Guid),
+                oldType: "uuid");
+
+            migrationBuilder.AlterColumn<Guid>(
+                name: "StatusId",
+                table: "Products",
+                type: "uuid",
+                nullable: true,
+                oldClrType: typeof(Guid),
+                oldType: "uuid");
+
             migrationBuilder.AlterColumn<string>(
                 name: "UserName",
                 table: "Users",
@@ -154,22 +170,26 @@ namespace Sob_Need_Server.Migrations
                 oldClrType: typeof(string),
                 oldType: "text");
 
-            migrationBuilder.AlterColumn<decimal>(
-                name: "Price",
-                table: "Products",
-                type: "numeric(18,2)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "text");
+            // Use raw SQL to convert Price from text to numeric with explicit casting
+            migrationBuilder.Sql(@"
+                ALTER TABLE ""Products"" 
+                ALTER COLUMN ""Price"" TYPE numeric(18,2) 
+                USING CASE 
+                    WHEN ""Price"" ~ '^[0-9]+\.?[0-9]*$' THEN ""Price""::numeric(18,2)
+                    ELSE 0
+                END;
+            ");
 
-            migrationBuilder.AlterColumn<decimal>(
-                name: "Discount",
-                table: "Products",
-                type: "numeric(18,2)",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
+            // Use raw SQL to convert Discount from text to numeric with explicit casting
+            migrationBuilder.Sql(@"
+                ALTER TABLE ""Products"" 
+                ALTER COLUMN ""Discount"" TYPE numeric(18,2) 
+                USING CASE 
+                    WHEN ""Discount"" IS NULL THEN NULL
+                    WHEN ""Discount"" ~ '^[0-9]+\.?[0-9]*$' THEN ""Discount""::numeric(18,2)
+                    ELSE NULL
+                END;
+            ");
 
             migrationBuilder.AlterColumn<string>(
                 name: "Description",
@@ -213,8 +233,8 @@ namespace Sob_Need_Server.Migrations
                 name: "UserId",
                 table: "Products",
                 type: "uuid",
-                nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
+                nullable: true,  // Changed to nullable to allow migration
+                defaultValue: null);
 
             migrationBuilder.AddColumn<int>(
                 name: "ViewCount",
@@ -634,10 +654,40 @@ namespace Sob_Need_Server.Migrations
                 table: "Reviews",
                 column: "SellerId");
 
+
             migrationBuilder.CreateIndex(
                 name: "IX_SavedSearches_UserId",
                 table: "SavedSearches",
                 column: "UserId");
+
+            // Clean up invalid foreign key references in Locations table before adding constraints
+            migrationBuilder.Sql(@"
+                UPDATE ""Locations"" 
+                SET ""CountryId"" = NULL 
+                WHERE ""CountryId"" IS NOT NULL 
+                AND NOT EXISTS (SELECT 1 FROM ""Countries"" WHERE ""Countries"".""CountryId"" = ""Locations"".""CountryId"");
+            ");
+
+            migrationBuilder.Sql(@"
+                UPDATE ""Locations"" 
+                SET ""StateId"" = NULL 
+                WHERE ""StateId"" IS NOT NULL 
+                AND NOT EXISTS (SELECT 1 FROM ""States"" WHERE ""States"".""StateId"" = ""Locations"".""StateId"");
+            ");
+
+            migrationBuilder.Sql(@"
+                UPDATE ""Locations"" 
+                SET ""CityId"" = NULL 
+                WHERE ""CityId"" IS NOT NULL 
+                AND NOT EXISTS (SELECT 1 FROM ""Cities"" WHERE ""Cities"".""CityId"" = ""Locations"".""CityId"");
+            ");
+
+            migrationBuilder.Sql(@"
+                UPDATE ""Locations"" 
+                SET ""RegionId"" = NULL 
+                WHERE ""RegionId"" IS NOT NULL 
+                AND NOT EXISTS (SELECT 1 FROM ""Regions"" WHERE ""Regions"".""RegionId"" = ""Locations"".""RegionId"");
+            ");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Locations_Cities_CityId",
@@ -663,6 +713,7 @@ namespace Sob_Need_Server.Migrations
                 principalColumn: "RegionId",
                 onDelete: ReferentialAction.SetNull);
 
+
             migrationBuilder.AddForeignKey(
                 name: "FK_Locations_States_StateId",
                 table: "Locations",
@@ -670,6 +721,42 @@ namespace Sob_Need_Server.Migrations
                 principalTable: "States",
                 principalColumn: "StateId",
                 onDelete: ReferentialAction.SetNull);
+
+            // Clean up invalid foreign key references in Products table before adding constraints
+            migrationBuilder.Sql(@"
+                UPDATE ""Products"" 
+                SET ""ConditionId"" = NULL 
+                WHERE ""ConditionId"" IS NOT NULL 
+                AND NOT EXISTS (SELECT 1 FROM ""Conditions"" WHERE ""Conditions"".""ConditionId"" = ""Products"".""ConditionId"");
+            ");
+
+            migrationBuilder.Sql(@"
+                UPDATE ""Products"" 
+                SET ""StatusId"" = NULL 
+                WHERE ""StatusId"" IS NOT NULL 
+                AND NOT EXISTS (SELECT 1 FROM ""ProductStatuses"" WHERE ""ProductStatuses"".""StatusId"" = ""Products"".""StatusId"");
+            ");
+
+            migrationBuilder.Sql(@"
+                UPDATE ""Products"" 
+                SET ""LocationId"" = NULL 
+                WHERE ""LocationId"" IS NOT NULL 
+                AND NOT EXISTS (SELECT 1 FROM ""Locations"" WHERE ""Locations"".""LocationId"" = ""Products"".""LocationId"");
+            ");
+
+            migrationBuilder.Sql(@"
+                UPDATE ""Products"" 
+                SET ""UserId"" = NULL 
+                WHERE ""UserId"" IS NOT NULL 
+                AND NOT EXISTS (SELECT 1 FROM ""Users"" WHERE ""Users"".""UserId"" = ""Products"".""UserId"");
+            ");
+
+            migrationBuilder.Sql(@"
+                UPDATE ""Users"" 
+                SET ""UserTypeId"" = NULL 
+                WHERE ""UserTypeId"" IS NOT NULL 
+                AND NOT EXISTS (SELECT 1 FROM ""UserTypes"" WHERE ""UserTypes"".""UserTypeId"" = ""Users"".""UserTypeId"");
+            ");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Products_Categories_CategoryId",

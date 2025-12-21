@@ -26,17 +26,14 @@ namespace Sob_Need_Server.Models.Products
         [Column(TypeName = "decimal(18,2)")]
         public decimal? Discount { get; set; }
         
-        [Required]
-        public Guid ConditionId { get; set; }
+        public Guid? ConditionId { get; set; }
         
         [Required]
         public Guid CategoryId { get; set; }
         
-        [Required]
-        public Guid StatusId { get; set; }
+        public Guid? StatusId { get; set; }
         
-        [Required]
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
         
         public Guid? LocationId { get; set; }
         
