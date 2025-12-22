@@ -4,7 +4,7 @@ using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.DTOs.Notification;
 using Sob_Need_Server.Interface.Notification;
-using Sob_Need_Server.Models.Notification;
+using Sob_Need_Server.Models.Notifications;
 using Sob_Need_Server.SignalR;
 
 namespace Sob_Need_Server.Services.Notifications
@@ -79,12 +79,12 @@ namespace Sob_Need_Server.Services.Notifications
             }
         }
 
-        public Task<ResponseDto<NotificationDto>> DeleteAsync(int id)
+        public Task<ResponseDto<NotificationDto>> DeleteAsync(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ResponseDto<NotificationDto>> GetByIdAsync(int id)
+        public Task<ResponseDto<NotificationDto>> GetByIdAsync(Guid id)
         {
             throw new NotImplementedException();
         }
@@ -94,7 +94,7 @@ namespace Sob_Need_Server.Services.Notifications
             throw new NotImplementedException();
         }
 
-        public Task<ResponseDto<NotificationDto>> UpdateAsync(int id, NotificationDto entity)
+        public Task<ResponseDto<NotificationDto>> UpdateAsync(Guid id, NotificationDto entity)
         {
             throw new NotImplementedException();
         }

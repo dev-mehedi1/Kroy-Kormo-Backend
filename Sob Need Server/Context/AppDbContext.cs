@@ -3,7 +3,6 @@ using Sob_Need_Server.Models.Attachment;
 using Sob_Need_Server.Models.Authentication;
 using Sob_Need_Server.Models.Categories;
 using Sob_Need_Server.Models.Locations;
-using Sob_Need_Server.Models.Notification;
 using Sob_Need_Server.Models.Notifications;
 using Sob_Need_Server.Models.Products;
 using Sob_Need_Server.Models.Users;
@@ -281,6 +280,19 @@ namespace Sob_Need_Server.Context
             modelBuilder.Entity<Models.Chat.Message>()
                 .HasIndex(m => new { m.ConversationId, m.CreatedAt })
                 .HasDatabaseName("IX_Message_Conversation_Date");
+
+            // Configure Notification models (changed from int to Guid)
+            modelBuilder.Entity<Notification>()
+                .Property(n => n.NotificationId)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<NotificationGroup>()
+                .Property(ng => ng.NotificationGroupId)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<GroupMembers>()
+                .Property(gm => gm.GroupMembersId)
+                .ValueGeneratedOnAdd();
         }
     }
 }

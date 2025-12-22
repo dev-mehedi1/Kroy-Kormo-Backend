@@ -34,7 +34,7 @@ namespace Sob_Need_Server.Services.LocationService
             }
         }
 
-        public Task<ResponseDto<CityDto>> DeleteAsync(int id)
+        public Task<ResponseDto<CityDto>> DeleteAsync(Guid id)
         {
             throw new NotImplementedException();
         }
@@ -89,12 +89,12 @@ namespace Sob_Need_Server.Services.LocationService
             }
         }
 
-        public Task<ResponseDto<CityDto>> GetByIdAsync(int id)
+        public Task<ResponseDto<CityDto>> GetByIdAsync(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ResponseDto<CityDto>> UpdateAsync(int id, CityDto entity)
+        public Task<ResponseDto<CityDto>> UpdateAsync(Guid id, CityDto entity)
         {
             throw new NotImplementedException();
         }

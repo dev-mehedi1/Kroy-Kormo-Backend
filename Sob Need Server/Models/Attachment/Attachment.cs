@@ -2,7 +2,7 @@
 {
     public class Attachment
     {
-        public Guid AttachmentId { get; set; }
+        public Guid AttachmentId { get; set; } = Guid.NewGuid();
         public Guid ProductId { get; set; }
         public string ImageUrl { get; set; } = null!;
         public string? AltName { get; set; }

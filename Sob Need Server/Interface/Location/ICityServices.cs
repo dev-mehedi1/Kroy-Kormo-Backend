@@ -4,7 +4,7 @@ using Sob_Need_Server.DTOs.Location.Filter;
 
 namespace Sob_Need_Server.Interface.Location;
 
-public interface ICityServices : IGenericService<CityDto, int>
+public interface ICityServices : IGenericService<CityDto, Guid>
 {
     Task<ResponseDto<IEnumerable<CityDto>>> GetAllAsync(CityFilterDto Filter);
 }

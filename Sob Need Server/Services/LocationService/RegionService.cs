@@ -34,7 +34,7 @@ public class RegionService(AppDbContext context, IMapper mapper) : IRegionServic
         }
     }
 
-    public Task<ResponseDto<RegionDto>> DeleteAsync(int id)
+    public Task<ResponseDto<RegionDto>> DeleteAsync(Guid id)
     {
         throw new NotImplementedException();
     }
@@ -89,12 +89,12 @@ public class RegionService(AppDbContext context, IMapper mapper) : IRegionServic
         }
     }
 
-    public Task<ResponseDto<RegionDto>> GetByIdAsync(int id)
+    public Task<ResponseDto<RegionDto>> GetByIdAsync(Guid id)
     {
         throw new NotImplementedException();
     }
 
-    public Task<ResponseDto<RegionDto>> UpdateAsync(int id, RegionDto entity)
+    public Task<ResponseDto<RegionDto>> UpdateAsync(Guid id, RegionDto entity)
     {
         throw new NotImplementedException();
     }

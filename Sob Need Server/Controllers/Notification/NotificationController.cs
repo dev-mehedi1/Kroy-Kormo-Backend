@@ -12,14 +12,14 @@ public class NotificationController(INotificationService notificationService) : 
     private readonly INotificationService _notificationService = notificationService;
 
     [HttpPost]
-    public async Task<IActionResult> CreateCategory([FromBody] NotificationDto categoryDto)
+    public async Task<IActionResult> CreateNotification([FromBody] NotificationDto notificationDto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(new ResponseDto<NotificationDto>(false, "Invalid request data.", null!));
         }
 
-        var response = await _notificationService.CreateAsync(categoryDto);
+        var response = await _notificationService.CreateAsync(notificationDto);
 
         if (response.IsSuccess)
         {

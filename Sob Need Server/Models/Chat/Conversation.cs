@@ -6,7 +6,7 @@ namespace Sob_Need_Server.Models.Chat
 {
     public class Conversation
     {
-        public Guid ConversationId { get; set; }
+        public Guid ConversationId { get; set; } = Guid.NewGuid();
         
         public Guid User1Id { get; set; }
         public virtual User User1 { get; set; } = null!;

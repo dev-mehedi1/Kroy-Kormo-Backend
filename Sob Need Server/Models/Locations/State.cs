@@ -4,7 +4,7 @@ namespace Sob_Need_Server.Models.Locations
 {
     public class State
     {
-        public Guid StateId { get; set; }
+        public Guid StateId { get; set; } = Guid.NewGuid();
 
         [Required]
         [MaxLength(255)]

@@ -2,8 +2,8 @@
 {
     public class GroupMembers
     {
-        public int GroupMembersId { get; set; }
-        public int GroupId { get; set; }
+        public Guid GroupMembersId { get; set; } = Guid.NewGuid();
+        public Guid GroupId { get; set; }
         public Guid UserId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }

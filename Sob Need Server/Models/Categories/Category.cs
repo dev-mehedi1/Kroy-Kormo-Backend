@@ -5,7 +5,7 @@ namespace Sob_Need_Server.Models.Categories
 {
     public class Category
     {
-        public Guid CategoryId { get; set; }
+        public Guid CategoryId { get; set; } = Guid.NewGuid();
         public string CategoryName { get; set; } = null!;
         public string Slug { get; set; } = null!;
         public Guid? ParentCategoryId { get; set; }

@@ -2,7 +2,7 @@
 {
     public class NotificationGroup
     {
-        public int NotificationGroupId { get; set; }
+        public Guid NotificationGroupId { get; set; } = Guid.NewGuid();
         public string GroupName { get; set; } = null!;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 

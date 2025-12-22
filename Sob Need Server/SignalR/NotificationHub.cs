@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.Notification;
-using Sob_Need_Server.Models.Notification;
 using Sob_Need_Server.Models.Notifications;
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;

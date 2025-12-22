@@ -4,7 +4,7 @@ using Sob_Need_Server.DTOs.Location;
 
 namespace Sob_Need_Server.Interface.Location
 {
-    public interface ICountryService : IGenericService<CountryDto, int>
+    public interface ICountryService : IGenericService<CountryDto, Guid>
     {
         Task<ResponseDto<IEnumerable<CountryDto>>> GetAllAsync(FilterDto Filter);
 

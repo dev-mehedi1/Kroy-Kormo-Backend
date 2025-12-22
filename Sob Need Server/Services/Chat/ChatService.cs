@@ -65,7 +65,6 @@ namespace Sob_Need_Server.Services.Chat
             {
                 conversation = new Conversation
                 {
-                    ConversationId = Guid.NewGuid(),
                     User1Id = user1Id,
                     User2Id = user2Id,
                     CreatedAt = DateTime.UtcNow
@@ -75,7 +74,6 @@ namespace Sob_Need_Server.Services.Chat
 
             var message = new Message
             {
-                MessageId = Guid.NewGuid(),
                 ConversationId = conversation.ConversationId,
                 SenderId = senderId,
                 Content = content,

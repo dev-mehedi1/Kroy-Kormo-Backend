@@ -60,7 +60,7 @@ namespace Sob_Need_Server.Services.CategoryService
         }
 
 
-        public Task<ResponseDto<CategoryDto>> DeleteAsync(int id)
+        public Task<ResponseDto<CategoryDto>> DeleteAsync(Guid id)
         {
             throw new NotImplementedException();
         }
@@ -129,12 +129,12 @@ namespace Sob_Need_Server.Services.CategoryService
             }
         }
 
-        public Task<ResponseDto<CategoryDto>> GetByIdAsync(int id)
+        public Task<ResponseDto<CategoryDto>> GetByIdAsync(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ResponseDto<CategoryDto>> UpdateAsync(int id, CategoryDto entity)
+        public Task<ResponseDto<CategoryDto>> UpdateAsync(Guid id, CategoryDto entity)
         {
             throw new NotImplementedException();
         }
