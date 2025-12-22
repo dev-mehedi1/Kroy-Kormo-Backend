@@ -13,7 +13,7 @@ namespace Sob_Need_Server.Services.User
         private readonly AppDbContext _context = context;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<ResponseDto<ReviewDto>> AddReviewAsync(ReviewDto reviewDto)
+        public async Task<ResponseDto<ReviewDto>> AddReviewAsync(Guid reviewerId, ReviewDto reviewDto)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace Sob_Need_Server.Services.User
                 // Check if reviewer already reviewed this seller
                 var existingReview = await _context.Reviews
                     .FirstOrDefaultAsync(r => r.SellerId == reviewDto.SellerId && 
-                                            r.ReviewerId == reviewDto.ReviewerId &&
+                                            r.ReviewerId == reviewerId &&
                                             r.ProductId == reviewDto.ProductId);
 
                 if (existingReview != null)
@@ -34,7 +34,7 @@ namespace Sob_Need_Server.Services.User
                 var review = new Review
                 {
                     SellerId = reviewDto.SellerId,
-                    ReviewerId = reviewDto.ReviewerId,
+                    ReviewerId = reviewerId,
                     ProductId = reviewDto.ProductId,
                     Rating = reviewDto.Rating,
                     Comment = reviewDto.Comment,

@@ -152,5 +152,15 @@ namespace Sob_Need_Server.SignalR
 
             await Clients.Group(groupName).SendAsync("ReceiveNotification", userId, message, groupName);
         }
+
+        // --- Chat Features ---
+        public async Task SendTypingIndicator(string receiverId, bool isTyping)
+        {
+            var senderId = Context.UserIdentifier;
+            if (!string.IsNullOrEmpty(senderId))
+            {
+                await Clients.User(receiverId).SendAsync("UserTyping", senderId, isTyping);
+            }
+        }
     }
 }

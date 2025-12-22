@@ -13,15 +13,17 @@ using Sob_Need_Server.Utils.Helpers;
 using Microsoft.AspNetCore.SignalR;
 using Sob_Need_Server.SignalR;
 using Microsoft.AspNetCore.Http;
+using Sob_Need_Server.Interface.Analytics;
 
 namespace Sob_Need_Server.Services.ProductService;
 
-public class ProductService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext, IHttpContextAccessor httpContextAccessor) : IProductService
+public class ProductService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext, IHttpContextAccessor httpContextAccessor, IAnalyticsService analyticsService) : IProductService
 {
     private readonly AppDbContext _context = context;
     private readonly IMapper _mapper = mapper;
     private readonly IHubContext<NotificationHub> _hubContext = hubContext;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+    private readonly IAnalyticsService _analyticsService = analyticsService;
 
 
 
@@ -46,67 +48,54 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 categoryIds.AddRange(subCategoryIds);
             }
 
-            // Base query to fetch products
-            var query = from product in _context.Products
-                        join location in _context.Locations on product.LocationId equals location.LocationId into locationGroup
-                        from loc in locationGroup.DefaultIfEmpty()
-
-                        join category in _context.Categories on product.CategoryId equals category.CategoryId into categoryG
-                        from category in categoryG.DefaultIfEmpty()
-
-                        join c in _context.Countries on loc != null ? loc.CountryId : null equals c.CountryId into cGroup
-                        from c in cGroup.DefaultIfEmpty()
-
-                        join s in _context.States on loc != null ? loc.StateId : null equals s.StateId into sGroup
-                        from s in sGroup.DefaultIfEmpty()
-
-                        join ci in _context.Cities on loc != null ? loc.CityId : null equals ci.CityId into ciGroup
-                        from ci in ciGroup.DefaultIfEmpty()
-
-                        join r in _context.Regions on loc != null ? loc.RegionId : null equals r.RegionId into rGroup
-                        from r in rGroup.DefaultIfEmpty()
-
-                        select new
-                        {
-                            Product = product,
-                            Location = loc,
-                            Category = category,
-                            c.CountryId,
-                            CountryName = c != null ? c.CountryName : null,
-                            s.StateId,
-                            StateName = s != null ? s.StateName : null,
-                            ci.CityId,
-                            CityName = ci != null ? ci.CityName : null,
-                            r.RegionId,
-                            RegionName = r != null ? r.RegionName : null
-                        };
+            // Base query to fetch products with navigation properties
+            var query = _context.Products
+                .Include(p => p.User)
+                    .ThenInclude(u => u!.UserType)
+                .Include(p => p.Category)
+                .Include(p => p.Condition)
+                .Include(p => p.Status)
+                .Include(p => p.Location)
+                    .ThenInclude(l => l!.Country)
+                .Include(p => p.Location)
+                    .ThenInclude(l => l!.State)
+                .Include(p => p.Location)
+                    .ThenInclude(l => l!.City)
+                .Include(p => p.Location)
+                    .ThenInclude(l => l!.Region)
+                .Include(p => p.Attachments)
+                .Include(p => p.Promotions)
+                .AsQueryable();
 
             // Apply filters
-            if (categoryIds.Count != 0) query = query.Where(x => categoryIds.Contains(x.Product.CategoryId));
+            if (categoryIds.Count != 0) query = query.Where(x => categoryIds.Contains(x.CategoryId));
             
-            if (!string.IsNullOrWhiteSpace(filters.SearchText)) query = query.Where(x => x.Product.Title.Contains(filters.SearchText) || x.Product.Description.Contains(filters.SearchText));
+            if (!string.IsNullOrWhiteSpace(filters.SearchText)) query = query.Where(x => x.Title.Contains(filters.SearchText) || x.Description.Contains(filters.SearchText));
+
+            // Ads Type (IsSell)
+            if (filters.IsSell.HasValue) query = query.Where(x => x.IsSell == filters.IsSell);
 
             // Is Urgent
-            if (filters.IsUrgentAd.HasValue) query = query.Where(x => x.Product.IsUrgentAd == filters.IsUrgentAd);
+            if (filters.IsUrgentAd.HasValue) query = query.Where(x => x.IsUrgentAd == filters.IsUrgentAd);
 
-            if (filters.UserId.HasValue) query = query.Where(x => x.Product.UserId == filters.UserId);
+            if (filters.UserId.HasValue) query = query.Where(x => x.UserId == filters.UserId);
 
-            if (filters.CountryId.HasValue) query = query.Where(x => x.CountryId == filters.CountryId);
-            if (filters.StateId.HasValue) query = query.Where(x => x.StateId == filters.StateId);
-            if (filters.CityId.HasValue) query = query.Where(x => x.CityId == filters.CityId);
-            if (filters.RegionId.HasValue) query = query.Where(x => x.RegionId == filters.RegionId);
+            if (filters.CountryId.HasValue) query = query.Where(x => x.Location != null && x.Location.CountryId == filters.CountryId);
+            if (filters.StateId.HasValue) query = query.Where(x => x.Location != null && x.Location.StateId == filters.StateId);
+            if (filters.CityId.HasValue) query = query.Where(x => x.Location != null && x.Location.CityId == filters.CityId);
+            if (filters.RegionId.HasValue) query = query.Where(x => x.Location != null && x.Location.RegionId == filters.RegionId);
 
             // Is top ads
             if (filters.IsTopAd.HasValue)
             {
-                query = query.Where(x => x.Product.IsTopAd == filters.IsTopAd);
+                query = query.Where(x => x.IsTopAd == filters.IsTopAd);
             }
 
             if (filters.OrderByAsc.HasValue)
             {
                 query = filters.OrderByAsc.Value
-                    ? query.OrderBy(x => x.Product.CreatedAt)
-                    : query.OrderByDescending(x => x.Product.CreatedAt);
+                    ? query.OrderBy(x => x.CreatedAt)
+                    : query.OrderByDescending(x => x.CreatedAt);
             }
             // Total count before paging
             var totalCount = await query.CountAsync();
@@ -120,32 +109,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             // Execute query and process the data
             var rawData = await query.ToListAsync();
 
-            var products = rawData.Select(x => new ProductDto
-            {
-                ProductId = x.Product.ProductId,
-                Title = x.Product.Title,
-                Description = x.Product.Description,
-                Price = x.Product.Price,
-                CreatedAt = x.Product.CreatedAt,
-                Slug = x.Product.Slug,
-                IsSell = x.Product.IsSell,
-                CategoryName = x?.Category?.CategoryName,
-                Location = x?.Location != null ? new LocationDto
-                {
-                    AddressLine = x.Location.AddressLine ?? null,
-                    CountryName = x.CountryName ?? null,
-                    CityName = x.CityName ?? null,
-                    StateName = x.StateName ?? null,
-                    RegionName = x.RegionName ?? null,
-                } : null!,
-                Images = _context.Attachments
-                    .Where(a => a.ProductId == x.Product.ProductId)
-                    .Select(a => new ImageDto
-                    {
-                        ImageUrl = a.ImageUrl,
-                        AltName = a.AltName
-                    }).ToList()
-            }).ToList();
+            var products = _mapper.Map<IEnumerable<ProductDto>>(rawData);
 
             return new ResponseDto<IEnumerable<ProductDto>>(true, "Products retrieved successfully", products)
             {
@@ -158,46 +122,43 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         }
     }
 
-    public async Task<ResponseDto<ProductDto>> CreateAsync(ProductDto productDto)
+    public async Task<ResponseDto<ProductDto>> CreateAsync(CreateProductDto productDto)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            //Check is already exist slug
-            var existSlug = await _context.Categories.AnyAsync(x => x.Slug == productDto.Slug);
-            if (existSlug) return new ResponseDto<ProductDto>(false, "A product with the same slug already exists.", null!);
+            // Check if slug already exists in Products table
+            var existSlug = await _context.Products.AnyAsync(x => x.Title == productDto.Title);
+            if (existSlug) return new ResponseDto<ProductDto>(false, "A product with the same title already exists.", null!);
+
             // Get UserId from token
             var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
-            var userId = JwtHelper.GetUserIdFromToken(authHeader!);
+            var userIdStr = JwtHelper.GetUserIdFromToken(authHeader!);
+            if (string.IsNullOrEmpty(userIdStr)) return new ResponseDto<ProductDto>(false, "Unauthorized", null!);
+            
+            var userId = Guid.Parse(userIdStr);
+
             var product = _mapper.Map<Product>(productDto);
-            var slug = StringUtilities.GenerateSlug(product.Slug);
-            product.Slug = slug;
-            product.IsSell = false;
+            
+            // Set fields from token/system
+            product.UserId = userId;
+            product.Slug = StringUtilities.GenerateSlug(product.Title);
             product.CreatedAt = DateTime.UtcNow;
-            product.CreatedBy = userId;
+            product.CreatedBy = userIdStr;
+            product.IsVerified = false;
 
             // Add Product
             _context.Products.Add(product);
-     
-
-            // Handle Location
-            if (productDto.Location != null)
-            {
-                var location = _mapper.Map<Location>(productDto.Location);
-                _context.Locations.Add(location);
-                product.LocationId = location.LocationId;
-            }
-
+            await _context.SaveChangesAsync();
 
             // Handle Images (Attachments)
-            if (productDto.Images != null && productDto.Images.Count > 0)
+            if (productDto.ImageUrls != null && productDto.ImageUrls.Count > 0)
             {
-                foreach (var imageDto in productDto.Images)
+                foreach (var imageUrl in productDto.ImageUrls)
                 {
                     var attachment = new Attachment
                     {
-                        ImageUrl = imageDto.ImageUrl,
-                        AltName = imageDto.AltName,
+                        ImageUrl = imageUrl,
                         ProductId = product.ProductId,
                         CreatedAt = DateTime.UtcNow,
                         IsActive = true
@@ -206,12 +167,23 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 }
             }
 
+            // Handle Attributes
+            if (productDto.Attributes != null && productDto.Attributes.Count > 0)
+            {
+                foreach (var attrDto in productDto.Attributes)
+                {
+                    var attrValue = _mapper.Map<ProductAttributeValue>(attrDto);
+                    attrValue.ProductId = product.ProductId;
+                    _context.ProductAttributeValues.Add(attrValue);
+                }
+            }
+
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-            // send notification 
-            // Create a notification message
-            string notificationMessage = $"Product '{product.Title}' was created at {DateTime.UtcNow}.";
-            await _hubContext.Clients.All.SendAsync(notificationMessage);
+
+            // Notify via SignalR
+            string notificationMessage = $"New product '{product.Title}' listed.";
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification", "SYSTEM", notificationMessage, "GLOBAL");
 
             var createdProductDto = _mapper.Map<ProductDto>(product);
             return new ResponseDto<ProductDto>(true, "Product created successfully", createdProductDto);
@@ -219,19 +191,26 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return new ResponseDto<ProductDto>(false, ex.Message, null, 500);
+            return new ResponseDto<ProductDto>(false, ex.Message, null!);
         }
     }
 
-    public async Task<ResponseDto<ProductDto>> UpdateAsync(Guid id, ProductDto productDto)
+    public async Task<ResponseDto<ProductDto>> UpdateAsync(Guid id, UpdateProductDto productDto)
     {
         try
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.Attachments)
+                .Include(p => p.AttributeValues)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
             if (product == null)
                 return new ResponseDto<ProductDto>(false, "Product not found", null!);
 
+            // Map updates
             _mapper.Map(productDto, product);
+            product.UpdatedAt = DateTime.UtcNow;
+
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
 
@@ -244,48 +223,70 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         }
     }
 
-    public Task<ResponseDto<bool>> DeleteAsync(Guid id)
+    public async Task<ResponseDto<ProductDto>> DeleteAsync(Guid id, Guid userId)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+                return new ResponseDto<ProductDto>(false, "Product not found", null!);
+
+            // Security check
+            if (product.UserId != userId)
+            {
+                return new ResponseDto<ProductDto>(false, "You do not have permission to delete this product", null!);
+            }
+
+            var productDto = _mapper.Map<ProductDto>(product);
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+            return new ResponseDto<ProductDto>(true, "Product deleted successfully", productDto);
+        }
+        catch (Exception ex)
+        {
+            return new ResponseDto<ProductDto>(false, ex.Message, null!);
+        }
     }
 
     public async Task<ResponseDto<ProductDto>> GetByIdAsync(Guid id)
     {
         try
         {
-            var productDto = await (from p in _context.Products
-                                    join location in _context.Locations
-                                    on p.LocationId equals location.LocationId into locationGroup
-                                    from loc in locationGroup.DefaultIfEmpty()
-                                    join attachment in _context.Attachments
-                                    on p.ProductId equals attachment.ProductId into attachmentGroup
-                                    join category in _context.Categories on p.CategoryId equals category.CategoryId
-                                    where p.ProductId == id
-                                    select new ProductDto
-                                    {
-                                        ProductId = p.ProductId,
-                                        Title = p.Title,
-                                        Description = p.Description,
-                                        Price = p.Price,
-                                        IsDeliveryFree = p.IsDeliveryFree,
-                                        CategoryName = category.CategoryName,
-                                        IsTopAd = p.IsTopAd,
-                                        IsJobAd = p.IsJobAd,
-                                        CreatedAt = p.CreatedAt,
-                                        Location = new LocationDto 
-                                        {
-                                            AddressLine = loc.AddressLine,
-                                            CountryId = loc.CountryId
-                                        },
-                                        Images = attachmentGroup.Select(a => new ImageDto
-                                        {
-                                            ImageUrl = a.ImageUrl,
-                                            AltName = a.AltName
-                                        }).ToList()
-                                    }).FirstOrDefaultAsync();
+            var product = await _context.Products
+                .Include(p => p.User)
+                    .ThenInclude(u => u!.UserType)
+                .Include(p => p.Category)
+                .Include(p => p.Condition)
+                .Include(p => p.Status)
+                .Include(p => p.Location)
+                    .ThenInclude(l => l!.Country)
+                .Include(p => p.Location)
+                    .ThenInclude(l => l!.State)
+                .Include(p => p.Location)
+                    .ThenInclude(l => l!.City)
+                .Include(p => p.Location)
+                    .ThenInclude(l => l!.Region)
+                .Include(p => p.Attachments)
+                .Include(p => p.Promotions)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
+            if (product == null)
+                return new ResponseDto<ProductDto>(false, "Product not found", null!);
+
+            var productDto = _mapper.Map<ProductDto>(product);
 
             if (productDto == null)
                 return new ResponseDto<ProductDto>(false, "Product not found", null!);
+
+            // Track View Telemetry
+            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
+            var userIdStr = JwtHelper.GetUserIdFromToken(authHeader!);
+            Guid? userId = string.IsNullOrEmpty(userIdStr) ? null : Guid.Parse(userIdStr);
+            var ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+            var userAgent = _httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? "Unknown";
+
+            // Fire and forget view tracking to avoid blocking response
+            _ = _analyticsService.TrackProductViewAsync(id, userId, ipAddress, userAgent);
 
             return new ResponseDto<ProductDto>(true, "Product retrieved successfully", productDto);
         }
@@ -300,34 +301,39 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
     {
         try
         {
-            var productDto = await (from p in _context.Products
-                                    join location in _context.Locations
-                                    on p.LocationId equals location.LocationId into locationGroup
-                                    from loc in locationGroup.DefaultIfEmpty()
-                                    join attachment in _context.Attachments
-                                    on p.ProductId equals attachment.ProductId into attachmentGroup
-                                    where p.Slug == Slug
-                                    select new ProductDto
-                                    {
-                                        ProductId = p.ProductId,
-                                        Title = p.Title,
-                                        Description = p.Description,
-                                        Price = p.Price,
-                                        CreatedAt = p.CreatedAt,
-                                        Slug= p.Slug,
-                                        Location = new LocationDto
-                                        {
-                                            AddressLine = loc.AddressLine,
-                                            CountryId = loc.CountryId
-                                        },
-                                        Images = attachmentGroup.Select(a => new ImageDto
-                                        {
-                                            ImageUrl = a.ImageUrl,
-                                            AltName = a.AltName
-                                        }).ToList()
-                                    }).FirstOrDefaultAsync();
+            var product = await _context.Products
+                .Include(p => p.User)
+                    .ThenInclude(u => u!.UserType)
+                .Include(p => p.Category)
+                .Include(p => p.Condition)
+                .Include(p => p.Status)
+                .Include(p => p.Location)
+                    .ThenInclude(l => l!.Country)
+                .Include(p => p.Location)
+                    .ThenInclude(l => l!.State)
+                .Include(p => p.Location)
+                    .ThenInclude(l => l!.City)
+                .Include(p => p.Location)
+                    .ThenInclude(l => l!.Region)
+                .Include(p => p.Attachments)
+                .Include(p => p.Promotions)
+                .FirstOrDefaultAsync(p => p.Slug == Slug);
+
+            if (product == null) return new ResponseDto<ProductDto>(false, "Product not found", null!);
+
+            var productDto = _mapper.Map<ProductDto>(product);
 
             if (productDto == null) return new ResponseDto<ProductDto>(false, "Product not found", null!);
+
+            // Track View Telemetry
+            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
+            var userIdStr = JwtHelper.GetUserIdFromToken(authHeader!);
+            Guid? userId = string.IsNullOrEmpty(userIdStr) ? null : Guid.Parse(userIdStr);
+            var ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+            var userAgent = _httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? "Unknown";
+
+            // Fire and forget view tracking
+            _ = _analyticsService.TrackProductViewAsync(productDto.ProductId, userId, ipAddress, userAgent);
 
             return new ResponseDto<ProductDto>(true, "Product retrieved successfully", productDto);
         }
@@ -337,8 +343,34 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         }
     }
 
-    Task<ResponseDto<ProductDto>> IGenericService<ProductDto, Guid>.DeleteAsync(Guid id)
+    public async Task<ResponseDto<ProductDto>> UpdateStatusAsync(Guid id, string statusSlug, Guid userId)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return new ResponseDto<ProductDto>(false, "Product not found", null!);
+
+            // Security check
+            if (product.UserId != userId)
+            {
+                return new ResponseDto<ProductDto>(false, "You do not have permission to update this product status", null!);
+            }
+
+            var status = await _context.ProductStatuses.FirstOrDefaultAsync(s => s.Slug == statusSlug);
+            if (status == null) return new ResponseDto<ProductDto>(false, "Status not found", null!);
+
+            product.StatusId = status.StatusId;
+            product.UpdatedAt = DateTime.UtcNow;
+
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync();
+
+            var updatedProductDto = _mapper.Map<ProductDto>(product);
+            return new ResponseDto<ProductDto>(true, "Product status updated successfully", updatedProductDto);
+        }
+        catch (Exception ex)
+        {
+            return new ResponseDto<ProductDto>(false, ex.Message, null!);
+        }
     }
 }

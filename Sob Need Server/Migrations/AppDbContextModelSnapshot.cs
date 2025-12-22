@@ -55,6 +55,8 @@ namespace Sob_Need_Server.Migrations
 
                     b.HasKey("AttachmentId");
 
+                    b.HasIndex("ProductId");
+
                     b.ToTable("Attachments");
                 });
 
@@ -219,6 +221,69 @@ namespace Sob_Need_Server.Migrations
                         .HasDatabaseName("IX_Category_Slug");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Chat.Conversation", b =>
+                {
+                    b.Property<Guid>("ConversationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastMessage")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastMessageAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("User1Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("User2Id")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ConversationId");
+
+                    b.HasIndex("User2Id");
+
+                    b.HasIndex("User1Id", "User2Id")
+                        .HasDatabaseName("IX_Conversation_Users");
+
+                    b.ToTable("Conversations");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Chat.Message", b =>
+                {
+                    b.Property<Guid>("MessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ConversationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("MessageId");
+
+                    b.HasIndex("SenderId");
+
+                    b.HasIndex("ConversationId", "CreatedAt")
+                        .HasDatabaseName("IX_Message_Conversation_Date");
+
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("Sob_Need_Server.Models.Locations.City", b =>
@@ -938,6 +1003,15 @@ namespace Sob_Need_Server.Migrations
                     b.ToTable("SavedSearches");
                 });
 
+            modelBuilder.Entity("Sob_Need_Server.Models.Attachment.Attachment", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Products.Product", null)
+                        .WithMany("Attachments")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Sob_Need_Server.Models.Authentication.User", b =>
                 {
                     b.HasOne("Sob_Need_Server.Models.Authentication.UserType", "UserType")
@@ -946,6 +1020,44 @@ namespace Sob_Need_Server.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("UserType");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Chat.Conversation", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "User1")
+                        .WithMany()
+                        .HasForeignKey("User1Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "User2")
+                        .WithMany()
+                        .HasForeignKey("User2Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User1");
+
+                    b.Navigation("User2");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Chat.Message", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Chat.Conversation", "Conversation")
+                        .WithMany("Messages")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Conversation");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("Sob_Need_Server.Models.Locations.Location", b =>
@@ -990,8 +1102,7 @@ namespace Sob_Need_Server.Migrations
                     b.HasOne("Sob_Need_Server.Models.Products.Condition", "Condition")
                         .WithMany("Products")
                         .HasForeignKey("ConditionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Sob_Need_Server.Models.Locations.Location", "Location")
                         .WithMany("Products")
@@ -1001,14 +1112,12 @@ namespace Sob_Need_Server.Migrations
                     b.HasOne("Sob_Need_Server.Models.Products.ProductStatus", "Status")
                         .WithMany("Products")
                         .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Sob_Need_Server.Models.Authentication.User", "User")
                         .WithMany("Products")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Category");
 
@@ -1161,6 +1270,11 @@ namespace Sob_Need_Server.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("Sob_Need_Server.Models.Chat.Conversation", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
             modelBuilder.Entity("Sob_Need_Server.Models.Locations.Location", b =>
                 {
                     b.Navigation("Products");
@@ -1173,6 +1287,8 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Products.Product", b =>
                 {
+                    b.Navigation("Attachments");
+
                     b.Navigation("AttributeValues");
 
                     b.Navigation("Favorites");

@@ -42,7 +42,9 @@ namespace Sob_Need_Server.Context
         public DbSet<ProductView> ProductViews { get; set; }
         public DbSet<ProductPromotion> ProductPromotions { get; set; }
         public DbSet<Review> Reviews { get; set; }
-        
+        public DbSet<Models.Chat.Conversation> Conversations { get; set; }
+        public DbSet<Models.Chat.Message> Messages { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -188,7 +190,32 @@ namespace Sob_Need_Server.Context
                 .WithMany()
                 .HasForeignKey(l => l.RegionId)
                 .OnDelete(DeleteBehavior.SetNull);
-            
+
+            // Configure Chat relationships
+            modelBuilder.Entity<Models.Chat.Conversation>()
+                .HasOne(c => c.User1)
+                .WithMany()
+                .HasForeignKey(c => c.User1Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Models.Chat.Conversation>()
+                .HasOne(c => c.User2)
+                .WithMany()
+                .HasForeignKey(c => c.User2Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Models.Chat.Message>()
+                .HasOne(m => m.Conversation)
+                .WithMany(c => c.Messages)
+                .HasForeignKey(m => m.ConversationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Models.Chat.Message>()
+                .HasOne(m => m.Sender)
+                .WithMany()
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Configure indexes for optimized queries
             
             // Product indexes
@@ -245,6 +272,15 @@ namespace Sob_Need_Server.Context
             modelBuilder.Entity<ProductView>()
                 .HasIndex(pv => new { pv.ProductId, pv.ViewedAt })
                 .HasDatabaseName("IX_ProductView_Product_Date");
+
+            // Chat indexes
+            modelBuilder.Entity<Models.Chat.Conversation>()
+                .HasIndex(c => new { c.User1Id, c.User2Id })
+                .HasDatabaseName("IX_Conversation_Users");
+
+            modelBuilder.Entity<Models.Chat.Message>()
+                .HasIndex(m => new { m.ConversationId, m.CreatedAt })
+                .HasDatabaseName("IX_Message_Conversation_Date");
         }
     }
 }

@@ -4,9 +4,14 @@ using Sob_Need_Server.DTOs.Product;
 
 namespace Sob_Need_Server.Interface
 {
-    public interface IProductService : IGenericService<ProductDto, Guid>
+    public interface IProductService
     {
+        Task<ResponseDto<ProductDto>> GetByIdAsync(Guid id);
+        Task<ResponseDto<ProductDto>> CreateAsync(CreateProductDto productDto);
+        Task<ResponseDto<ProductDto>> UpdateAsync(Guid id, UpdateProductDto productDto);
+        Task<ResponseDto<ProductDto>> DeleteAsync(Guid id, Guid userId);
         Task<ResponseDto<IEnumerable<ProductDto>>> GetAllProductsAsync(ProductFilterDto Filters);
         Task<ResponseDto<ProductDto>> GetProductBySlugAsync(string Slug);
+        Task<ResponseDto<ProductDto>> UpdateStatusAsync(Guid id, string statusSlug, Guid userId);
     }
 }

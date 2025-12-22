@@ -38,5 +38,21 @@ namespace Sob_Need_Server.Controllers.Authentication
             if (response.IsSuccess) return Ok(response);
             return BadRequest(response);
         }
+
+        [HttpPatch("{UserId}/password")]
+        public async Task<ActionResult<ResponseDto<bool>>> UpdatePassword(Guid UserId, string OldPassword, string NewPassword)
+        {
+            var response = await _userService.UpdatePasswordAsync(UserId, OldPassword, NewPassword);
+            if (response.IsSuccess) return Ok(response);
+            return BadRequest(response);
+        }
+
+        [HttpPut("{UserId}/profile")]
+        public async Task<ActionResult<ResponseDto<UserDto>>> UpdateProfile(Guid UserId, UserDto userDto)
+        {
+            var response = await _userService.UpdateProfileAsync(UserId, userDto);
+            if (response.IsSuccess) return Ok(response);
+            return BadRequest(response);
+        }
     }
 }

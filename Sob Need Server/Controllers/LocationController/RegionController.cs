@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.DTOs.Location;
 using Sob_Need_Server.DTOs.Location.Filter;
@@ -9,22 +10,23 @@ namespace Sob_Need_Server.Controllers.LocationController
 {
     [Route(Constants.BasePath + "/[controller]")]
     [ApiController]
-    public class CityController(ICityServices CityService) : ControllerBase
+    public class RegionController(IRegionServices regionService) : ControllerBase
     {
-        private readonly ICityServices _CityService = CityService;
+        private readonly IRegionServices _regionService = regionService;
 
         [HttpPost]
-        public async Task<IActionResult> CreateCity ([FromBody] CityDto CityDto)
+        [Authorize]
+        public async Task<IActionResult> CreateRegion ([FromBody] RegionDto regionDto)
         {
-            var response = await _CityService.CreateAsync(CityDto);
+            var response = await _regionService.CreateAsync(regionDto);
             if (response.IsSuccess) return Ok(response);
             return BadRequest(response);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCitys([FromQuery] CityFilterDto filterDto)
+        public async Task<IActionResult> GetRegions([FromQuery] RegionFilterDto filterDto)
         {
-            var response = await _CityService.GetAllAsync(filterDto);
+            var response = await _regionService.GetAllAsync(filterDto);
             if (response.IsSuccess) return Ok(response);
             return BadRequest(response);
         }

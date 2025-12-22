@@ -128,14 +128,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Enable CORS with the "AllowLocalhost" policy
+app.UseRouting();
+
 app.UseCors("AllowLocalhost");
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 // SignalR Configure
 app.MapHub<NotificationHub>("/notificationHub");
 
 app.MapControllers();
-app.UseAuthentication();
-app.UseAuthorization();
 app.Run();

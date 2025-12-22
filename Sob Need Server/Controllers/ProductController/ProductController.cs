@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Sob_Need_Server.DTOs.Product;
 using Sob_Need_Server.Interface;
 using Sob_Need_Server.Utils;
+using Sob_Need_Server.Utils.Helpers;
 using Sob_Need_Server.DTOs.Common;
 
 namespace Sob_Need_Server.Controllers.ProductController
@@ -40,7 +42,7 @@ namespace Sob_Need_Server.Controllers.ProductController
 
         // POST: api/product
         [HttpPost]
-        public async Task<ActionResult<ResponseDto<ProductDto>>> CreateProduct(ProductDto productDto)
+        public async Task<ActionResult<ResponseDto<ProductDto>>> CreateProduct(CreateProductDto productDto)
         {
             var response = await _productService.CreateAsync(productDto);
             if (!response.IsSuccess)
@@ -55,7 +57,7 @@ namespace Sob_Need_Server.Controllers.ProductController
 
         // PUT: api/product/5
         [HttpPut("{id}")]
-        public async Task<ActionResult<ResponseDto<ProductDto>>> UpdateProduct(Guid id, ProductDto productDto)
+        public async Task<ActionResult<ResponseDto<ProductDto>>> UpdateProduct(Guid id, UpdateProductDto productDto)
         {
             var response = await _productService.UpdateAsync(id, productDto);
             if (!response.IsSuccess)
@@ -73,5 +75,41 @@ namespace Sob_Need_Server.Controllers.ProductController
             return Ok(resonse);
             
         }
+        // DELETE: api/v1/product/5
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<ActionResult<ResponseDto<ProductDto>>> DeleteProduct(Guid id)
+        {
+            var userIdStr = JwtHelper.GetUserIdFromToken(Request.Headers.Authorization.ToString()!);
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            var userId = Guid.Parse(userIdStr);
+
+            var response = await _productService.DeleteAsync(id, userId);
+            if (!response.IsSuccess)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
+
+        // PATCH: api/v1/product/5/status
+        [HttpPatch("{id}/status")]
+        [Authorize]
+        public async Task<ActionResult<ResponseDto<ProductDto>>> UpdateProductStatus(Guid id, [FromBody] StatusUpdateDto updateDto)
+        {
+            var userIdStr = JwtHelper.GetUserIdFromToken(Request.Headers.Authorization.ToString()!);
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            var userId = Guid.Parse(userIdStr);
+
+            var response = await _productService.UpdateStatusAsync(id, updateDto.StatusSlug, userId);
+            if (!response.IsSuccess)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
+    }
+
+    public class StatusUpdateDto
+    {
+        public string StatusSlug { get; set; } = null!;
     }
 }

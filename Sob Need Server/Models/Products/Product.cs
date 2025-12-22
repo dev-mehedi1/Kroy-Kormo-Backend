@@ -89,6 +89,7 @@ namespace Sob_Need_Server.Models.Products
         public virtual Location? Location { get; set; }
         public virtual ICollection<ProductAttributeValue> AttributeValues { get; set; } = new List<ProductAttributeValue>();
         public virtual ICollection<ProductPromotion> Promotions { get; set; } = new List<ProductPromotion>();
+        public virtual ICollection<Attachment.Attachment> Attachments { get; set; } = new List<Attachment.Attachment>();
         public virtual ICollection<ProductView> Views { get; set; } = new List<ProductView>();
         public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();

@@ -6,15 +6,18 @@ using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.Interface.Authentication;
 using Sob_Need_Server.Models.Authentication;
 using Sob_Need_Server.Utils.Helpers;
+using Microsoft.AspNetCore.SignalR;
+using Sob_Need_Server.SignalR;
 
 namespace Sob_Need_Server.Services.Authentication;
 
-public class UserService (AppDbContext dbContext, IConfiguration configuration, TokenHelper tokenHelper, IMapper mapper) : IUserService
+public class UserService (AppDbContext dbContext, IConfiguration configuration, TokenHelper tokenHelper, IMapper mapper, IHubContext<NotificationHub> hubContext) : IUserService
 {
     public readonly AppDbContext _context = dbContext;
     public readonly IMapper _mapper = mapper;
     public readonly IConfiguration _configuration = configuration;
     private readonly TokenHelper _tokenHelper = tokenHelper;
+    private readonly IHubContext<NotificationHub> _hubContext = hubContext;
 
     public async Task<ResponseDto<UserDto>> GetUserById(Guid UserId)
     {
@@ -86,6 +89,57 @@ public class UserService (AppDbContext dbContext, IConfiguration configuration, 
         catch (Exception ex)
         {
             return new ResponseDto<UserDto>(false , $"{ex.Message}" , null!);
+        }
+    }
+
+    public async Task<ResponseDto<bool>> UpdatePasswordAsync(Guid UserId, string OldPassword, string NewPassword)
+    {
+        try
+        {
+            var user = await _context.Users.FindAsync(UserId);
+            if (user == null) return new ResponseDto<bool>(false, "User not found", false);
+
+            var isPasswordValid = PasswordHelper.VerifyPassword(user.Password, OldPassword);
+            if (!isPasswordValid) return new ResponseDto<bool>(false, "Invalid old password", false);
+
+            user.Password = PasswordHelper.GenerateHashedPassword(NewPassword);
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return new ResponseDto<bool>(true, "Password updated successfully", true);
+        }
+        catch (Exception ex)
+        {
+            return new ResponseDto<bool>(false, ex.Message, false);
+        }
+    }
+
+    public async Task<ResponseDto<UserDto>> UpdateProfileAsync(Guid UserId, UserDto entity)
+    {
+        try
+        {
+            var user = await _context.Users.FindAsync(UserId);
+            if (user == null) return new ResponseDto<UserDto>(false, "User not found", null!);
+
+            user.FullName = entity.FullName ?? user.FullName;
+            user.Phone = entity.Phone ?? user.Phone;
+            user.Bio = entity.Bio ?? user.Bio;
+            user.Address = entity.Address ?? user.Address;
+            user.ProfilePicture = entity.ProfilePicture ?? user.ProfilePicture;
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            var userDto = _mapper.Map<UserDto>(user);
+            
+            // Broadcast to other sessions of the same user
+            await _hubContext.Clients.User(UserId.ToString()).SendAsync("UpdateProfileTelemetry", userDto);
+
+            return new ResponseDto<UserDto>(true, "Profile updated successfully", userDto);
+        }
+        catch (Exception ex)
+        {
+            return new ResponseDto<UserDto>(false, ex.Message, null!);
         }
     }
 }

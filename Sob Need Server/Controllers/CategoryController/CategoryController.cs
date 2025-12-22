@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Sob_Need_Server.DTOs.Category;
 using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.DTOs.Product;
@@ -14,6 +15,7 @@ namespace Sob_Need_Server.Controllers.CategoryController
         private readonly ICategoryService _categoryService = categoryService;
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryDto categoryDto)
         {
             if (!ModelState.IsValid)

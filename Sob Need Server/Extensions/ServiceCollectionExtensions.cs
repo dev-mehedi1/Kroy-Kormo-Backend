@@ -4,12 +4,17 @@ using Sob_Need_Server.Interface.Authentication;
 using Sob_Need_Server.Interface.Location;
 using Sob_Need_Server.Interface.Notification;
 using Sob_Need_Server.Interface.User;
+using Sob_Need_Server.Interface.Chat;
+using Sob_Need_Server.Interface.Analytics;
+using Sob_Need_Server.Interface.Products;
 using Sob_Need_Server.Services.Authentication;
 using Sob_Need_Server.Services.CategoryService;
 using Sob_Need_Server.Services.LocationService;
 using Sob_Need_Server.Services.Notifications;
 using Sob_Need_Server.Services.ProductService;
 using Sob_Need_Server.Services.User;
+using Sob_Need_Server.Services.Chat;
+using Sob_Need_Server.Services.Analytics;
 using Sob_Need_Server.SignalR;
 using Sob_Need_Server.Utils.Helpers;
 
@@ -35,6 +40,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFavoriteService, FavoriteService>();
         services.AddScoped<ISavedSearchService, SavedSearchService>();
         services.AddScoped<IReviewService, ReviewService>();
+        services.AddScoped<IChatService, ChatService>();
+        services.AddScoped<IAnalyticsService, AnalyticsService>();
+        services.AddScoped<IPromotionService, PromotionService>();
 
         return services;
     }

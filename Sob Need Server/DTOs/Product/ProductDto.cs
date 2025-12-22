@@ -60,6 +60,9 @@ namespace Sob_Need_Server.DTOs.Product
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public DateTime? ExpiresAt { get; set; }
+
+        // Promotions
+        public List<PromotionDto> ActivePromotions { get; set; } = new List<PromotionDto>();
     }
 }
 

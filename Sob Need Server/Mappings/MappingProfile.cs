@@ -13,6 +13,8 @@ using Sob_Need_Server.Models.Locations;
 using Sob_Need_Server.Models.Notification;
 using Sob_Need_Server.Models.Products;
 using Sob_Need_Server.Models.Users;
+using Sob_Need_Server.Models.Chat;
+using Sob_Need_Server.DTOs.Chat;
 
 namespace Sob_Need_Server.Mappings
 {
@@ -28,6 +30,8 @@ namespace Sob_Need_Server.Mappings
                 .ForMember(dest => dest.SellerPhone, opt => opt.MapFrom(src => src.User != null ? src.User.Phone : null))
                 .ForMember(dest => dest.IsVerifiedSeller, opt => opt.MapFrom(src => src.User != null && src.User.IsVerified))
                 .ForMember(dest => dest.UserTypeName, opt => opt.MapFrom(src => src.User != null && src.User.UserType != null ? src.User.UserType.TypeName : null))
+                .ForMember(dest => dest.ActivePromotions, opt => opt.MapFrom(src => 
+                    src.Promotions.Where(p => p.IsActive && p.EndDate >= DateTime.UtcNow)))
                 .ReverseMap();
             
             CreateMap<CreateProductDto, Product>();
@@ -99,6 +103,36 @@ namespace Sob_Need_Server.Mappings
             
             // Notification mappings
             CreateMap<Notification, NotificationDto>().ReverseMap();
+
+            // Promotion mappings
+            CreateMap<ProductPromotion, PromotionDto>().ReverseMap();
+
+            // Chat mappings
+            CreateMap<Conversation, ConversationDto>()
+                .ForMember(dest => dest.OtherUserId, opt => opt.MapFrom((src, dest, _, context) => 
+                {
+                    var userId = (Guid)context.Items["UserId"];
+                    return src.User1Id == userId ? src.User2Id : src.User1Id;
+                }))
+                .ForMember(dest => dest.OtherUserName, opt => opt.MapFrom((src, dest, _, context) => 
+                {
+                    var userId = (Guid)context.Items["UserId"];
+                    return src.User1Id == userId ? src.User2.FullName : src.User1.FullName;
+                }))
+                .ForMember(dest => dest.OtherUserImageUrl, opt => opt.MapFrom((src, dest, _, context) => 
+                {
+                    var userId = (Guid)context.Items["UserId"];
+                    return src.User1Id == userId ? src.User2.ProfilePicture : src.User1.ProfilePicture;
+                }))
+                .ForMember(dest => dest.UnreadCount, opt => opt.MapFrom((src, dest, _, context) => 
+                {
+                    var userId = (Guid)context.Items["UserId"];
+                    return src.Messages.Count(m => m.SenderId != userId && !m.IsRead);
+                }));
+
+            CreateMap<Message, MessageDto>()
+                .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Sender.FullName))
+                .ForMember(dest => dest.SenderImageUrl, opt => opt.MapFrom(src => src.Sender.ProfilePicture));
             
             // Country/State/City/Region mappings
             CreateMap<Country, CountryDto>().ReverseMap();

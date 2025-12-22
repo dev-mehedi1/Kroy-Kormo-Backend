@@ -3,10 +3,10 @@ using Sob_Need_Server.DTOs.User;
 
 namespace Sob_Need_Server.Interface.User
 {
-    public interface ISavedSearchService
+    public interface IReviewService
     {
-        Task<ResponseDto<SavedSearchDto>> SaveSearchAsync(Guid userId, SavedSearchDto savedSearchDto);
-        Task<ResponseDto<IEnumerable<SavedSearchDto>>> GetSavedSearchesAsync(Guid userId);
-        Task<ResponseDto<bool>> DeleteSavedSearchAsync(Guid searchId, Guid userId);
+        Task<ResponseDto<ReviewDto>> AddReviewAsync(Guid reviewerId, ReviewDto reviewDto);
+        Task<ResponseDto<IEnumerable<ReviewDto>>> GetSellerReviewsAsync(Guid sellerId);
+        Task<ResponseDto<double>> GetAverageRatingAsync(Guid sellerId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.DTOs.Location;
 using Sob_Need_Server.Interface.Location;
@@ -13,6 +14,7 @@ namespace Sob_Need_Server.Controllers.LocationController
         private readonly ICountryService _countryService = countryService;
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateCountry ([FromBody] CountryDto countryDto)
         {
             var response = await _countryService.CreateAsync(countryDto);
