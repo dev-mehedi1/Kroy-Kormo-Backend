@@ -109,7 +109,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowLocalhost", policy =>
     {
         // Specify the exact origin (don't use '*')
-        policy.WithOrigins("http://localhost:5173")  // Vue.js running on localhost:5173
+        policy.WithOrigins("http://localhost:3000")  // Vue.js running on localhost:5173
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();  // Allow credentials (cookies, authorization headers, etc.)
