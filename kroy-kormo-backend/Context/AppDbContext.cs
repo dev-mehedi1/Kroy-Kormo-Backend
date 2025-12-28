@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Sob_Need_Server.Models.Attachment;
+using Models.Products;
+using AttachmentEntity = Models.Attachment.Attachment;
 using Sob_Need_Server.Models.Authentication;
 using Sob_Need_Server.Models.Categories;
 using Sob_Need_Server.Models.Locations;
@@ -24,7 +25,7 @@ namespace Sob_Need_Server.Context
         public DbSet<State> States { get; set; }
         public DbSet<Region> Regions { get; set; }
         public DbSet<City> Cities { get; set; }
-        public DbSet<Attachment> Attachments { get; set; }
+        public DbSet<AttachmentEntity> Attachments { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationGroup> NotificationGroup { get; set; }
@@ -80,11 +81,12 @@ namespace Sob_Need_Server.Context
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
             
+            // Configure Product -> Locations (One-to-Many)
             modelBuilder.Entity<Product>()
-                .HasOne(p => p.Location)
-                .WithMany(l => l.Products)
-                .HasForeignKey(p => p.LocationId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .HasMany(p => p.Locations)
+                .WithOne(l => l.Product)
+                .HasForeignKey(l => l.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
             
             // Configure ProductAttribute relationships
             modelBuilder.Entity<ProductAttribute>()

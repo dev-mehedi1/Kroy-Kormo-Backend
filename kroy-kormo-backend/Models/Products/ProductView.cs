@@ -1,3 +1,4 @@
+using Models.Products;
 using Sob_Need_Server.Models.Authentication;
 using System.ComponentModel.DataAnnotations;
 

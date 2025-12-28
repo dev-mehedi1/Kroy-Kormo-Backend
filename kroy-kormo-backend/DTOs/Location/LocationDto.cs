@@ -9,7 +9,6 @@
         public string? CityName { get; set; }
         public Guid? RegionId { get; set; }
         public string? RegionName { get; set; }
-        public Guid ProductId { get; set; }
         public Guid? StateId { get; set; }
         public string? StateName { get; set; }
     }

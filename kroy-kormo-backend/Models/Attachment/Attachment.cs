@@ -1,4 +1,4 @@
-﻿namespace Sob_Need_Server.Models.Attachment
+﻿namespace Models.Attachment
 {
     public class Attachment
     {

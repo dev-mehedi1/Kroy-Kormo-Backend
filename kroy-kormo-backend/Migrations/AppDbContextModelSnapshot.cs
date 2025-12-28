@@ -22,7 +22,7 @@ namespace Sob_Need_Server.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Sob_Need_Server.Models.Attachment.Attachment", b =>
+            modelBuilder.Entity("Models.Attachment.Attachment", b =>
                 {
                     b.Property<Guid>("AttachmentId")
                         .ValueGeneratedOnAdd()
@@ -58,6 +58,114 @@ namespace Sob_Need_Server.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("Attachments");
+                });
+
+            modelBuilder.Entity("Models.Products.Product", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ConditionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<decimal?>("Discount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("FavoriteCount")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeliveryFree")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFeaturedMember")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsJobAd")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSell")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsTopAd")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsUrgentAd")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<Guid?>("StatusId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ProductId");
+
+                    b.HasIndex("ConditionId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Product_Slug");
+
+                    b.HasIndex("StatusId");
+
+                    b.HasIndex("Price", "IsActive")
+                        .HasDatabaseName("IX_Product_Price_Active");
+
+                    b.HasIndex("UserId", "StatusId", "IsActive")
+                        .HasDatabaseName("IX_Product_User_Status_Active");
+
+                    b.HasIndex("CategoryId", "StatusId", "IsActive", "CreatedAt")
+                        .HasDatabaseName("IX_Product_Category_Status_Active_Created");
+
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Sob_Need_Server.Models.Authentication.User", b =>
@@ -384,6 +492,9 @@ namespace Sob_Need_Server.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("RegionId")
                         .HasColumnType("uuid");
 
@@ -400,6 +511,8 @@ namespace Sob_Need_Server.Migrations
                     b.HasKey("LocationId");
 
                     b.HasIndex("CityId");
+
+                    b.HasIndex("ProductId");
 
                     b.HasIndex("RegionId");
 
@@ -583,119 +696,6 @@ namespace Sob_Need_Server.Migrations
                     b.HasKey("ConditionId");
 
                     b.ToTable("Conditions");
-                });
-
-            modelBuilder.Entity("Sob_Need_Server.Models.Products.Product", b =>
-                {
-                    b.Property<Guid>("ProductId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ConditionId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(5000)
-                        .HasColumnType("character varying(5000)");
-
-                    b.Property<decimal?>("Discount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("FavoriteCount")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeliveryFree")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsFeaturedMember")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsJobAd")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsSell")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsTopAd")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsUrgentAd")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsVerified")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid?>("LocationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
-
-                    b.Property<Guid?>("StatusId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("ViewCount")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ProductId");
-
-                    b.HasIndex("ConditionId");
-
-                    b.HasIndex("LocationId");
-
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Product_Slug");
-
-                    b.HasIndex("StatusId");
-
-                    b.HasIndex("Price", "IsActive")
-                        .HasDatabaseName("IX_Product_Price_Active");
-
-                    b.HasIndex("UserId", "StatusId", "IsActive")
-                        .HasDatabaseName("IX_Product_User_Status_Active");
-
-                    b.HasIndex("CategoryId", "StatusId", "IsActive", "CreatedAt")
-                        .HasDatabaseName("IX_Product_Category_Status_Active_Created");
-
-                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Sob_Need_Server.Models.Products.ProductAttribute", b =>
@@ -997,13 +997,45 @@ namespace Sob_Need_Server.Migrations
                     b.ToTable("SavedSearches");
                 });
 
-            modelBuilder.Entity("Sob_Need_Server.Models.Attachment.Attachment", b =>
+            modelBuilder.Entity("Models.Attachment.Attachment", b =>
                 {
-                    b.HasOne("Sob_Need_Server.Models.Products.Product", null)
+                    b.HasOne("Models.Products.Product", null)
                         .WithMany("Attachments")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Models.Products.Product", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Categories.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Products.Condition", "Condition")
+                        .WithMany("Products")
+                        .HasForeignKey("ConditionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Sob_Need_Server.Models.Products.ProductStatus", "Status")
+                        .WithMany("Products")
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "User")
+                        .WithMany("Products")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Condition");
+
+                    b.Navigation("Status");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Sob_Need_Server.Models.Authentication.User", b =>
@@ -1066,6 +1098,12 @@ namespace Sob_Need_Server.Migrations
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("Models.Products.Product", "Product")
+                        .WithMany("Locations")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Sob_Need_Server.Models.Locations.Region", "Region")
                         .WithMany()
                         .HasForeignKey("RegionId")
@@ -1080,48 +1118,11 @@ namespace Sob_Need_Server.Migrations
 
                     b.Navigation("Country");
 
+                    b.Navigation("Product");
+
                     b.Navigation("Region");
 
                     b.Navigation("State");
-                });
-
-            modelBuilder.Entity("Sob_Need_Server.Models.Products.Product", b =>
-                {
-                    b.HasOne("Sob_Need_Server.Models.Categories.Category", "Category")
-                        .WithMany("Products")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Sob_Need_Server.Models.Products.Condition", "Condition")
-                        .WithMany("Products")
-                        .HasForeignKey("ConditionId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Sob_Need_Server.Models.Locations.Location", "Location")
-                        .WithMany("Products")
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Sob_Need_Server.Models.Products.ProductStatus", "Status")
-                        .WithMany("Products")
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "User")
-                        .WithMany("Products")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Condition");
-
-                    b.Navigation("Location");
-
-                    b.Navigation("Status");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Sob_Need_Server.Models.Products.ProductAttribute", b =>
@@ -1143,7 +1144,7 @@ namespace Sob_Need_Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sob_Need_Server.Models.Products.Product", "Product")
+                    b.HasOne("Models.Products.Product", "Product")
                         .WithMany("AttributeValues")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1156,7 +1157,7 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Products.ProductPromotion", b =>
                 {
-                    b.HasOne("Sob_Need_Server.Models.Products.Product", "Product")
+                    b.HasOne("Models.Products.Product", "Product")
                         .WithMany("Promotions")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1167,7 +1168,7 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Products.ProductView", b =>
                 {
-                    b.HasOne("Sob_Need_Server.Models.Products.Product", "Product")
+                    b.HasOne("Models.Products.Product", "Product")
                         .WithMany("Views")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1185,7 +1186,7 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Users.Favorite", b =>
                 {
-                    b.HasOne("Sob_Need_Server.Models.Products.Product", "Product")
+                    b.HasOne("Models.Products.Product", "Product")
                         .WithMany("Favorites")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1204,7 +1205,7 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Users.Review", b =>
                 {
-                    b.HasOne("Sob_Need_Server.Models.Products.Product", "Product")
+                    b.HasOne("Models.Products.Product", "Product")
                         .WithMany("Reviews")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -1239,6 +1240,23 @@ namespace Sob_Need_Server.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Models.Products.Product", b =>
+                {
+                    b.Navigation("Attachments");
+
+                    b.Navigation("AttributeValues");
+
+                    b.Navigation("Favorites");
+
+                    b.Navigation("Locations");
+
+                    b.Navigation("Promotions");
+
+                    b.Navigation("Reviews");
+
+                    b.Navigation("Views");
+                });
+
             modelBuilder.Entity("Sob_Need_Server.Models.Authentication.User", b =>
                 {
                     b.Navigation("Favorites");
@@ -1269,29 +1287,9 @@ namespace Sob_Need_Server.Migrations
                     b.Navigation("Messages");
                 });
 
-            modelBuilder.Entity("Sob_Need_Server.Models.Locations.Location", b =>
-                {
-                    b.Navigation("Products");
-                });
-
             modelBuilder.Entity("Sob_Need_Server.Models.Products.Condition", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("Sob_Need_Server.Models.Products.Product", b =>
-                {
-                    b.Navigation("Attachments");
-
-                    b.Navigation("AttributeValues");
-
-                    b.Navigation("Favorites");
-
-                    b.Navigation("Promotions");
-
-                    b.Navigation("Reviews");
-
-                    b.Navigation("Views");
                 });
 
             modelBuilder.Entity("Sob_Need_Server.Models.Products.ProductAttribute", b =>

@@ -1,4 +1,5 @@
-﻿using Sob_Need_Server.Models.Products;
+﻿using Models.Products;
+using Sob_Need_Server.Models.Products;
 using Sob_Need_Server.Models.Users;
 using System.ComponentModel.DataAnnotations;
 

@@ -34,7 +34,7 @@ namespace Sob_Need_Server.DTOs.Product
         public string? UserTypeName { get; set; }
         
         // Location
-        public LocationDto? Location { get; set; }
+        public List<LocationDto> Locations { get; set; } = new List<LocationDto>();
         
         // Images
         public List<ImageDto> Images { get; set; } = new List<ImageDto>();

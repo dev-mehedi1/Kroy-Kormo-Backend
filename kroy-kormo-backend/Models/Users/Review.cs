@@ -1,5 +1,5 @@
+using Models.Products;
 using Sob_Need_Server.Models.Authentication;
-using Sob_Need_Server.Models.Products;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sob_Need_Server.Models.Users

@@ -1,3 +1,5 @@
+using Sob_Need_Server.DTOs.Location;
+
 namespace Sob_Need_Server.DTOs.Product
 {
     public class UpdateProductDto
@@ -8,7 +10,7 @@ namespace Sob_Need_Server.DTOs.Product
         public decimal? Discount { get; set; }
         public Guid? ConditionId { get; set; }
         public Guid? CategoryId { get; set; }
-        public Guid? LocationId { get; set; }
+        public List<LocationDto>? Locations { get; set; }
         public bool? IsJobAd { get; set; }
         public bool? IsDeliveryFree { get; set; }
         public bool? IsSell { get; set; }

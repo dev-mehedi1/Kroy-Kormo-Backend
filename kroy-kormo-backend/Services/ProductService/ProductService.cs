@@ -1,21 +1,22 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Models.Products;
 using Sob_Need_Server.Context;
-using Sob_Need_Server.DTOs.Product;
+using Sob_Need_Server.DTOs.Attachment;
 using Sob_Need_Server.DTOs.Common;
+using Sob_Need_Server.DTOs.Location;
+using Sob_Need_Server.DTOs.Product;
 using Sob_Need_Server.Interface;
-using Sob_Need_Server.Models.Attachment;
+using Sob_Need_Server.Interface.Analytics;
 using Sob_Need_Server.Models.Locations;
 using Sob_Need_Server.Models.Products;
-using Sob_Need_Server.DTOs.Location;
-using Sob_Need_Server.DTOs.Attachment;
-using Sob_Need_Server.Utils.Helpers;
-using Microsoft.AspNetCore.SignalR;
 using Sob_Need_Server.SignalR;
-using Microsoft.AspNetCore.Http;
-using Sob_Need_Server.Interface.Analytics;
+using Sob_Need_Server.Utils.Helpers;
+using AttachmentEntity = Models.Attachment.Attachment;
 
-namespace Sob_Need_Server.Services.ProductService;
+namespace Services.ProductService;
 
 public class ProductService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext, IHttpContextAccessor httpContextAccessor, IAnalyticsService analyticsService) : IProductService
 {
@@ -32,7 +33,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         try
         {
             // If CategorySlug is provided, fetch the category and its subcategories
-            List<Guid> categoryIds = new();
+            List<Guid> categoryIds = [];
             if (!string.IsNullOrWhiteSpace(filters.CategorySlug))
             {
                 var category = await _context.Categories.FirstOrDefaultAsync(c => c.Slug == filters.CategorySlug);
@@ -55,14 +56,14 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 .Include(p => p.Category)
                 .Include(p => p.Condition)
                 .Include(p => p.Status)
-                .Include(p => p.Location)
-                    .ThenInclude(l => l!.Country)
-                .Include(p => p.Location)
-                    .ThenInclude(l => l!.State)
-                .Include(p => p.Location)
-                    .ThenInclude(l => l!.City)
-                .Include(p => p.Location)
-                    .ThenInclude(l => l!.Region)
+                .Include(p => p.Locations)
+                    .ThenInclude(l => l.Country)
+                .Include(p => p.Locations)
+                    .ThenInclude(l => l.State)
+                .Include(p => p.Locations)
+                    .ThenInclude(l => l.City)
+                .Include(p => p.Locations)
+                    .ThenInclude(l => l.Region)
                 .Include(p => p.Attachments)
                 .Include(p => p.Promotions)
                 .AsQueryable();
@@ -80,10 +81,10 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
 
             if (filters.UserId.HasValue) query = query.Where(x => x.UserId == filters.UserId);
 
-            if (filters.CountryId.HasValue) query = query.Where(x => x.Location != null && x.Location.CountryId == filters.CountryId);
-            if (filters.StateId.HasValue) query = query.Where(x => x.Location != null && x.Location.StateId == filters.StateId);
-            if (filters.CityId.HasValue) query = query.Where(x => x.Location != null && x.Location.CityId == filters.CityId);
-            if (filters.RegionId.HasValue) query = query.Where(x => x.Location != null && x.Location.RegionId == filters.RegionId);
+            if (filters.CountryId.HasValue) query = query.Where(x => x.Locations.Any(l => l.CountryId == filters.CountryId));
+            if (filters.StateId.HasValue) query = query.Where(x => x.Locations.Any(l => l.StateId == filters.StateId));
+            if (filters.CityId.HasValue) query = query.Where(x => x.Locations.Any(l => l.CityId == filters.CityId));
+            if (filters.RegionId.HasValue) query = query.Where(x => x.Locations.Any(l => l.RegionId == filters.RegionId));
 
             // Is top ads
             if (filters.IsTopAd.HasValue)
@@ -156,7 +157,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             {
                 foreach (var imageUrl in productDto.ImageUrls)
                 {
-                    var attachment = new Attachment
+                    var attachment = new AttachmentEntity
                     {
                         ImageUrl = imageUrl,
                         ProductId = product.ProductId,
@@ -177,6 +178,23 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                     _context.ProductAttributeValues.Add(attrValue);
                 }
             }
+
+            // Handle Multiple Locations
+            if (productDto.Locations != null && productDto.Locations.Count > 0)
+            {
+                foreach (var locDto in productDto.Locations)
+                {
+                    var location = _mapper.Map<Location>(locDto);
+                    location.ProductId = product.ProductId;
+                    location.CreatedAt = DateTime.UtcNow;
+                    location.IsActive = true;
+                    // Ensure ID is generated if not provided
+                    if (location.LocationId == Guid.Empty) location.LocationId = Guid.NewGuid();
+                    
+                    _context.Locations.Add(location);
+                }
+            }
+
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -202,6 +220,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             var product = await _context.Products
                 .Include(p => p.Attachments)
                 .Include(p => p.AttributeValues)
+                .Include(p => p.Locations)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
@@ -210,6 +229,24 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             // Map updates
             _mapper.Map(productDto, product);
             product.UpdatedAt = DateTime.UtcNow;
+
+            // Handle Locations Update (Replace All strategy)
+            if (productDto.Locations != null)
+            {
+                // Remove existing locations
+                _context.Locations.RemoveRange(product.Locations);
+                
+                // Add new locations
+                foreach (var locDto in productDto.Locations)
+                {
+                    var location = _mapper.Map<Location>(locDto);
+                    location.ProductId = product.ProductId;
+                    location.CreatedAt = DateTime.UtcNow;
+                    location.IsActive = true;
+                     if (location.LocationId == Guid.Empty) location.LocationId = Guid.NewGuid();
+                    _context.Locations.Add(location);
+                }
+            }
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
@@ -258,14 +295,14 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 .Include(p => p.Category)
                 .Include(p => p.Condition)
                 .Include(p => p.Status)
-                .Include(p => p.Location)
-                    .ThenInclude(l => l!.Country)
-                .Include(p => p.Location)
-                    .ThenInclude(l => l!.State)
-                .Include(p => p.Location)
-                    .ThenInclude(l => l!.City)
-                .Include(p => p.Location)
-                    .ThenInclude(l => l!.Region)
+                .Include(p => p.Locations)
+                    .ThenInclude(l => l.Country)
+                .Include(p => p.Locations)
+                    .ThenInclude(l => l.State)
+                .Include(p => p.Locations)
+                    .ThenInclude(l => l.City)
+                .Include(p => p.Locations)
+                    .ThenInclude(l => l.Region)
                 .Include(p => p.Attachments)
                 .Include(p => p.Promotions)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
@@ -307,14 +344,14 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 .Include(p => p.Category)
                 .Include(p => p.Condition)
                 .Include(p => p.Status)
-                .Include(p => p.Location)
-                    .ThenInclude(l => l!.Country)
-                .Include(p => p.Location)
-                    .ThenInclude(l => l!.State)
-                .Include(p => p.Location)
-                    .ThenInclude(l => l!.City)
-                .Include(p => p.Location)
-                    .ThenInclude(l => l!.Region)
+                .Include(p => p.Locations)
+                    .ThenInclude(l => l.Country)
+                .Include(p => p.Locations)
+                    .ThenInclude(l => l.State)
+                .Include(p => p.Locations)
+                    .ThenInclude(l => l.City)
+                .Include(p => p.Locations)
+                    .ThenInclude(l => l.Region)
                 .Include(p => p.Attachments)
                 .Include(p => p.Promotions)
                 .FirstOrDefaultAsync(p => p.Slug == Slug);

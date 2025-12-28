@@ -95,7 +95,7 @@ namespace Sob_Need_Server.Services.User
                     .Include(f => f.Product)
                         .ThenInclude(p => p!.Category)
                     .Include(f => f.Product)
-                        .ThenInclude(p => p!.Location)
+                        .ThenInclude(p => p!.Locations)
                     .Where(f => f.UserId == userId)
                     .OrderByDescending(f => f.CreatedAt)
                     .ToListAsync();

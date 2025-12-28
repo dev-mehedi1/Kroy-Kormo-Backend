@@ -1,3 +1,4 @@
+using Models.Products;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sob_Need_Server.Models.Products

@@ -1,5 +1,6 @@
-﻿using Sob_Need_Server.Models.Products;
+﻿using Models.Products;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sob_Need_Server.Models.Locations
 {
@@ -10,6 +11,8 @@ namespace Sob_Need_Server.Models.Locations
         [MaxLength(500)]
         public string? AddressLine { get; set; }
         
+        public Guid ProductId { get; set; }
+
         public Guid? CountryId { get; set; }
         
         public Guid? CityId { get; set; }
@@ -36,6 +39,8 @@ namespace Sob_Need_Server.Models.Locations
         public virtual State? State { get; set; }
         public virtual City? City { get; set; }
         public virtual Region? Region { get; set; }
-        public virtual ICollection<Product> Products { get; set; } = new List<Product>();
+        
+        [ForeignKey("ProductId")]
+        public virtual Product Product { get; set; } = null!;
     }
 }

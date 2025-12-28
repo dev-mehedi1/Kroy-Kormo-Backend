@@ -1,11 +1,13 @@
 ﻿using Sob_Need_Server.Models.Authentication;
 using Sob_Need_Server.Models.Categories;
 using Sob_Need_Server.Models.Locations;
+using Sob_Need_Server.Models.Products;
 using Sob_Need_Server.Models.Users;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using AttachmentEntity = Models.Attachment.Attachment;
 
-namespace Sob_Need_Server.Models.Products
+namespace Models.Products
 {
     public class Product
     {
@@ -35,7 +37,7 @@ namespace Sob_Need_Server.Models.Products
         
         public Guid? UserId { get; set; }
         
-        public Guid? LocationId { get; set; }
+
         
         [Required]
         public bool IsVerified { get; set; } = false;
@@ -86,10 +88,10 @@ namespace Sob_Need_Server.Models.Products
         public virtual Condition? Condition { get; set; }
         public virtual ProductStatus? Status { get; set; }
         public virtual User? User { get; set; }
-        public virtual Location? Location { get; set; }
+        public virtual ICollection<Location> Locations { get; set; } = new List<Location>();
         public virtual ICollection<ProductAttributeValue> AttributeValues { get; set; } = new List<ProductAttributeValue>();
         public virtual ICollection<ProductPromotion> Promotions { get; set; } = new List<ProductPromotion>();
-        public virtual ICollection<Attachment.Attachment> Attachments { get; set; } = new List<Attachment.Attachment>();
+        public virtual ICollection<AttachmentEntity> Attachments { get; set; } = new List<AttachmentEntity>();
         public virtual ICollection<ProductView> Views { get; set; } = new List<ProductView>();
         public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
