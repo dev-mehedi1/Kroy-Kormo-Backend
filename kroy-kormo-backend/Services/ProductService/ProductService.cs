@@ -16,7 +16,7 @@ using Sob_Need_Server.SignalR;
 using Sob_Need_Server.Utils.Helpers;
 using AttachmentEntity = Models.Attachment.Attachment;
 
-namespace Services.ProductService;
+namespace Sob_Need_Server.Services.ProductService;
 
 public class ProductService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext, IHttpContextAccessor httpContextAccessor, IAnalyticsService analyticsService) : IProductService
 {

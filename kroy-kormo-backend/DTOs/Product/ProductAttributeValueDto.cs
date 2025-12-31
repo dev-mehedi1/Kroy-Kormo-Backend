@@ -1,4 +1,4 @@
-namespace Sob_Need_Server.DTOs.Product
+namespace DTOs.Product
 {
     public class ProductAttributeValueDto
     {

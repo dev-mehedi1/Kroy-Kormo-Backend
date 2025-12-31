@@ -17,7 +17,7 @@ using Sob_Need_Server.Services.Chat;
 using Sob_Need_Server.Services.Analytics;
 using Sob_Need_Server.SignalR;
 using Sob_Need_Server.Utils.Helpers;
-using Services.ProductService;
+
 
 namespace Sob_Need_Server.Extensions;
 
@@ -44,6 +44,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         services.AddScoped<IPromotionService, PromotionService>();
+        services.AddScoped<IProductAttributeService, ProductAttributeService>();
 
         return services;
     }

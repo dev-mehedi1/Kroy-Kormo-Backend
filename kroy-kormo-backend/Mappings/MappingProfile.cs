@@ -16,6 +16,7 @@ using Sob_Need_Server.Models.Chat;
 using Sob_Need_Server.DTOs.Chat;
 using Models.Products;
 using AttachmentEntity = Models.Attachment.Attachment;
+using DTOs.Product;
 
 namespace Sob_Need_Server.Mappings
 {

@@ -1,4 +1,5 @@
-﻿using Sob_Need_Server.DTOs.Attachment;
+﻿using DTOs.Product;
+using Sob_Need_Server.DTOs.Attachment;
 using Sob_Need_Server.DTOs.Authentication;
 using Sob_Need_Server.DTOs.Location;
 

@@ -1,3 +1,4 @@
+using DTOs.Product;
 using Sob_Need_Server.DTOs.Location;
 
 namespace Sob_Need_Server.DTOs.Product
