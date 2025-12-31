@@ -64,6 +64,9 @@ namespace Sob_Need_Server.DTOs.Product
 
         // Promotions
         public List<PromotionDto> ActivePromotions { get; set; } = new List<PromotionDto>();
+
+        // Status History (Timeline)
+        public List<ProductStatusHistoryDto> StatusHistory { get; set; } = new List<ProductStatusHistoryDto>();
     }
 }
 

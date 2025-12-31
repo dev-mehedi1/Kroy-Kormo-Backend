@@ -106,10 +106,41 @@ namespace Sob_Need_Server.Controllers.ProductController
 
             return Ok(response);
         }
+        // PATCH: api/v1/product/5/status-by-id
+        [HttpPatch("{id}/status-by-id")]
+        [Authorize]
+        public async Task<ActionResult<ResponseDto<ProductDto>>> UpdateProductStatusById(Guid id, [FromBody] StatusUpdateByIdDto updateDto)
+        {
+            var userIdStr = JwtHelper.GetUserIdFromToken(Request.Headers.Authorization.ToString()!);
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            var userId = Guid.Parse(userIdStr);
+
+            var response = await _productService.UpdateStatusByIdAsync(id, updateDto.StatusId, userId);
+            if (!response.IsSuccess)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
+
+        // GET: api/v1/product/5/status-history
+        [HttpGet("{id}/status-history")]
+        public async Task<ActionResult<ResponseDto<IEnumerable<ProductStatusHistoryDto>>>> GetProductStatusHistory(Guid id)
+        {
+            var response = await _productService.GetStatusHistoryAsync(id);
+            if (!response.IsSuccess)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
     }
 
     public class StatusUpdateDto
     {
         public string StatusSlug { get; set; } = null!;
+    }
+
+    public class StatusUpdateByIdDto
+    {
+        public Guid StatusId { get; set; }
     }
 }

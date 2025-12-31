@@ -35,6 +35,7 @@ namespace Sob_Need_Server.Mappings
                 .ForMember(dest => dest.ActivePromotions, opt => opt.MapFrom(src => 
                     src.Promotions.Where(p => p.IsActive && p.EndDate >= DateTime.UtcNow)))
                 .ForMember(dest => dest.Locations, opt => opt.MapFrom(src => src.Locations))
+                .ForMember(dest => dest.StatusHistory, opt => opt.MapFrom(src => src.StatusHistories.OrderBy(sh => sh.CreatedAt)))
                 .ReverseMap();
             
             CreateMap<CreateProductDto, Product>()
@@ -53,6 +54,11 @@ namespace Sob_Need_Server.Mappings
             CreateMap<ProductAttribute, ProductAttributeDto>().ReverseMap();
             CreateMap<ProductAttributeValue, ProductAttributeValueDto>()
                 .ForMember(dest => dest.AttributeName, opt => opt.MapFrom(src => src.Attribute != null ? src.Attribute.AttributeName : null))
+                .ReverseMap();
+            
+            // ProductStatusHistory mapping
+            CreateMap<ProductStatusHistory, ProductStatusHistoryDto>()
+                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.StatusName : null))
                 .ReverseMap();
             
             // Category mappings

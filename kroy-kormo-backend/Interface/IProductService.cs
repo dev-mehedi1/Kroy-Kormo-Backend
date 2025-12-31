@@ -13,5 +13,7 @@ namespace Sob_Need_Server.Interface
         Task<ResponseDto<IEnumerable<ProductDto>>> GetAllProductsAsync(ProductFilterDto Filters);
         Task<ResponseDto<ProductDto>> GetProductBySlugAsync(string Slug);
         Task<ResponseDto<ProductDto>> UpdateStatusAsync(Guid id, string statusSlug, Guid userId);
+        Task<ResponseDto<ProductDto>> UpdateStatusByIdAsync(Guid id, Guid statusId, Guid userId);
+        Task<ResponseDto<IEnumerable<ProductStatusHistoryDto>>> GetStatusHistoryAsync(Guid productId);
     }
 }

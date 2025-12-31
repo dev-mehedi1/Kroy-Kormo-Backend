@@ -37,6 +37,7 @@ namespace Sob_Need_Server.Context
         public DbSet<ProductStatus> ProductStatuses { get; set; }
         public DbSet<ProductAttribute> ProductAttributes { get; set; }
         public DbSet<ProductAttributeValue> ProductAttributeValues { get; set; }
+        public DbSet<ProductStatusHistory> ProductStatusHistories { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<SavedSearch> SavedSearches { get; set; }
         public DbSet<ProductView> ProductViews { get; set; }
@@ -107,6 +108,19 @@ namespace Sob_Need_Server.Context
                 .WithMany(pa => pa.AttributeValues)
                 .HasForeignKey(pav => pav.AttributeId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            // Configure ProductStatusHistory relationships
+            modelBuilder.Entity<ProductStatusHistory>()
+                .HasOne(psh => psh.Product)
+                .WithMany()
+                .HasForeignKey(psh => psh.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            modelBuilder.Entity<ProductStatusHistory>()
+                .HasOne(psh => psh.Status)
+                .WithMany()
+                .HasForeignKey(psh => psh.StatusId)
+                .OnDelete(DeleteBehavior.Restrict);
             
             // Configure Favorite relationships
             modelBuilder.Entity<Favorite>()

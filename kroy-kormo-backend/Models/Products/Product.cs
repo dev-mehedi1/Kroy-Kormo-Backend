@@ -95,5 +95,6 @@ namespace Models.Products
         public virtual ICollection<ProductView> Views { get; set; } = new List<ProductView>();
         public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public virtual ICollection<ProductStatusHistory> StatusHistories { get; set; } = new List<ProductStatusHistory>();
     }
 }

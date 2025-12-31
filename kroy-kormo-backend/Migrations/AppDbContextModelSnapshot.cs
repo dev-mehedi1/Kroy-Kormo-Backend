@@ -862,6 +862,43 @@ namespace Sob_Need_Server.Migrations
                     b.ToTable("ProductStatuses");
                 });
 
+            modelBuilder.Entity("Sob_Need_Server.Models.Products.ProductStatusHistory", b =>
+                {
+                    b.Property<Guid>("HistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ChangedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ProductId1")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("StatusId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("HistoryId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductId1");
+
+                    b.HasIndex("StatusId");
+
+                    b.ToTable("ProductStatusHistories");
+                });
+
             modelBuilder.Entity("Sob_Need_Server.Models.Products.ProductView", b =>
                 {
                     b.Property<Guid>("ViewId")
@@ -1166,6 +1203,29 @@ namespace Sob_Need_Server.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Sob_Need_Server.Models.Products.ProductStatusHistory", b =>
+                {
+                    b.HasOne("Models.Products.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Models.Products.Product", null)
+                        .WithMany("StatusHistories")
+                        .HasForeignKey("ProductId1");
+
+                    b.HasOne("Sob_Need_Server.Models.Products.ProductStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Status");
+                });
+
             modelBuilder.Entity("Sob_Need_Server.Models.Products.ProductView", b =>
                 {
                     b.HasOne("Models.Products.Product", "Product")
@@ -1253,6 +1313,8 @@ namespace Sob_Need_Server.Migrations
                     b.Navigation("Promotions");
 
                     b.Navigation("Reviews");
+
+                    b.Navigation("StatusHistories");
 
                     b.Navigation("Views");
                 });

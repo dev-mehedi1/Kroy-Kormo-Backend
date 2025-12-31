@@ -148,9 +148,31 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             product.CreatedBy = userIdStr;
             product.IsVerified = false;
 
+            // Set default status (e.g., Pending)
+            var pendingStatus = await _context.ProductStatuses.FirstOrDefaultAsync(s => s.Slug == "pending");
+            if (pendingStatus != null)
+            {
+                product.StatusId = pendingStatus.StatusId;
+            }
+
             // Add Product
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
+
+            // Record initial status history
+            if (pendingStatus != null)
+            {
+                var history = new ProductStatusHistory
+                {
+                    ProductId = product.ProductId,
+                    StatusId = pendingStatus.StatusId,
+                    ChangedBy = userIdStr,
+                    Notes = "Initial status on creation",
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.ProductStatusHistories.Add(history);
+                await _context.SaveChangesAsync();
+            }
 
             // Handle Images (Attachments)
             if (productDto.ImageUrls != null && productDto.ImageUrls.Count > 0)
@@ -305,6 +327,8 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                     .ThenInclude(l => l.Region)
                 .Include(p => p.Attachments)
                 .Include(p => p.Promotions)
+                .Include(p => p.StatusHistories)
+                    .ThenInclude(h => h.Status)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
@@ -354,6 +378,8 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                     .ThenInclude(l => l.Region)
                 .Include(p => p.Attachments)
                 .Include(p => p.Promotions)
+                .Include(p => p.StatusHistories)
+                    .ThenInclude(h => h.Status)
                 .FirstOrDefaultAsync(p => p.Slug == Slug);
 
             if (product == null) return new ResponseDto<ProductDto>(false, "Product not found", null!);
@@ -395,11 +421,21 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
 
             var status = await _context.ProductStatuses.FirstOrDefaultAsync(s => s.Slug == statusSlug);
             if (status == null) return new ResponseDto<ProductDto>(false, "Status not found", null!);
-
             product.StatusId = status.StatusId;
             product.UpdatedAt = DateTime.UtcNow;
 
             _context.Products.Update(product);
+
+            // Record status history
+            var history = new ProductStatusHistory
+            {
+                ProductId = id,
+                StatusId = status.StatusId,
+                ChangedBy = userId.ToString(),
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.ProductStatusHistories.Add(history);
+
             await _context.SaveChangesAsync();
 
             var updatedProductDto = _mapper.Map<ProductDto>(product);
@@ -408,6 +444,67 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         catch (Exception ex)
         {
             return new ResponseDto<ProductDto>(false, ex.Message, null!);
+        }
+    }
+
+    public async Task<ResponseDto<ProductDto>> UpdateStatusByIdAsync(Guid id, Guid statusId, Guid userId)
+    {
+        try
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return new ResponseDto<ProductDto>(false, "Product not found", null!);
+
+            // Security check
+            if (product.UserId != userId)
+            {
+                return new ResponseDto<ProductDto>(false, "You do not have permission to update this product status", null!);
+            }
+
+            var status = await _context.ProductStatuses.FindAsync(statusId);
+            if (status == null) return new ResponseDto<ProductDto>(false, "Status not found", null!);
+
+            product.StatusId = statusId;
+            product.UpdatedAt = DateTime.UtcNow;
+
+            _context.Products.Update(product);
+
+            // Record status history
+            var history = new ProductStatusHistory
+            {
+                ProductId = id,
+                StatusId = statusId,
+                ChangedBy = userId.ToString(),
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.ProductStatusHistories.Add(history);
+
+            await _context.SaveChangesAsync();
+
+            var updatedProductDto = _mapper.Map<ProductDto>(product);
+            return new ResponseDto<ProductDto>(true, "Product status updated successfully", updatedProductDto);
+        }
+        catch (Exception ex)
+        {
+            return new ResponseDto<ProductDto>(false, ex.Message, null!);
+        }
+    }
+
+    public async Task<ResponseDto<IEnumerable<ProductStatusHistoryDto>>> GetStatusHistoryAsync(Guid productId)
+    {
+        try
+        {
+            var history = await _context.ProductStatusHistories
+                .Include(h => h.Status)
+                .Where(h => h.ProductId == productId)
+                .OrderBy(h => h.CreatedAt)
+                .ToListAsync();
+
+            var historyDto = _mapper.Map<IEnumerable<ProductStatusHistoryDto>>(history);
+            return new ResponseDto<IEnumerable<ProductStatusHistoryDto>>(true, "Status history retrieved successfully", historyDto);
+        }
+        catch (Exception ex)
+        {
+            return new ResponseDto<IEnumerable<ProductStatusHistoryDto>>(false, ex.Message, null!);
         }
     }
 }
