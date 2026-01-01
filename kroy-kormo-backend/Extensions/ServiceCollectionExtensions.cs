@@ -15,6 +15,7 @@ using Sob_Need_Server.Services.ProductService;
 using Sob_Need_Server.Services.User;
 using Sob_Need_Server.Services.Chat;
 using Sob_Need_Server.Services.Analytics;
+using Sob_Need_Server.Services.ConditionService;
 using Sob_Need_Server.SignalR;
 using Sob_Need_Server.Utils.Helpers;
 
@@ -28,6 +29,7 @@ public static class ServiceCollectionExtensions
         // Register application-level services
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IConditionService, ConditionService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<TokenHelper>();
