@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
+using DTOs.Location.Filter;
 using Microsoft.EntityFrameworkCore;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.DTOs.Location;
-using Sob_Need_Server.DTOs.Location.Filter;
 using Sob_Need_Server.Interface.Location;
 using Sob_Need_Server.Models.Locations;
 
@@ -53,7 +53,7 @@ namespace Sob_Need_Server.Services.LocationService
                 }
                 if (Filter.StateId.HasValue)
                 {
-                    //query = query.Where(x => x.StateId == Filter.StateId);
+                    query = query.Where(x => x.StateId == Filter.StateId);
                 }
 
 

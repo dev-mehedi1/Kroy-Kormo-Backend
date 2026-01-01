@@ -1,6 +1,6 @@
-﻿using Sob_Need_Server.DTOs.Common;
+﻿using DTOs.Location.Filter;
+using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.DTOs.Location;
-using Sob_Need_Server.DTOs.Location.Filter;
 
 namespace Sob_Need_Server.Interface.Location;
 
