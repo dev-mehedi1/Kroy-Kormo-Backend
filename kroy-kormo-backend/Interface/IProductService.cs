@@ -1,4 +1,5 @@
-﻿using Sob_Need_Server.DTOs.Common;
+﻿using DTOs.Product;
+using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.DTOs.Product;
 
 

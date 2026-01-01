@@ -1,4 +1,4 @@
-using Sob_Need_Server.DTOs.Product;
+using DTOs.Product;
 
 namespace Sob_Need_Server.DTOs.User
 {

@@ -5,6 +5,7 @@ using Sob_Need_Server.Interface;
 using Sob_Need_Server.Utils;
 using Sob_Need_Server.Utils.Helpers;
 using Sob_Need_Server.DTOs.Common;
+using DTOs.Product;
 
 namespace Sob_Need_Server.Controllers.ProductController
 {

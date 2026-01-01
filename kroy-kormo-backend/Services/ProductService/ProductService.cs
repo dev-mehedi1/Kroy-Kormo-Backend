@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DTOs.Product;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -363,24 +364,24 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         try
         {
             var product = await _context.Products
-                .Include(p => p.User)
-                    .ThenInclude(u => u!.UserType)
-                .Include(p => p.Category)
-                .Include(p => p.Condition)
-                .Include(p => p.Status)
-                .Include(p => p.Locations)
-                    .ThenInclude(l => l.Country)
-                .Include(p => p.Locations)
-                    .ThenInclude(l => l.State)
-                .Include(p => p.Locations)
-                    .ThenInclude(l => l.City)
-                .Include(p => p.Locations)
-                    .ThenInclude(l => l.Region)
-                .Include(p => p.Attachments)
-                .Include(p => p.Promotions)
-                .Include(p => p.StatusHistories)
-                    .ThenInclude(h => h.Status)
-                .FirstOrDefaultAsync(p => p.Slug == Slug);
+                    .Include(p => p.User)
+                        .ThenInclude(u => u!.UserType)
+                    .Include(p => p.Category)
+                    .Include(p => p.Condition)
+                    .Include(p => p.Status)
+                    .Include(p => p.Locations)         
+                        .ThenInclude(l => l.Country)
+                    .Include(p => p.Locations)
+                        .ThenInclude(l => l.State)
+                    .Include(p => p.Locations)
+                        .ThenInclude(l => l.City)
+                    .Include(p => p.Locations)
+                        .ThenInclude(l => l.Region)
+                    .Include(p => p.Attachments)
+                    .Include(p => p.Promotions)
+                    .Include(p => p.StatusHistories)
+                        .ThenInclude(h => h.Status)
+                    .FirstOrDefaultAsync(p => p.Slug == Slug);
 
             if (product == null) return new ResponseDto<ProductDto>(false, "Product not found", null!);
 

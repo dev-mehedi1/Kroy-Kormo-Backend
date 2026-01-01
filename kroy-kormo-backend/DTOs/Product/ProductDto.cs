@@ -1,9 +1,9 @@
-﻿using DTOs.Product;
-using Sob_Need_Server.DTOs.Attachment;
+﻿using Sob_Need_Server.DTOs.Attachment;
 using Sob_Need_Server.DTOs.Authentication;
 using Sob_Need_Server.DTOs.Location;
+using Sob_Need_Server.DTOs.Product;
 
-namespace Sob_Need_Server.DTOs.Product
+namespace DTOs.Product
 {
     public class ProductDto
     {
@@ -35,10 +35,10 @@ namespace Sob_Need_Server.DTOs.Product
         public string? UserTypeName { get; set; }
         
         // Location
-        public List<LocationDto> Locations { get; set; } = new List<LocationDto>();
+        public List<LocationDto> Locations { get; set; } = [];
         
         // Images
-        public List<ImageDto> Images { get; set; } = new List<ImageDto>();
+        public List<ImageDto> Images { get; set; } = [];
         
         // Attributes
         public List<ProductAttributeValueDto> Attributes { get; set; } = new List<ProductAttributeValueDto>();
@@ -66,7 +66,7 @@ namespace Sob_Need_Server.DTOs.Product
         public List<PromotionDto> ActivePromotions { get; set; } = new List<PromotionDto>();
 
         // Status History (Timeline)
-        public List<ProductStatusHistoryDto> StatusHistory { get; set; } = new List<ProductStatusHistoryDto>();
+        public List<ProductStatusHistoryDto> StatusHistory { get; set; } = [];
     }
 }
 
