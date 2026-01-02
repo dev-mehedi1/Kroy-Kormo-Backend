@@ -431,8 +431,8 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             var ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
             var userAgent = _httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? "Unknown";
 
-            // Fire and forget view tracking
-            _ = _analyticsService.TrackProductViewAsync(productDto.ProductId, userId, ipAddress, userAgent);
+            // Wait for view tracking to complete (prevents DB context disposal issues)
+            await _analyticsService.TrackProductViewAsync(productDto.ProductId, userId, ipAddress, userAgent);
 
             return new ResponseDto<ProductDto>(true, "Product retrieved successfully", productDto);
         }
