@@ -81,7 +81,7 @@ namespace Sob_Need_Server.Controllers.ProductController
         [Authorize]
         public async Task<ActionResult<ResponseDto<ProductDto>>> DeleteProduct(Guid id)
         {
-            var userIdStr = JwtHelper.GetUserIdFromToken(Request.Headers.Authorization.ToString()!);
+            var userIdStr = User.FindFirst("UserId")?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
             var userId = Guid.Parse(userIdStr);
 

@@ -61,10 +61,9 @@ namespace Sob_Need_Server.Controllers.Chat
 
         private Guid? GetCurrentUserId()
         {
-            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
-            var userId = JwtHelper.GetUserIdFromToken(authHeader!);
-            if (string.IsNullOrEmpty(userId)) return null;
-            return Guid.Parse(userId);
+            var userIdStr = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return null;
+            return Guid.Parse(userIdStr);
         }
     }
 

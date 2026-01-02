@@ -29,12 +29,12 @@ namespace Sob_Need_Server.Controllers.ProductController
         }
 
         [HttpPost("apply")]
-        public async Task<ActionResult<ResponseDto<PromotionDto>>> ApplyPromotion(Guid productId, string promotionType, int durationDays)
+        public async Task<ActionResult<ResponseDto<PromotionDto>>> ApplyPromotion([FromBody] ApplyPromotionRequest request)
         {
             var userId = GetCurrentUserId();
             if (userId == null) return Unauthorized();
             
-            var res = await _promotionService.ApplyPromotionAsync(productId, promotionType, durationDays, userId.Value);
+            var res = await _promotionService.ApplyPromotionAsync(request.ProductId, request.PromotionType, request.DurationDays, userId.Value);
             return Ok(res);
         }
 
@@ -50,10 +50,16 @@ namespace Sob_Need_Server.Controllers.ProductController
 
         private Guid? GetCurrentUserId()
         {
-            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
-            var userIdStr = JwtHelper.GetUserIdFromToken(authHeader!);
+            var userIdStr = User.FindFirst("UserId")?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return null;
             return Guid.Parse(userIdStr);
         }
+    }
+
+    public class ApplyPromotionRequest
+    {
+        public Guid ProductId { get; set; }
+        public string PromotionType { get; set; } = null!;
+        public int DurationDays { get; set; }
     }
 }

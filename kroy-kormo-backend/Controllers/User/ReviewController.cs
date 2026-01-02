@@ -61,8 +61,7 @@ namespace Sob_Need_Server.Controllers.User
 
         private Guid? GetCurrentUserId()
         {
-            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
-            var userIdStr = JwtHelper.GetUserIdFromToken(authHeader!);
+            var userIdStr = User.FindFirst("UserId")?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return null;
             return Guid.Parse(userIdStr);
         }

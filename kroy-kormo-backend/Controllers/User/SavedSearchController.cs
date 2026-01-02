@@ -22,13 +22,11 @@ namespace Sob_Need_Server.Controllers.User
         [HttpPost]
         public async Task<ActionResult<ResponseDto<SavedSearchDto>>> SaveSearch([FromBody] SavedSearchDto savedSearchDto)
         {
-            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
-            var userId = JwtHelper.GetUserIdFromToken(authHeader!);
-
-            if (string.IsNullOrEmpty(userId))
+            var userIdStr = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized(new ResponseDto<SavedSearchDto>(false, "Unauthorized", null!));
 
-            var response = await _savedSearchService.SaveSearchAsync(Guid.Parse(userId), savedSearchDto);
+            var response = await _savedSearchService.SaveSearchAsync(Guid.Parse(userIdStr), savedSearchDto);
             
             if (!response.IsSuccess)
                 return BadRequest(response);
@@ -42,13 +40,11 @@ namespace Sob_Need_Server.Controllers.User
         [HttpGet]
         public async Task<ActionResult<ResponseDto<IEnumerable<SavedSearchDto>>>> GetSavedSearches()
         {
-            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
-            var userId = JwtHelper.GetUserIdFromToken(authHeader!);
-
-            if (string.IsNullOrEmpty(userId))
+            var userIdStr = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized(new ResponseDto<IEnumerable<SavedSearchDto>>(false, "Unauthorized", null!));
 
-            var response = await _savedSearchService.GetSavedSearchesAsync(Guid.Parse(userId));
+            var response = await _savedSearchService.GetSavedSearchesAsync(Guid.Parse(userIdStr));
             
             if (!response.IsSuccess)
                 return BadRequest(response);
@@ -62,13 +58,11 @@ namespace Sob_Need_Server.Controllers.User
         [HttpDelete("{searchId}")]
         public async Task<ActionResult<ResponseDto<bool>>> DeleteSavedSearch(Guid searchId)
         {
-            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
-            var userId = JwtHelper.GetUserIdFromToken(authHeader!);
-
-            if (string.IsNullOrEmpty(userId))
+            var userIdStr = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized(new ResponseDto<bool>(false, "Unauthorized", false));
 
-            var response = await _savedSearchService.DeleteSavedSearchAsync(searchId, Guid.Parse(userId));
+            var response = await _savedSearchService.DeleteSavedSearchAsync(searchId, Guid.Parse(userIdStr));
             
             if (!response.IsSuccess)
                 return BadRequest(response);

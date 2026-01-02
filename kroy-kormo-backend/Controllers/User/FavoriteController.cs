@@ -22,13 +22,11 @@ namespace Sob_Need_Server.Controllers.User
         [HttpPost]
         public async Task<ActionResult<ResponseDto<FavoriteDto>>> AddFavorite([FromBody] Guid productId)
         {
-            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
-            var userId = JwtHelper.GetUserIdFromToken(authHeader!);
-
-            if (string.IsNullOrEmpty(userId))
+            var userIdStr = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized(new ResponseDto<FavoriteDto>(false, "Unauthorized", null!));
 
-            var response = await _favoriteService.AddFavoriteAsync(Guid.Parse(userId), productId);
+            var response = await _favoriteService.AddFavoriteAsync(Guid.Parse(userIdStr), productId);
             
             if (!response.IsSuccess)
                 return BadRequest(response);
@@ -42,13 +40,11 @@ namespace Sob_Need_Server.Controllers.User
         [HttpDelete("{productId}")]
         public async Task<ActionResult<ResponseDto<bool>>> RemoveFavorite(Guid productId)
         {
-            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
-            var userId = JwtHelper.GetUserIdFromToken(authHeader!);
-
-            if (string.IsNullOrEmpty(userId))
+            var userIdStr = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized(new ResponseDto<bool>(false, "Unauthorized", false));
 
-            var response = await _favoriteService.RemoveFavoriteAsync(Guid.Parse(userId), productId);
+            var response = await _favoriteService.RemoveFavoriteAsync(Guid.Parse(userIdStr), productId);
             
             if (!response.IsSuccess)
                 return BadRequest(response);
@@ -62,13 +58,11 @@ namespace Sob_Need_Server.Controllers.User
         [HttpGet]
         public async Task<ActionResult<ResponseDto<IEnumerable<FavoriteDto>>>> GetFavorites()
         {
-            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
-            var userId = JwtHelper.GetUserIdFromToken(authHeader!);
-
-            if (string.IsNullOrEmpty(userId))
+            var userIdStr = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized(new ResponseDto<IEnumerable<FavoriteDto>>(false, "Unauthorized", null!));
 
-            var response = await _favoriteService.GetUserFavoritesAsync(Guid.Parse(userId));
+            var response = await _favoriteService.GetUserFavoritesAsync(Guid.Parse(userIdStr));
             
             if (!response.IsSuccess)
                 return BadRequest(response);
@@ -82,13 +76,11 @@ namespace Sob_Need_Server.Controllers.User
         [HttpGet("check/{productId}")]
         public async Task<ActionResult<ResponseDto<bool>>> IsFavorited(Guid productId)
         {
-            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
-            var userId = JwtHelper.GetUserIdFromToken(authHeader!);
-
-            if (string.IsNullOrEmpty(userId))
+            var userIdStr = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized(new ResponseDto<bool>(false, "Unauthorized", false));
 
-            var response = await _favoriteService.IsFavoritedAsync(Guid.Parse(userId), productId);
+            var response = await _favoriteService.IsFavoritedAsync(Guid.Parse(userIdStr), productId);
             
             return Ok(response);
         }
