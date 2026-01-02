@@ -60,6 +60,64 @@ namespace Sob_Need_Server.Migrations
                     b.ToTable("Attachments");
                 });
 
+            modelBuilder.Entity("Models.Locations.Location", b =>
+                {
+                    b.Property<Guid>("LocationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AddressLine")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("CityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CountryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RegionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("StateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("LocationId");
+
+                    b.HasIndex("CityId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("RegionId");
+
+                    b.HasIndex("StateId");
+
+                    b.HasIndex("CountryId", "StateId", "CityId", "RegionId")
+                        .HasDatabaseName("IX_Location_Hierarchy");
+
+                    b.ToTable("Locations");
+                });
+
             modelBuilder.Entity("Models.Products.Product", b =>
                 {
                     b.Property<Guid>("ProductId")
@@ -466,64 +524,6 @@ namespace Sob_Need_Server.Migrations
                     b.ToTable("Countries");
                 });
 
-            modelBuilder.Entity("Sob_Need_Server.Models.Locations.Location", b =>
-                {
-                    b.Property<Guid>("LocationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("AddressLine")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<Guid?>("CityId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CountryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("RegionId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("StateId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("LocationId");
-
-                    b.HasIndex("CityId");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("RegionId");
-
-                    b.HasIndex("StateId");
-
-                    b.HasIndex("CountryId", "StateId", "CityId", "RegionId")
-                        .HasDatabaseName("IX_Location_Hierarchy");
-
-                    b.ToTable("Locations");
-                });
-
             modelBuilder.Entity("Sob_Need_Server.Models.Locations.Region", b =>
                 {
                     b.Property<Guid>("RegionId")
@@ -882,17 +882,12 @@ namespace Sob_Need_Server.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("ProductId1")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("StatusId")
                         .HasColumnType("uuid");
 
                     b.HasKey("HistoryId");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("ProductId1");
 
                     b.HasIndex("StatusId");
 
@@ -1043,6 +1038,45 @@ namespace Sob_Need_Server.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Models.Locations.Location", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Locations.City", "City")
+                        .WithMany()
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Sob_Need_Server.Models.Locations.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Models.Products.Product", "Product")
+                        .WithMany("Locations")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Locations.Region", "Region")
+                        .WithMany()
+                        .HasForeignKey("RegionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Sob_Need_Server.Models.Locations.State", "State")
+                        .WithMany()
+                        .HasForeignKey("StateId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("City");
+
+                    b.Navigation("Country");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Region");
+
+                    b.Navigation("State");
+                });
+
             modelBuilder.Entity("Models.Products.Product", b =>
                 {
                     b.HasOne("Sob_Need_Server.Models.Categories.Category", "Category")
@@ -1123,45 +1157,6 @@ namespace Sob_Need_Server.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("Sob_Need_Server.Models.Locations.Location", b =>
-                {
-                    b.HasOne("Sob_Need_Server.Models.Locations.City", "City")
-                        .WithMany()
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Sob_Need_Server.Models.Locations.Country", "Country")
-                        .WithMany()
-                        .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Models.Products.Product", "Product")
-                        .WithMany("Locations")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Sob_Need_Server.Models.Locations.Region", "Region")
-                        .WithMany()
-                        .HasForeignKey("RegionId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Sob_Need_Server.Models.Locations.State", "State")
-                        .WithMany()
-                        .HasForeignKey("StateId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("City");
-
-                    b.Navigation("Country");
-
-                    b.Navigation("Product");
-
-                    b.Navigation("Region");
-
-                    b.Navigation("State");
-                });
-
             modelBuilder.Entity("Sob_Need_Server.Models.Products.ProductAttribute", b =>
                 {
                     b.HasOne("Sob_Need_Server.Models.Categories.Category", "Category")
@@ -1206,14 +1201,10 @@ namespace Sob_Need_Server.Migrations
             modelBuilder.Entity("Sob_Need_Server.Models.Products.ProductStatusHistory", b =>
                 {
                     b.HasOne("Models.Products.Product", "Product")
-                        .WithMany()
+                        .WithMany("StatusHistories")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Models.Products.Product", null)
-                        .WithMany("StatusHistories")
-                        .HasForeignKey("ProductId1");
 
                     b.HasOne("Sob_Need_Server.Models.Products.ProductStatus", "Status")
                         .WithMany()
