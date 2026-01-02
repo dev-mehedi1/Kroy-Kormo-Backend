@@ -133,6 +133,28 @@ namespace Sob_Need_Server.Controllers.ProductController
 
             return Ok(response);
         }
+
+        // GET: api/v1/product/most-viewed
+        [HttpGet("most-viewed")]
+        public async Task<ActionResult<ResponseDto<IEnumerable<ProductDto>>>> GetMostViewedProducts([FromQuery] int count = 10)
+        {
+            var response = await _productService.GetMostViewedProductsAsync(count);
+            if (!response.IsSuccess)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
+
+        // GET: api/v1/product/{id}/related
+        [HttpGet("{id}/related")]
+        public async Task<ActionResult<ResponseDto<IEnumerable<ProductDto>>>> GetRelatedProducts(Guid id, [FromQuery] int count = 10)
+        {
+            var response = await _productService.GetRelatedProductsAsync(id, count);
+            if (!response.IsSuccess)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
     }
 
     public class StatusUpdateDto

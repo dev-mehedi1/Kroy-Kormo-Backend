@@ -510,4 +510,59 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             return new ResponseDto<IEnumerable<ProductStatusHistoryDto>>(false, ex.Message, null!);
         }
     }
+
+    public async Task<ResponseDto<IEnumerable<ProductDto>>> GetMostViewedProductsAsync(int count)
+    {
+        try
+        {
+            var products = await _context.Products
+                .Include(p => p.User)
+                .Include(p => p.Category)
+                .Include(p => p.Condition)
+                .Include(p => p.Status)
+                .Include(p => p.Attachments)
+                .Include(p => p.Locations)
+                .Where(p => p.IsActive)
+                .OrderByDescending(p => p.ViewCount)
+                .Take(count)
+                .ToListAsync();
+
+            var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
+            return new ResponseDto<IEnumerable<ProductDto>>(true, "Most viewed products retrieved successfully", productsDto);
+        }
+        catch (Exception ex)
+        {
+            return new ResponseDto<IEnumerable<ProductDto>>(false, ex.Message, null!);
+        }
+    }
+
+    public async Task<ResponseDto<IEnumerable<ProductDto>>> GetRelatedProductsAsync(Guid productId, int count)
+    {
+        try
+        {
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null) return new ResponseDto<IEnumerable<ProductDto>>(false, "Product not found", null!);
+
+            var relatedProducts = await _context.Products
+                .Include(p => p.User)
+                .Include(p => p.Category)
+                .Include(p => p.Condition)
+                .Include(p => p.Status)
+                .Include(p => p.Attachments)
+                .Include(p => p.Locations)
+                .Where(p => p.CategoryId == product.CategoryId && p.ProductId != productId && p.IsActive)
+                .OrderByDescending(p => p.IsTopAd)
+                .ThenByDescending(p => p.IsFeaturedMember)
+                .ThenByDescending(p => p.CreatedAt)
+                .Take(count)
+                .ToListAsync();
+
+            var relatedProductsDto = _mapper.Map<IEnumerable<ProductDto>>(relatedProducts);
+            return new ResponseDto<IEnumerable<ProductDto>>(true, "Related products retrieved successfully", relatedProductsDto);
+        }
+        catch (Exception ex)
+        {
+            return new ResponseDto<IEnumerable<ProductDto>>(false, ex.Message, null!);
+        }
+    }
 }

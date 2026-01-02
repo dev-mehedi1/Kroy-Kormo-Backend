@@ -54,6 +54,11 @@ namespace Sob_Need_Server.Services.Chat
 
         public async Task<ResponseDto<MessageDto>> SendMessageAsync(Guid senderId, Guid receiverId, string content)
         {
+            // Validate receiver exists
+            var receiverExists = await _context.Users.AnyAsync(u => u.UserId == receiverId);
+            if (!receiverExists)
+                return new ResponseDto<MessageDto>(false, "Receiver not found", null!);
+
             // Ensure unique conversation between two users
             var user1Id = senderId.CompareTo(receiverId) < 0 ? senderId : receiverId;
             var user2Id = senderId.CompareTo(receiverId) < 0 ? receiverId : senderId;
