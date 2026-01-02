@@ -42,7 +42,9 @@ public class UserService (AppDbContext dbContext, IConfiguration configuration, 
         try
         {
             // CHeck User is exist
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == UserName);
+            var user = await _context.Users
+                .Include(u => u.UserType)
+                .FirstOrDefaultAsync(x => x.UserName == UserName);
             if (user == null) return new ResponseDto<UserDto>(false, "User not exist using this user name", null!);
 
             // Verify password

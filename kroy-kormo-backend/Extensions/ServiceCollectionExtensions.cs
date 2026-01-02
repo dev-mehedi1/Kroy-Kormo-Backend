@@ -11,8 +11,11 @@ using Sob_Need_Server.Services.Authentication;
 using Sob_Need_Server.Services.CategoryService;
 using Sob_Need_Server.Services.LocationService;
 using Sob_Need_Server.Services.Notifications;
+using Sob_Need_Server.Services.Notifications;
 using Sob_Need_Server.Services.ProductService;
 using Sob_Need_Server.Services.User;
+using Sob_Need_Server.Services.Admin; // Added
+using Sob_Need_Server.Interface.Admin; // Added
 using Sob_Need_Server.Services.Chat;
 using Sob_Need_Server.Services.Analytics;
 using Sob_Need_Server.Services.ConditionService;
@@ -47,6 +50,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         services.AddScoped<IPromotionService, PromotionService>();
         services.AddScoped<IProductAttributeService, ProductAttributeService>();
+        services.AddScoped<IAdminService, AdminService>();
 
         return services;
     }

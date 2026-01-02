@@ -56,6 +56,8 @@ namespace DTOs.Product
         public bool IsFeaturedMember { get; set; }
         public bool IsSell { get; set; }
         public bool IsVerified { get; set; }
+        public bool IsActive { get; set; }
+        public string? ImageUrl { get; set; }
         
         // Statistics
         public int ViewCount { get; set; }
