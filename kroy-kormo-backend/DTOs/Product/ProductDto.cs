@@ -16,10 +16,12 @@ namespace DTOs.Product
         // Condition
         public Guid ConditionId { get; set; }
         public string? ConditionName { get; set; }
+        public string? Condition { get; set; } // Flattened condition for frontend
         
         // Category
         public Guid CategoryId { get; set; }
         public string? CategoryName { get; set; }
+        public string? Category { get; set; } // Flattened category for frontend
         public string? ParentCategoryName { get; set; }
         
         // Status
@@ -34,6 +36,7 @@ namespace DTOs.Product
         public string? SellerPhone { get; set; }
         public bool IsVerifiedSeller { get; set; }
         public string? UserTypeName { get; set; }
+        public string? Location { get; set; } // Flattened location for frontend
         
         // Location
         public List<LocationDto> Locations { get; set; } = [];

@@ -43,7 +43,10 @@ namespace Mappings
                     src.StatusHistories.OrderByDescending(sh => sh.CreatedAt).FirstOrDefault()))
                 // Add these category mappings:
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : null))
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : null))
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryId : (Guid?)null))
+                .ForMember(dest => dest.Condition, opt => opt.MapFrom(src => src.Condition != null ? src.Condition.ConditionName : null))
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Locations.FirstOrDefault() != null ? src.Locations.FirstOrDefault()!.AddressLine : null))
                 .ReverseMap()
                 .ForMember(dest => dest.Category, opt => opt.Ignore()) // Add this to reverse map
                 .ReverseMap();
@@ -146,17 +149,17 @@ namespace Mappings
 
             // Chat mappings
             CreateMap<Conversation, ConversationDto>()
-                .ForMember(dest => dest.OtherUserId, opt => opt.MapFrom((src, dest, _, context) => 
+                .ForMember(dest => dest.ParticipantId, opt => opt.MapFrom((src, dest, _, context) => 
                 {
                     var userId = (Guid)context.Items["UserId"];
                     return src.User1Id == userId ? src.User2Id : src.User1Id;
                 }))
-                .ForMember(dest => dest.OtherUserName, opt => opt.MapFrom((src, dest, _, context) => 
+                .ForMember(dest => dest.ParticipantName, opt => opt.MapFrom((src, dest, _, context) => 
                 {
                     var userId = (Guid)context.Items["UserId"];
                     return src.User1Id == userId ? src.User2.FullName : src.User1.FullName;
                 }))
-                .ForMember(dest => dest.OtherUserImageUrl, opt => opt.MapFrom((src, dest, _, context) => 
+                .ForMember(dest => dest.ParticipantImage, opt => opt.MapFrom((src, dest, _, context) => 
                 {
                     var userId = (Guid)context.Items["UserId"];
                     return src.User1Id == userId ? src.User2.ProfilePicture : src.User1.ProfilePicture;

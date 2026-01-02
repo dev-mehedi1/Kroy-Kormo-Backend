@@ -118,11 +118,21 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 }
             }
 
+            // Base ordering: Prioritize promoted products
+            query = query.OrderByDescending(x => x.IsTopAd)
+                        .ThenByDescending(x => x.IsFeaturedMember)
+                        .ThenByDescending(x => x.IsUrgentAd);
+
             if (filters.OrderByAsc.HasValue)
             {
                 query = filters.OrderByAsc.Value
-                    ? query.OrderBy(x => x.CreatedAt)
-                    : query.OrderByDescending(x => x.CreatedAt);
+                    ? ((IOrderedQueryable<Product>)query).ThenBy(x => x.CreatedAt)
+                    : ((IOrderedQueryable<Product>)query).ThenByDescending(x => x.CreatedAt);
+            }
+            else
+            {
+                // Default sub-sorting by CreatedAt DESC
+                query = ((IOrderedQueryable<Product>)query).ThenByDescending(x => x.CreatedAt);
             }
             // Total count before paging
             var totalCount = await query.CountAsync();
@@ -546,7 +556,10 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 .Include(p => p.Attachments)
                 .Include(p => p.Locations)
                 .Where(p => p.IsActive)
-                .OrderByDescending(p => p.ViewCount)
+                .OrderByDescending(p => p.IsTopAd)
+                .ThenByDescending(p => p.IsFeaturedMember)
+                .ThenByDescending(p => p.IsUrgentAd)
+                .ThenByDescending(p => p.ViewCount)
                 .Take(count)
                 .ToListAsync();
 
@@ -576,6 +589,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 .Where(p => p.CategoryId == product.CategoryId && p.ProductId != productId && p.IsActive)
                 .OrderByDescending(p => p.IsTopAd)
                 .ThenByDescending(p => p.IsFeaturedMember)
+                .ThenByDescending(p => p.IsUrgentAd)
                 .ThenByDescending(p => p.CreatedAt)
                 .Take(count)
                 .ToListAsync();
