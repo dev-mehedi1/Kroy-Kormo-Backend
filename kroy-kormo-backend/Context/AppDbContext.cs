@@ -113,7 +113,7 @@ namespace Sob_Need_Server.Context
             // Configure ProductStatusHistory relationships
             modelBuilder.Entity<ProductStatusHistory>()
                 .HasOne(psh => psh.Product)
-                .WithMany()
+                .WithMany(p => p.StatusHistories)
                 .HasForeignKey(psh => psh.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
             
