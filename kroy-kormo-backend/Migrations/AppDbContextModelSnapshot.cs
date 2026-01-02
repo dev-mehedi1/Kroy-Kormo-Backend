@@ -17,7 +17,7 @@ namespace Sob_Need_Server.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -224,6 +224,67 @@ namespace Sob_Need_Server.Migrations
                         .HasDatabaseName("IX_Product_Category_Status_Active_Created");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Authentication.AdminUser", b =>
+                {
+                    b.Property<Guid>("AdminId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("AdminId");
+
+                    b.ToTable("AdminUsers");
+
+                    b.HasData(
+                        new
+                        {
+                            AdminId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            CreatedAt = new DateTime(2026, 1, 2, 18, 14, 1, 913, DateTimeKind.Utc).AddTicks(1216),
+                            Email = "admin@kroykormo.com",
+                            FullName = "Super Admin",
+                            IsActive = true,
+                            Password = "$2a$11$0KjJ5q.ZgY.Qx.Qx.Qx.Qx.Qx.Qx.Qx.Qx.Qx.Qx.Qx.Qx.Qx",
+                            Role = "SuperAdmin",
+                            UserName = "superadmin"
+                        });
                 });
 
             modelBuilder.Entity("Sob_Need_Server.Models.Authentication.User", b =>

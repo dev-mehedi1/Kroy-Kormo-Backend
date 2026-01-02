@@ -5,37 +5,73 @@ using Sob_Need_Server.DTOs.Authentication;
 using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.Interface.Admin;
 using Sob_Need_Server.Interface.Authentication;
+using Sob_Need_Server.Utils.Helpers;
+using Sob_Need_Server.Models.Authentication;
+using Sob_Need_Server.Models.Products;
+using System.Linq;
 
 namespace Sob_Need_Server.Services.Admin
 {
     public class AdminService : IAdminService
     {
-        private readonly IUserService _userService;
         private readonly AppDbContext _context;
+        private readonly TokenHelper _tokenHelper;
 
-        public AdminService(IUserService userService, AppDbContext context)
+        public AdminService(AppDbContext context, TokenHelper tokenHelper)
         {
-            _userService = userService;
             _context = context;
+            _tokenHelper = tokenHelper;
         }
 
         public async Task<ResponseDto<UserDto>> AdminLoginAsync(string userName, string password)
         {
-            var response = await _userService.LoginAsync(userName, password);
-            if (!response.IsSuccess) return response;
-
-            // Check if user is Admin
-            // Assuming "Admin" or "SuperAdmin" is the slug or TypeName. 
-            // Case-insensitive check is safer.
-            var userType = response.Data.UserTypeName;
-            if (string.IsNullOrEmpty(userType) || 
-               (!userType.Equals("Admin", StringComparison.OrdinalIgnoreCase) && 
-                !userType.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase)))
+            try
             {
-                return new ResponseDto<UserDto>(false, "Access Denied: You do not have Admin privileges.", null!);
-            }
+                var adminUser = await _context.AdminUsers.FirstOrDefaultAsync(x => x.UserName == userName);
+                if (adminUser == null) return new ResponseDto<UserDto>(false, "Admin not found", null!);
 
-            return response;
+                var isPasswordValid = PasswordHelper.VerifyPassword(adminUser.Password, password);
+                if (!isPasswordValid) return new ResponseDto<UserDto>(false, "Invalid password", null!);
+
+                if (!adminUser.IsActive) return new ResponseDto<UserDto>(false, "Admin account is inactive", null!);
+
+                // Generate JWT using TokenHelper
+                // Map AdminUser to User entity because TokenHelper expects User
+                var userForToken = new Sob_Need_Server.Models.Authentication.User
+                {
+                    UserId = adminUser.AdminId,
+                    UserName = adminUser.UserName,
+                    Email = adminUser.Email,
+                    FullName = adminUser.FullName,
+                    UserType = new Sob_Need_Server.Models.Authentication.UserType { TypeName = adminUser.Role }
+                };
+
+                var token = _tokenHelper.GenerateJwtToken(userForToken);
+                
+                // Construct UserDto
+                var userDto = new UserDto
+                {
+                    UserId = adminUser.AdminId,
+                    UserName = adminUser.UserName,
+                    FullName = adminUser.FullName,
+                    Email = adminUser.Email,
+                    Phone = adminUser.Phone,
+                    UserTypeName = adminUser.Role,
+                    IsActive = adminUser.IsActive,
+                    CreatedAt = adminUser.CreatedAt,
+                    Token = token
+                };
+
+                // Update LastLogin
+                adminUser.LastLoginAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+
+                return new ResponseDto<UserDto>(true, "Admin Login successful", userDto);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto<UserDto>(false, ex.Message, null!);
+            }
         }
 
         public async Task<ResponseDto<AdminDashboardStatsDto>> GetDashboardStatsAsync()
@@ -44,10 +80,8 @@ namespace Sob_Need_Server.Services.Admin
             {
                 var totalUsers = await _context.Users.CountAsync();
                 var totalActiveAds = await _context.Products.CountAsync(p => p.IsActive);
-                // Assuming you might have a status for Pending, for now let's say all inactive are pending/other
-                // Or better, check specific status if available. 
-                // Based on previous work, we know there's a Status table.
                 
+                // Fetch pending status ID first
                 var pendingStatusId = await _context.ProductStatuses
                     .Where(s => s.Slug == "pending")
                     .Select(s => s.StatusId)

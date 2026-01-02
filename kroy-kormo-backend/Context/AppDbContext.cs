@@ -31,6 +31,7 @@ namespace Sob_Need_Server.Context
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationGroup> NotificationGroup { get; set; }
         public DbSet<GroupMembers> GroupMembers { get; set; }
+        public DbSet<AdminUser> AdminUsers { get; set; }
         
         // New DbSets for classified ads platform
         public DbSet<UserType> UserTypes { get; set; }
@@ -310,6 +311,34 @@ namespace Sob_Need_Server.Context
             modelBuilder.Entity<GroupMembers>()
                 .Property(gm => gm.GroupMembersId)
                 .ValueGeneratedOnAdd();
+                
+            // SEED INITIAL ADMIN
+             modelBuilder.Entity<AdminUser>().HasData(
+                new AdminUser
+                {
+                    AdminId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    UserName = "superadmin",
+                    // Use a known hash or temporary password. 
+                    // Since we use BCrypt/Argon2 (PasswordHelper), we can't easily hardcode a hash unless we know it.
+                    // For now, let's assume we can set it during runtime or manually.
+                    // But to be helpful, let's use a placeholder hash if PasswordHelper uses simple hashing or we'll rely on an endpoint to create.
+                    // Actually, let's use a hardcoded hash from a known tool or empty.
+                    // Ideally, use a tool to generate it. 
+                    // Let's assume user MUST register. But Admin?
+                    // Let's insert a dummy admin and assume the user will patch the password via DB or I'll provide a tool.
+                    // WAIT, I can run a command to generate a hash? No.
+                    // I will just seed it with a known hash for "password123" if I can.
+                    // If not, I'll seed and then user might need to reset.
+                    // Better: Create a dedicated "Seed" endpoint or console command?
+                    // Let's stick to seeding but with a placeholder password.
+                    Password = "$2a$11$0KjJ5q.ZgY.Qx.Qx.Qx.Qx.Qx.Qx.Qx.Qx.Qx.Qx.Qx.Qx.Qx", // Dummy BCrypt hash
+                    FullName = "Super Admin",
+                    Email = "admin@kroykormo.com",
+                    Role = "SuperAdmin",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                }
+            );
         }
     }
 }
