@@ -17,8 +17,9 @@ using Sob_Need_Server.DTOs.Chat;
 using Models.Products;
 using AttachmentEntity = Models.Attachment.Attachment;
 using DTOs.Product;
+using Models.Locations;
 
-namespace Sob_Need_Server.Mappings
+namespace Mappings
 {
     public class MappingProfile : Profile
     {
@@ -70,12 +71,17 @@ namespace Sob_Need_Server.Mappings
                 .ReverseMap();
 
             // Location mappings
-            // Location mappings
             CreateMap<Location, LocationDto>()
-                .ForMember(dest => dest.CountryName, opt => opt.MapFrom(src => src.Country != null ? src.Country.CountryName : null))
-                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.City != null ? src.City.CityName : null))
-                .ForMember(dest => dest.RegionName, opt => opt.MapFrom(src => src.Region != null ? src.Region.RegionName : null))
-                .ForMember(dest => dest.StateName, opt => opt.MapFrom(src => src.State != null ? src.State.StateName : null));
+                .ForMember(dest => dest.CountryName, opt => opt.MapFrom(src =>
+                    src.Country != null ? src.Country.CountryName : null))
+                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src =>
+                    src.City != null ? src.City.CityName : null))
+                .ForMember(dest => dest.RegionName, opt => opt.MapFrom(src =>
+                    src.Region != null ? src.Region.RegionName : null))
+                .ForMember(dest => dest.StateName, opt => opt.MapFrom(src =>
+                    src.State != null ? src.State.StateName : null))
+                .ReverseMap();
+
 
             // Attachment mappings
             //CreateMap<AttachmentEntity, ImageDto>().ReverseMap();

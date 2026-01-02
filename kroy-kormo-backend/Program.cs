@@ -1,9 +1,9 @@
+using Mappings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.Extensions;
-using Sob_Need_Server.Mappings;
 using Sob_Need_Server.SignalR;
 using System.Text;
 

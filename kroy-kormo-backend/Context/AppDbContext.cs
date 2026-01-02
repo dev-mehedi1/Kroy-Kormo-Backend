@@ -7,6 +7,7 @@ using Sob_Need_Server.Models.Locations;
 using Sob_Need_Server.Models.Notifications;
 using Sob_Need_Server.Models.Products;
 using Sob_Need_Server.Models.Users;
+using Models.Locations;
 
 namespace Sob_Need_Server.Context
 {

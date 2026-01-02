@@ -1,6 +1,6 @@
-﻿using Sob_Need_Server.Models.Authentication;
+﻿using Models.Locations;
+using Sob_Need_Server.Models.Authentication;
 using Sob_Need_Server.Models.Categories;
-using Sob_Need_Server.Models.Locations;
 using Sob_Need_Server.Models.Products;
 using Sob_Need_Server.Models.Users;
 using System.ComponentModel.DataAnnotations;

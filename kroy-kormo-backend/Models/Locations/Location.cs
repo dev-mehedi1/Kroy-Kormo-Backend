@@ -1,8 +1,9 @@
 ﻿using Models.Products;
+using Sob_Need_Server.Models.Locations;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sob_Need_Server.Models.Locations
+namespace Models.Locations
 {
     public class Location
     {
