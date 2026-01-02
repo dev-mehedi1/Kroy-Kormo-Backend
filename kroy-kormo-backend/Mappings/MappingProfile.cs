@@ -40,6 +40,11 @@ namespace Mappings
                 .ForMember(dest => dest.StatusHistory, opt => opt.MapFrom(src => src.StatusHistories.OrderBy(sh => sh.CreatedAt)))
                 .ForMember(dest => dest.CurrentStatusHistory, opt => opt.MapFrom(src => 
                     src.StatusHistories.OrderByDescending(sh => sh.CreatedAt).FirstOrDefault()))
+                // Add these category mappings:
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : null))
+                .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryId : (Guid?)null))
+                .ReverseMap()
+                .ForMember(dest => dest.Category, opt => opt.Ignore()) // Add this to reverse map
                 .ReverseMap();
             
             CreateMap<CreateProductDto, Product>()
