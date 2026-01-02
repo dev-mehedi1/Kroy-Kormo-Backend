@@ -11,6 +11,7 @@ namespace Sob_Need_Server.Interface
         Task<ResponseDto<ProductDto>> CreateAsync(CreateProductDto productDto);
         Task<ResponseDto<ProductDto>> UpdateAsync(Guid id, UpdateProductDto productDto);
         Task<ResponseDto<ProductDto>> DeleteAsync(Guid id, Guid userId);
+        Task<ResponseDto<ProductDto>> CancelAsync(Guid id, string reason, Guid userId);
         Task<ResponseDto<IEnumerable<ProductDto>>> GetAllProductsAsync(ProductFilterDto Filters);
         Task<ResponseDto<ProductDto>> GetProductBySlugAsync(string Slug);
         Task<ResponseDto<ProductDto>> UpdateStatusAsync(Guid id, string statusSlug, Guid userId);

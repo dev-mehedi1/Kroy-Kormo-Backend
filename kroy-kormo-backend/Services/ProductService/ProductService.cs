@@ -95,6 +95,29 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 query = query.Where(x => x.IsTopAd == filters.IsTopAd);
             }
 
+            // Default visibility logic
+            if (filters.IsManagementMode == true)
+            {
+                // In management mode, show everything for the user
+                if (filters.UserId.HasValue)
+                {
+                    query = query.Where(x => x.UserId == filters.UserId);
+                }
+            }
+            else
+            {
+                // In public mode, filter out sold and Canceled
+                query = query.Where(x => x.Status != null && 
+                                        x.Status.Slug != "sold" && 
+                                        x.Status.Slug != "canceled");
+                
+                // If UserId is provided in public mode (e.g. seller store), still exclude sold/Canceled
+                if (filters.UserId.HasValue)
+                {
+                    query = query.Where(x => x.UserId == filters.UserId);
+                }
+            }
+
             if (filters.OrderByAsc.HasValue)
             {
                 query = filters.OrderByAsc.Value
@@ -563,6 +586,58 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         catch (Exception ex)
         {
             return new ResponseDto<IEnumerable<ProductDto>>(false, ex.Message, null!);
+        }
+    }
+
+    public async Task<ResponseDto<ProductDto>> CancelAsync(Guid id, string reason, Guid userId)
+    {
+        try
+        {
+            var product = await _context.Products
+                .Include(p => p.Status)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+            
+            if (product == null)
+                return new ResponseDto<ProductDto>(false, "Product not found", null!);
+
+            if (product.UserId != userId)
+                return new ResponseDto<ProductDto>(false, "Unauthorized", null!);
+
+            // Find "Canceled" status
+            var canceledStatus = await _context.ProductStatuses
+                .FirstOrDefaultAsync(s => s.StatusName == "Canceled");
+            
+            if (canceledStatus == null)
+            {
+                // Fallback: Create it if it doesn't exist, though it should be seeded
+                canceledStatus = new ProductStatus { StatusId = Guid.NewGuid(), StatusName = "Canceled", Slug = "canceled" };
+                _context.ProductStatuses.Add(canceledStatus);
+                await _context.SaveChangesAsync();
+            }
+
+            product.StatusId = canceledStatus.StatusId;
+            product.UpdatedAt = DateTime.UtcNow;
+
+            // Add history
+            var history = new ProductStatusHistory
+            {
+                HistoryId = Guid.NewGuid(),
+                ProductId = product.ProductId,
+                StatusId = canceledStatus.StatusId,
+                Notes = reason,
+                ChangedBy = userId.ToString(),
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.ProductStatusHistories.Add(history);
+
+            await _context.SaveChangesAsync();
+            
+            var productDto = _mapper.Map<ProductDto>(product);
+            return new ResponseDto<ProductDto>(true, "Product canceled successfully", productDto);
+        }
+        catch (Exception ex)
+        {
+            return new ResponseDto<ProductDto>(false, ex.Message, null!);
         }
     }
 }

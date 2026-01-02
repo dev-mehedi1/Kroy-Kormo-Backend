@@ -97,7 +97,7 @@ namespace Sob_Need_Server.Controllers.ProductController
         [Authorize]
         public async Task<ActionResult<ResponseDto<ProductDto>>> UpdateProductStatus(Guid id, [FromBody] StatusUpdateDto updateDto)
         {
-            var userIdStr = JwtHelper.GetUserIdFromToken(Request.Headers.Authorization.ToString()!);
+            var userIdStr = User.FindFirst("UserId")?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
             var userId = Guid.Parse(userIdStr);
 
@@ -112,7 +112,7 @@ namespace Sob_Need_Server.Controllers.ProductController
         [Authorize]
         public async Task<ActionResult<ResponseDto<ProductDto>>> UpdateProductStatusById(Guid id, [FromBody] StatusUpdateByIdDto updateDto)
         {
-            var userIdStr = JwtHelper.GetUserIdFromToken(Request.Headers.Authorization.ToString()!);
+            var userIdStr = User.FindFirst("UserId")?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
             var userId = Guid.Parse(userIdStr);
 
@@ -155,6 +155,20 @@ namespace Sob_Need_Server.Controllers.ProductController
 
             return Ok(response);
         }
+        [HttpPatch("{id}/cancel")]
+        [Authorize]
+        public async Task<ActionResult<ResponseDto<ProductDto>>> CancelProduct(Guid id, [FromBody] CancelProductRequest request)
+        {
+            var userIdStr = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            var userId = Guid.Parse(userIdStr);
+
+            var response = await _productService.CancelAsync(id, request.Reason, userId);
+            if (!response.IsSuccess)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
     }
 
     public class StatusUpdateDto
@@ -165,5 +179,10 @@ namespace Sob_Need_Server.Controllers.ProductController
     public class StatusUpdateByIdDto
     {
         public Guid StatusId { get; set; }
+    }
+
+    public class CancelProductRequest
+    {
+        public string Reason { get; set; } = string.Empty;
     }
 }

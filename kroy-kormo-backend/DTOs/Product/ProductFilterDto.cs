@@ -52,5 +52,6 @@ public class ProductFilterDto
     
     // Include only active products by default
     public bool? IsActive { get; set; } = true;
+    public bool? IsManagementMode { get; set; }
 }
 

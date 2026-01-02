@@ -30,6 +30,7 @@ namespace Mappings
                  .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Attachments))
                 .ForMember(dest => dest.ConditionName, opt => opt.MapFrom(src => src.Condition != null ? src.Condition.ConditionName : null))
                 .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.StatusName : null))
+                .ForMember(dest => dest.StatusSlug, opt => opt.MapFrom(src => src.Status != null ? src.Status.Slug : null))
                 .ForMember(dest => dest.SellerName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : null))
                 .ForMember(dest => dest.SellerPhone, opt => opt.MapFrom(src => src.User != null ? src.User.Phone : null))
                 .ForMember(dest => dest.IsVerifiedSeller, opt => opt.MapFrom(src => src.User != null && src.User.IsVerified))
@@ -57,7 +58,9 @@ namespace Mappings
             CreateMap<Condition, ConditionDto>().ReverseMap();
             
             // ProductStatus mappings
-            CreateMap<ProductStatus, ProductStatusDto>().ReverseMap();
+            CreateMap<ProductStatus, ProductStatusDto>()
+                .ForMember(dest => dest.StatusSlug, opt => opt.MapFrom(src => src.Slug))
+                .ReverseMap();
             
             // ProductAttribute mappings
             CreateMap<ProductAttribute, ProductAttributeDto>().ReverseMap();

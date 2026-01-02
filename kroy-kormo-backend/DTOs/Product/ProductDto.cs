@@ -25,6 +25,7 @@ namespace DTOs.Product
         // Status
         public Guid StatusId { get; set; }
         public string? StatusName { get; set; }
+        public string? StatusSlug { get; set; }
         
         // User/Seller info
         public Guid UserId { get; set; }
