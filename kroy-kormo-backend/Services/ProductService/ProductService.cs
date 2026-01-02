@@ -57,6 +57,8 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 .Include(p => p.Category)
                 .Include(p => p.Condition)
                 .Include(p => p.Status)
+                .Include(p => p.StatusHistories)
+                    .ThenInclude(h => h.Status)
                 .Include(p => p.Locations)
                     .ThenInclude(l => l.Country)
                 .Include(p => p.Locations)

@@ -66,6 +66,7 @@ namespace DTOs.Product
         public List<PromotionDto> ActivePromotions { get; set; } = new List<PromotionDto>();
 
         // Status History (Timeline)
+        public ProductStatusHistoryDto? CurrentStatusHistory { get; set; }
         public List<ProductStatusHistoryDto> StatusHistory { get; set; } = [];
     }
 }

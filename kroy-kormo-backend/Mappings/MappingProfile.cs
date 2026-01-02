@@ -37,6 +37,8 @@ namespace Sob_Need_Server.Mappings
                     src.Promotions.Where(p => p.IsActive && p.EndDate >= DateTime.UtcNow)))
                 .ForMember(dest => dest.Locations, opt => opt.MapFrom(src => src.Locations))
                 .ForMember(dest => dest.StatusHistory, opt => opt.MapFrom(src => src.StatusHistories.OrderBy(sh => sh.CreatedAt)))
+                .ForMember(dest => dest.CurrentStatusHistory, opt => opt.MapFrom(src => 
+                    src.StatusHistories.OrderByDescending(sh => sh.CreatedAt).FirstOrDefault()))
                 .ReverseMap();
             
             CreateMap<CreateProductDto, Product>()
