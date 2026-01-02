@@ -59,6 +59,16 @@ namespace Sob_Need_Server.Controllers.Chat
             return Ok(res);
         }
 
+        [HttpGet("unread-count")]
+        public async Task<ActionResult<ResponseDto<int>>> GetUnreadCount()
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized();
+
+            var res = await _chatService.GetUnreadCountAsync(userId.Value);
+            return Ok(res);
+        }
+
         private Guid? GetCurrentUserId()
         {
             var userIdStr = User.FindFirst("UserId")?.Value;

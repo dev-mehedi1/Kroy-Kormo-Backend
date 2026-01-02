@@ -33,21 +33,29 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
     {
         try
         {
-            // If CategorySlug is provided, fetch the category and its subcategories
+            // If CategorySlug or CategoryId is provided, fetch the category and its subcategories
             List<Guid> categoryIds = [];
-            if (!string.IsNullOrWhiteSpace(filters.CategorySlug))
+            if (!string.IsNullOrWhiteSpace(filters.CategorySlug) || filters.CategoryId.HasValue)
             {
-                var category = await _context.Categories.FirstOrDefaultAsync(c => c.Slug == filters.CategorySlug);
-                if (category == null) return new ResponseDto<IEnumerable<ProductDto>>(false, "Category not found", null!);
+                var category = await _context.Categories.FirstOrDefaultAsync(c => 
+                    (!string.IsNullOrWhiteSpace(filters.CategorySlug) && c.Slug == filters.CategorySlug) ||
+                    (filters.CategoryId.HasValue && c.CategoryId == filters.CategoryId.Value));
 
-                // Fetch subcategories of the specified category
-                var subCategoryIds = await _context.Categories
-                    .Where(c => c.ParentCategoryId == category.CategoryId)
-                    .Select(c => c.CategoryId)
-                    .ToListAsync();
+                if (category != null)
+                {
+                    // Fetch subcategories of the specified category
+                    var subCategoryIds = await _context.Categories
+                        .Where(c => c.ParentCategoryId == category.CategoryId)
+                        .Select(c => c.CategoryId)
+                        .ToListAsync();
 
-                categoryIds.Add(category.CategoryId);
-                categoryIds.AddRange(subCategoryIds);
+                    categoryIds.Add(category.CategoryId);
+                    categoryIds.AddRange(subCategoryIds);
+                }
+                else if (!string.IsNullOrWhiteSpace(filters.CategorySlug)) 
+                {
+                    return new ResponseDto<IEnumerable<ProductDto>>(false, "Category not found", null!);
+                }
             }
 
             // Base query to fetch products with navigation properties
@@ -555,6 +563,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 .Include(p => p.Status)
                 .Include(p => p.Attachments)
                 .Include(p => p.Locations)
+                .Include(p => p.Promotions)
                 .Where(p => p.IsActive)
                 .OrderByDescending(p => p.IsTopAd)
                 .ThenByDescending(p => p.IsFeaturedMember)
@@ -586,6 +595,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 .Include(p => p.Status)
                 .Include(p => p.Attachments)
                 .Include(p => p.Locations)
+                .Include(p => p.Promotions)
                 .Where(p => p.CategoryId == product.CategoryId && p.ProductId != productId && p.IsActive)
                 .OrderByDescending(p => p.IsTopAd)
                 .ThenByDescending(p => p.IsFeaturedMember)

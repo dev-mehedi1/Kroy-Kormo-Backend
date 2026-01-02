@@ -119,5 +119,16 @@ namespace Sob_Need_Server.Services.Chat
             await _context.SaveChangesAsync();
             return new ResponseDto<bool>(true, "Messages marked as read", true);
         }
+
+        public async Task<ResponseDto<int>> GetUnreadCountAsync(Guid userId)
+        {
+            var count = await _context.Messages
+                .CountAsync(m => m.Conversation.Messages.Any(msg => msg.Conversation.User1Id == userId || msg.Conversation.User2Id == userId) // Access denied check implicitly via conversation
+                                 && m.SenderId != userId 
+                                 && !m.IsRead 
+                                 && (m.Conversation.User1Id == userId || m.Conversation.User2Id == userId));
+
+            return new ResponseDto<int>(true, "Unread count retrieved", count);
+        }
     }
 }
