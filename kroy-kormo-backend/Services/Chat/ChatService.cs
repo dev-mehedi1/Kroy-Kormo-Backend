@@ -43,6 +43,8 @@ namespace Sob_Need_Server.Services.Chat
 
             var messages = await _context.Messages
                 .Include(m => m.Sender)
+                .Include(m => m.Product)
+                    .ThenInclude(p => p != null ? p.Attachments : null)
                 .Where(m => m.ConversationId == conversationId)
                 .OrderBy(m => m.CreatedAt)
                 .ToListAsync();
@@ -52,7 +54,7 @@ namespace Sob_Need_Server.Services.Chat
             return new ResponseDto<IEnumerable<MessageDto>>(true, "Messages retrieved", dtos);
         }
 
-        public async Task<ResponseDto<MessageDto>> SendMessageAsync(Guid senderId, Guid receiverId, string content)
+        public async Task<ResponseDto<MessageDto>> SendMessageAsync(Guid senderId, Guid receiverId, string content, Guid? productId = null)
         {
             // Validate receiver exists
             var receiverExists = await _context.Users.AnyAsync(u => u.UserId == receiverId);
@@ -82,6 +84,7 @@ namespace Sob_Need_Server.Services.Chat
                 ConversationId = conversation.ConversationId,
                 SenderId = senderId,
                 Content = content,
+                ProductId = productId,
                 CreatedAt = DateTime.UtcNow,
                 IsRead = false
             };
@@ -92,9 +95,11 @@ namespace Sob_Need_Server.Services.Chat
             _context.Messages.Add(message);
             await _context.SaveChangesAsync();
 
-            // Reload message to include sender for mapping
+            // Reload message to include sender AND product info for mapping
             var savedMessage = await _context.Messages
                 .Include(m => m.Sender)
+                .Include(m => m.Product)
+                    .ThenInclude(p => p != null ? p.Attachments : null)
                 .FirstOrDefaultAsync(m => m.MessageId == message.MessageId);
 
             var messageDto = _mapper.Map<MessageDto>(savedMessage);

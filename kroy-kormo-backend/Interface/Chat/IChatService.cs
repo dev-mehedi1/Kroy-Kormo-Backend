@@ -10,7 +10,7 @@ namespace Sob_Need_Server.Interface.Chat
     {
         Task<ResponseDto<IEnumerable<ConversationDto>>> GetConversationsAsync(Guid userId);
         Task<ResponseDto<IEnumerable<MessageDto>>> GetMessagesAsync(Guid conversationId, Guid userId);
-        Task<ResponseDto<MessageDto>> SendMessageAsync(Guid senderId, Guid receiverId, string content);
+        Task<ResponseDto<MessageDto>> SendMessageAsync(Guid senderId, Guid receiverId, string content, Guid? productId = null);
         Task<ResponseDto<bool>> MarkAsReadAsync(Guid conversationId, Guid userId);
         Task<ResponseDto<int>> GetUnreadCountAsync(Guid userId);
     }

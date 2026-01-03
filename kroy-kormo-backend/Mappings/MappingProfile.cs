@@ -172,7 +172,9 @@ namespace Mappings
 
             CreateMap<Message, MessageDto>()
                 .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Sender.FullName))
-                .ForMember(dest => dest.SenderImageUrl, opt => opt.MapFrom(src => src.Sender.ProfilePicture));
+                .ForMember(dest => dest.SenderImageUrl, opt => opt.MapFrom(src => src.Sender.ProfilePicture))
+                .ForMember(dest => dest.ProductTitle, opt => opt.MapFrom(src => src.Product != null ? src.Product.Title : null))
+                .ForMember(dest => dest.ProductImageUrl, opt => opt.MapFrom(src => src.Product != null && src.Product.Attachments.Any() ? src.Product.Attachments.FirstOrDefault()!.ImageUrl : null));
             
             // Country/State/City/Region mappings
             CreateMap<Country, CountryDto>().ReverseMap();

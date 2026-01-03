@@ -1,5 +1,6 @@
-using System;
+using Models.Products;
 using Sob_Need_Server.Models.Authentication;
+using System;
 
 namespace Sob_Need_Server.Models.Chat
 {
@@ -16,5 +17,8 @@ namespace Sob_Need_Server.Models.Chat
         public string Content { get; set; } = null!;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsRead { get; set; } = false;
+        
+        public Guid? ProductId { get; set; }
+        public virtual Product? Product { get; set; }
     }
 }

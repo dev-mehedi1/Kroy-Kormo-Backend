@@ -12,5 +12,9 @@ namespace Sob_Need_Server.DTOs.Chat
         public string Content { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
         public bool IsRead { get; set; }
+        
+        public Guid? ProductId { get; set; }
+        public string? ProductTitle { get; set; }
+        public string? ProductImageUrl { get; set; }
     }
 }

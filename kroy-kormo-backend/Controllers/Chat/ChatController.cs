@@ -45,7 +45,7 @@ namespace Sob_Need_Server.Controllers.Chat
             var userId = GetCurrentUserId();
             if (userId == null) return Unauthorized();
 
-            var res = await _chatService.SendMessageAsync(userId.Value, request.ReceiverId, request.Content);
+            var res = await _chatService.SendMessageAsync(userId.Value, request.ReceiverId, request.Content, request.ProductId);
             return Ok(res);
         }
 
@@ -81,5 +81,6 @@ namespace Sob_Need_Server.Controllers.Chat
     {
         public Guid ReceiverId { get; set; }
         public string Content { get; set; } = null!;
+        public Guid? ProductId { get; set; }
     }
 }

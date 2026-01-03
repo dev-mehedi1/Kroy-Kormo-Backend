@@ -277,7 +277,7 @@ namespace Sob_Need_Server.Migrations
                         new
                         {
                             AdminId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2026, 1, 2, 18, 14, 1, 913, DateTimeKind.Utc).AddTicks(1216),
+                            CreatedAt = new DateTime(2026, 1, 3, 16, 24, 53, 120, DateTimeKind.Utc).AddTicks(1553),
                             Email = "admin@kroykormo.com",
                             FullName = "Super Admin",
                             IsActive = true,
@@ -500,10 +500,15 @@ namespace Sob_Need_Server.Migrations
                     b.Property<bool>("IsRead")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid?>("ProductId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("SenderId")
                         .HasColumnType("uuid");
 
                     b.HasKey("MessageId");
+
+                    b.HasIndex("ProductId");
 
                     b.HasIndex("SenderId");
 
@@ -1207,6 +1212,10 @@ namespace Sob_Need_Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Models.Products.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
+
                     b.HasOne("Sob_Need_Server.Models.Authentication.User", "Sender")
                         .WithMany()
                         .HasForeignKey("SenderId")
@@ -1214,6 +1223,8 @@ namespace Sob_Need_Server.Migrations
                         .IsRequired();
 
                     b.Navigation("Conversation");
+
+                    b.Navigation("Product");
 
                     b.Navigation("Sender");
                 });
