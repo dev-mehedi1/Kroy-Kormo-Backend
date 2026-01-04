@@ -2,7 +2,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY kroy-kormo-backend.csproj ./
+# First, find and copy the correct csproj file
+COPY *.csproj ./
 RUN dotnet restore
 
 COPY . .
