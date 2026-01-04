@@ -1,12 +1,19 @@
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
 
-# First, find and copy the correct csproj file
-COPY *.csproj ./
+# Copy the solution file from root
+COPY kroy-kormo-backend.sln ./
+# Copy the csproj file from subdirectory
+COPY kroy-kormo-backend/kroy-kormo-backend.csproj ./kroy-kormo-backend/
+
+# Restore dependencies
 RUN dotnet restore
 
+# Copy everything else
 COPY . .
+
+# Publish the project
+WORKDIR /src/kroy-kormo-backend
 RUN dotnet publish -c Release -o /app/publish
 
 # Runtime stage
