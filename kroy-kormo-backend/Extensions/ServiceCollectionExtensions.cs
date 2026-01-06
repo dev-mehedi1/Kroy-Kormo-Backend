@@ -52,6 +52,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProductAttributeService, ProductAttributeService>();
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<IRankingService, RankingService>();
+        services.AddScoped<ISuggestionService, SuggestionService>();
 
         return services;
     }
