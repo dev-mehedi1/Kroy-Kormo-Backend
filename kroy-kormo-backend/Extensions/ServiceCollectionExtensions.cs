@@ -21,6 +21,7 @@ using Sob_Need_Server.Services.Analytics;
 using Sob_Need_Server.Services.ConditionService;
 using Sob_Need_Server.SignalR;
 using Sob_Need_Server.Utils.Helpers;
+using Services.ProductService;
 
 
 namespace Sob_Need_Server.Extensions;

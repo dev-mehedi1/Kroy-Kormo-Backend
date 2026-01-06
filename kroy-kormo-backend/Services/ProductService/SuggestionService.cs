@@ -1,16 +1,12 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Models.Products;
-using Models.Products;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.Common;
 using DTOs.Product;
 using Sob_Need_Server.Interface;
-using Sob_Need_Server.Models.Products;
-using System.Collections.Concurrent;
 
-namespace Sob_Need_Server.Services.ProductService
+namespace Services.ProductService
 {
     public class SuggestionService(AppDbContext context, IMapper mapper, IMemoryCache cache) : ISuggestionService
     {
@@ -48,7 +44,7 @@ namespace Sob_Need_Server.Services.ProductService
                     .Select(f => new { f.ProductId, f.CreatedAt })
                     .ToListAsync();
 
-                if ((recentViews.Count == 0 && recentFavorites.Count == 0)) 
+                if (recentViews.Count == 0 && recentFavorites.Count == 0) 
                 {
                     // Fallback to trending if no history
                     return await GetTrendingAsync(userId, count);
@@ -198,7 +194,7 @@ namespace Sob_Need_Server.Services.ProductService
                     .Include(p => p.Locations).ThenInclude(l => l.City)
                     .Include(p => p.Attachments)
                     .Where(p => p.IsActive && p.IsSell && p.UserId != userId)
-                    .OrderByDescending(p => p.FinalScore + (p.ViewCount * 0.5m)) // Simple formula
+                    .OrderByDescending(p => p.FinalScore + p.ViewCount * 0.5m) // Simple formula
                     .Take(count)
                     .ToListAsync();
                 

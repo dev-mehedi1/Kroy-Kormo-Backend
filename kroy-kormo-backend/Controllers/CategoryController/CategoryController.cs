@@ -5,6 +5,7 @@ using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.DTOs.Product;
 using Sob_Need_Server.Interface;
 using Sob_Need_Server.Utils;
+using DTOs.Category;
 
 namespace Sob_Need_Server.Controllers.CategoryController
 {

@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Sob_Need_Server.DTOs.Attachment;
 using Sob_Need_Server.DTOs.Authentication;
-using Sob_Need_Server.DTOs.Category;
 using Sob_Need_Server.DTOs.Location;
 using Sob_Need_Server.DTOs.Notification;
 using Sob_Need_Server.DTOs.Product;
@@ -18,6 +17,7 @@ using Models.Products;
 using AttachmentEntity = Models.Attachment.Attachment;
 using DTOs.Product;
 using Models.Locations;
+using DTOs.Category;
 
 namespace Mappings
 {

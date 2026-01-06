@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using DTOs.Category;
 using Microsoft.EntityFrameworkCore;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.Category;
@@ -65,7 +66,7 @@ namespace Sob_Need_Server.Services.CategoryService
             throw new NotImplementedException();
         }
 
-        public async Task<ResponseDto<IEnumerable<CategoryDto>>> GetAllAsync(CategoryFilterDto filter)
+        public async Task<ResponseDto<IEnumerable<CategoryDto>>> GetAllAsyncWithOutTree(CategoryFilterDto filter)
         {
             try
             {
@@ -127,6 +128,100 @@ namespace Sob_Need_Server.Services.CategoryService
                 // Log the exception if necessary
                 return new ResponseDto<IEnumerable<CategoryDto>>(false, $"Error: {ex.Message}", null!);
             }
+        }
+
+
+        public async Task<ResponseDto<IEnumerable<CategoryDto>>> GetAllAsync(CategoryFilterDto filter)
+        {
+            try
+            {
+                // Get all categories that match search criteria
+                var query = _context.Categories.AsQueryable();
+
+                if (!string.IsNullOrEmpty(filter.SearchText))
+                {
+                    query = query.Where(x => x.CategoryName.Contains(filter.SearchText));
+                }
+
+                // Get all categories as flat list
+                var allCategories = await query
+                    .Select(x => new CategoryDto
+                    {
+                        CategoryId = x.CategoryId,
+                        CategoryName = x.CategoryName,
+                        ParentCategoryId = x.ParentCategoryId,
+                        ProductCount = x.Products.Count
+                    })
+                    .ToListAsync();
+
+                // Build hierarchical tree
+                var categoryTree = BuildCategoryTree(allCategories);
+
+                // Apply pagination to root categories only if needed
+                if (filter.Page.HasValue && filter.PageSize.HasValue)
+                {
+                    var rootCategories = categoryTree.Where(c => c.ParentCategoryId == null).ToList();
+                    var paginatedRoots = rootCategories
+                        .Skip((filter.Page.Value - 1) * filter.PageSize.Value)
+                        .Take(filter.PageSize.Value)
+                        .ToList();
+
+                    // Get complete tree for the paginated roots
+                    var result = categoryTree
+                        .Where(c => paginatedRoots.Any(rc => rc.CategoryId == c.CategoryId))
+                        .ToList();
+
+                    var response = new ResponseDto<IEnumerable<CategoryDto>>(
+                        true,
+                        "Categories fetched successfully",
+                        result)
+                    {
+                        TotalCount = rootCategories.Count
+                    };
+                    return response;
+                }
+
+                // Return only root categories if no pagination
+                var rootCategoryTree = categoryTree.Where(c => c.ParentCategoryId == null).ToList();
+
+                return new ResponseDto<IEnumerable<CategoryDto>>(
+                    true,
+                    "Categories fetched successfully",
+                    rootCategoryTree)
+                {
+                    TotalCount = rootCategoryTree.Count
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto<IEnumerable<CategoryDto>>(false, $"Error: {ex.Message}", null!);
+            }
+        }
+
+        private static List<CategoryDto> BuildCategoryTree(List<CategoryDto> allCategories)
+        {
+            // Dictionary for quick lookup
+            var categoryDict = allCategories.ToDictionary(c => c.CategoryId);
+            var rootCategories = new List<CategoryDto>();
+
+            foreach (var category in allCategories)
+            {
+                if (category.ParentCategoryId.HasValue)
+                {
+                    // Find parent and add this category as child
+                    if (categoryDict.TryGetValue(category.ParentCategoryId.Value, out var parentCategory))
+                    {
+                        parentCategory.Children.Add(category);
+                    }
+                }
+                else
+                {
+                    // This is a root category
+                    rootCategories.Add(category);
+                }
+            }
+
+            return rootCategories;
         }
 
         public Task<ResponseDto<CategoryDto>> GetByIdAsync(Guid id)
