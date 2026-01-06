@@ -116,7 +116,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             else
             {
                 // In public mode, filter out sold and Canceled
-                query = query.Where(x => x.Status != null && 
+                query = query.Where(x => x.Status == null || 
                                         x.Status.Slug != "sold" && 
                                         x.Status.Slug != "canceled");
                 

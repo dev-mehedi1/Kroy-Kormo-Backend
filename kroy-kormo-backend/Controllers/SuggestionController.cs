@@ -4,10 +4,10 @@ using DTOs.Product;
 using Sob_Need_Server.Interface;
 using Sob_Need_Server.Utils.Helpers;
 
-namespace Sob_Need_Server.Controllers
+namespace Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     public class SuggestionController(ISuggestionService suggestionService, IHttpContextAccessor httpContextAccessor) : ControllerBase
     {
         private readonly ISuggestionService _suggestionService = suggestionService;
