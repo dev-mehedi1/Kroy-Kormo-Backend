@@ -19,13 +19,14 @@ using AttachmentEntity = Models.Attachment.Attachment;
 
 namespace Sob_Need_Server.Services.ProductService;
 
-public class ProductService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext, IHttpContextAccessor httpContextAccessor, IAnalyticsService analyticsService) : IProductService
+public class ProductService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext, IHttpContextAccessor httpContextAccessor, IAnalyticsService analyticsService, IRankingService rankingService) : IProductService
 {
     private readonly AppDbContext _context = context;
     private readonly IMapper _mapper = mapper;
     private readonly IHubContext<NotificationHub> _hubContext = hubContext;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IAnalyticsService _analyticsService = analyticsService;
+    private readonly IRankingService _rankingService = rankingService;
 
 
 
@@ -127,20 +128,19 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             }
 
             // Base ordering: Prioritize promoted products
-            query = query.OrderByDescending(x => x.IsTopAd)
-                        .ThenByDescending(x => x.IsFeaturedMember)
-                        .ThenByDescending(x => x.IsUrgentAd);
-
+            // NEW RANKING LOGIC: Order by FinalScore
+            
+            // Apply sorting
             if (filters.OrderByAsc.HasValue)
             {
                 query = filters.OrderByAsc.Value
-                    ? ((IOrderedQueryable<Product>)query).ThenBy(x => x.CreatedAt)
-                    : ((IOrderedQueryable<Product>)query).ThenByDescending(x => x.CreatedAt);
+                    ? query.OrderBy(x => x.FinalScore)
+                    : query.OrderByDescending(x => x.FinalScore);
             }
             else
             {
-                // Default sub-sorting by CreatedAt DESC
-                query = ((IOrderedQueryable<Product>)query).ThenByDescending(x => x.CreatedAt);
+                // Default: High Score First
+                query = query.OrderByDescending(x => x.FinalScore);
             }
             // Total count before paging
             var totalCount = await query.CountAsync();
@@ -262,6 +262,9 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             }
 
 
+            // Calculate Initial Score
+            product.FinalScore = _rankingService.CalculateScore(product);
+
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
@@ -313,6 +316,8 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                     _context.Locations.Add(location);
                 }
             }
+
+            product.FinalScore = _rankingService.CalculateScore(product);
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
@@ -565,9 +570,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 .Include(p => p.Locations)
                 .Include(p => p.Promotions)
                 .Where(p => p.IsActive)
-                .OrderByDescending(p => p.IsTopAd)
-                .ThenByDescending(p => p.IsFeaturedMember)
-                .ThenByDescending(p => p.IsUrgentAd)
+                .OrderByDescending(p => p.FinalScore) // Use FinalScore
                 .ThenByDescending(p => p.ViewCount)
                 .Take(count)
                 .ToListAsync();
@@ -597,10 +600,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 .Include(p => p.Locations)
                 .Include(p => p.Promotions)
                 .Where(p => p.CategoryId == product.CategoryId && p.ProductId != productId && p.IsActive)
-                .OrderByDescending(p => p.IsTopAd)
-                .ThenByDescending(p => p.IsFeaturedMember)
-                .ThenByDescending(p => p.IsUrgentAd)
-                .ThenByDescending(p => p.CreatedAt)
+                .OrderByDescending(p => p.FinalScore) // Use FinalScore
                 .Take(count)
                 .ToListAsync();
 

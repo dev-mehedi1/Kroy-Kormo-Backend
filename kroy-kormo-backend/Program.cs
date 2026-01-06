@@ -90,6 +90,7 @@ builder.Services.AddHttpContextAccessor();
 
 // Register extension 
 builder.Services.AddApplicationServices();
+builder.Services.AddHostedService<Sob_Need_Server.Services.Background.RankingBackgroundService>();
 
 
 //// Add CORS policy

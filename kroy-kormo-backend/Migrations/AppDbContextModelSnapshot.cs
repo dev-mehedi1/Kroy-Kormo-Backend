@@ -124,6 +124,9 @@ namespace Sob_Need_Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<decimal>("BaseScore")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid");
 
@@ -151,6 +154,9 @@ namespace Sob_Need_Server.Migrations
                     b.Property<int>("FavoriteCount")
                         .HasColumnType("integer");
 
+                    b.Property<decimal>("FinalScore")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -174,6 +180,9 @@ namespace Sob_Need_Server.Migrations
 
                     b.Property<bool>("IsVerified")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastBumpedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
@@ -277,7 +286,7 @@ namespace Sob_Need_Server.Migrations
                         new
                         {
                             AdminId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2026, 1, 3, 16, 24, 53, 120, DateTimeKind.Utc).AddTicks(1553),
+                            CreatedAt = new DateTime(2026, 1, 6, 10, 54, 46, 823, DateTimeKind.Utc).AddTicks(9849),
                             Email = "admin@kroykormo.com",
                             FullName = "Super Admin",
                             IsActive = true,
