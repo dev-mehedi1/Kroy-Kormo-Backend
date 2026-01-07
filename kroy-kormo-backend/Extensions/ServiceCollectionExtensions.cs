@@ -22,9 +22,10 @@ using Sob_Need_Server.Services.ConditionService;
 using Sob_Need_Server.SignalR;
 using Sob_Need_Server.Utils.Helpers;
 using Services.ProductService;
-
+using Sob_Need_Server.Services.Jobs;
 
 namespace Sob_Need_Server.Extensions;
+
 
 public static class ServiceCollectionExtensions
 {
@@ -54,8 +55,15 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<IRankingService, RankingService>();
         services.AddScoped<ISuggestionService, SuggestionService>();
+        
+        // Job Listing Platform Services
+        services.AddScoped<IJobService, JobService>();
+        services.AddScoped<IJobApplicationService, JobApplicationService>();
+        services.AddScoped<IUserProfileService, UserProfileService>();
+        services.AddScoped<IRecruitmentService, RecruitmentService>();
 
         return services;
+
     }
 }
 

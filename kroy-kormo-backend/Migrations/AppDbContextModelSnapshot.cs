@@ -286,7 +286,7 @@ namespace Sob_Need_Server.Migrations
                         new
                         {
                             AdminId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2026, 1, 6, 10, 54, 46, 823, DateTimeKind.Utc).AddTicks(9849),
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@kroykormo.com",
                             FullName = "Super Admin",
                             IsActive = true,
@@ -525,6 +525,1200 @@ namespace Sob_Need_Server.Migrations
                         .HasDatabaseName("IX_Message_Conversation_Date");
 
                     b.ToTable("Messages");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.ApplicationStatus", b =>
+                {
+                    b.Property<Guid>("ApplicationStatusId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ColorCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsTerminal")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("ApplicationStatusId");
+
+                    b.ToTable("ApplicationStatuses");
+
+                    b.HasData(
+                        new
+                        {
+                            ApplicationStatusId = new Guid("cc111111-1111-1111-1111-111111111111"),
+                            ColorCode = "#3498db",
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            IsTerminal = false,
+                            Slug = "applied",
+                            StatusName = "Applied"
+                        },
+                        new
+                        {
+                            ApplicationStatusId = new Guid("cc222222-2222-2222-2222-222222222222"),
+                            ColorCode = "#f1c40f",
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            IsTerminal = false,
+                            Slug = "shortlisted",
+                            StatusName = "Shortlisted"
+                        },
+                        new
+                        {
+                            ApplicationStatusId = new Guid("cc333333-3333-3333-3333-333333333333"),
+                            ColorCode = "#9b59b6",
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            IsTerminal = false,
+                            Slug = "interviewing",
+                            StatusName = "Interviewing"
+                        },
+                        new
+                        {
+                            ApplicationStatusId = new Guid("cc444444-4444-4444-4444-444444444444"),
+                            ColorCode = "#2ecc71",
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            IsTerminal = false,
+                            Slug = "offered",
+                            StatusName = "Offered"
+                        },
+                        new
+                        {
+                            ApplicationStatusId = new Guid("cc555555-5555-5555-5555-555555555555"),
+                            ColorCode = "#e74c3c",
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            IsTerminal = true,
+                            Slug = "rejected",
+                            StatusName = "Rejected"
+                        },
+                        new
+                        {
+                            ApplicationStatusId = new Guid("cc666666-6666-6666-6666-666666666666"),
+                            ColorCode = "#27ae60",
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            IsTerminal = true,
+                            Slug = "hired",
+                            StatusName = "Hired"
+                        },
+                        new
+                        {
+                            ApplicationStatusId = new Guid("cc777777-7777-7777-7777-777777777777"),
+                            ColorCode = "#95a5a6",
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            IsTerminal = true,
+                            Slug = "withdrawn",
+                            StatusName = "Withdrawn"
+                        });
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.ApplicationStatusHistory", b =>
+                {
+                    b.Property<Guid>("HistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ChangedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ChangedByRole")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid>("StatusId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("HistoryId");
+
+                    b.HasIndex("ApplicationId");
+
+                    b.HasIndex("StatusId");
+
+                    b.ToTable("ApplicationStatusHistories");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.CompanyProfile", b =>
+                {
+                    b.Property<Guid>("CompanyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("CompanySize")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("CoverImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("FacebookUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Industry")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LinkedInUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Slug")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("TwitterUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("VerifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("CompanyId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("IX_CompanyProfile_Slug");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.HasIndex("IsVerified", "IsActive")
+                        .HasDatabaseName("IX_CompanyProfile_Verified_Active");
+
+                    b.ToTable("CompanyProfiles");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.ExperienceLevel", b =>
+                {
+                    b.Property<Guid>("ExperienceLevelId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LevelName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int?>("MaxYears")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MinYears")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("ExperienceLevelId");
+
+                    b.ToTable("ExperienceLevels");
+
+                    b.HasData(
+                        new
+                        {
+                            ExperienceLevelId = new Guid("bb111111-1111-1111-1111-111111111111"),
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            LevelName = "Entry Level",
+                            MaxYears = 2,
+                            MinYears = 0,
+                            Slug = "entry"
+                        },
+                        new
+                        {
+                            ExperienceLevelId = new Guid("bb222222-2222-2222-2222-222222222222"),
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            LevelName = "Mid Level",
+                            MaxYears = 5,
+                            MinYears = 2,
+                            Slug = "mid"
+                        },
+                        new
+                        {
+                            ExperienceLevelId = new Guid("bb333333-3333-3333-3333-333333333333"),
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            LevelName = "Senior Level",
+                            MaxYears = 10,
+                            MinYears = 5,
+                            Slug = "senior"
+                        },
+                        new
+                        {
+                            ExperienceLevelId = new Guid("bb444444-4444-4444-4444-444444444444"),
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            LevelName = "Executive",
+                            MinYears = 10,
+                            Slug = "executive"
+                        });
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.Interview", b =>
+                {
+                    b.Property<Guid>("InterviewId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CancelledBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool?>("CandidateConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("CandidateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CandidateNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("EmployerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Feedback")
+                        .HasMaxLength(3000)
+                        .HasColumnType("character varying(3000)");
+
+                    b.Property<string>("InterviewType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("InterviewerEmail")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("InterviewerName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("InterviewerPhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("MeetingLink")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int?>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("RescheduledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("RescheduledFrom")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ScheduledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("InterviewId");
+
+                    b.HasIndex("ApplicationId");
+
+                    b.HasIndex("CandidateId", "ScheduledAt", "Status")
+                        .HasDatabaseName("IX_Interview_Candidate_Schedule_Status");
+
+                    b.HasIndex("EmployerId", "ScheduledAt", "Status")
+                        .HasDatabaseName("IX_Interview_Employer_Schedule_Status");
+
+                    b.ToTable("Interviews");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobAlert", b =>
+                {
+                    b.Property<Guid>("AlertId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AlertName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CompanyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("EmailNotification")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ExperienceLevelId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Frequency")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsHybrid")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsRemote")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("JobTypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Keywords")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("LastMatchedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("LastSentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("MatchCount")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("MaxSalary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MinSalary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("PushNotification")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("AlertId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ExperienceLevelId");
+
+                    b.HasIndex("JobTypeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("JobAlerts");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobApplication", b =>
+                {
+                    b.Property<Guid>("ApplicationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AdditionalInfo")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid>("ApplicantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ApplicationSource")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("ApplicationStatusId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AttachmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("CandidateRating")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CoverLetter")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EmployerNotes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("HiddenFromEmployers")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRejected")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsShortlisted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsWithdrawn")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResumeUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ReviewedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("WithdrawalReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("WithdrawnAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("ApplicationId");
+
+                    b.HasIndex("ApplicationStatusId");
+
+                    b.HasIndex("AttachmentId");
+
+                    b.HasIndex("JobId", "ApplicantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_JobApplication_Job_Applicant_Unique");
+
+                    b.HasIndex("ApplicantId", "ApplicationStatusId", "IsActive")
+                        .HasDatabaseName("IX_JobApplication_Applicant_Status_Active");
+
+                    b.HasIndex("JobId", "ApplicationStatusId", "CreatedAt")
+                        .HasDatabaseName("IX_JobApplication_Job_Status_Date");
+
+                    b.ToTable("JobApplications");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobListing", b =>
+                {
+                    b.Property<Guid>("JobId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ApplicationCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ApplicationDeadline")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Benefits")
+                        .HasMaxLength(3000)
+                        .HasColumnType("character varying(3000)");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CompanyProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("EmployerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ExperienceLevelId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("FilledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsHybrid")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRemote")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("JobStatus")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("JobTypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OfficeLocation")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PreferredQualifications")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("RequireCoverLetter")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("RequireResume")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Requirements")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<string>("Responsibilities")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<string>("SalaryCurrency")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<decimal?>("SalaryMax")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("SalaryMin")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SalaryPeriod")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<bool>("ShowSalary")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("VacancyCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("WorkSchedule")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("JobId");
+
+                    b.HasIndex("ApplicationDeadline")
+                        .HasDatabaseName("IX_JobListing_Deadline");
+
+                    b.HasIndex("CompanyProfileId");
+
+                    b.HasIndex("ExperienceLevelId");
+
+                    b.HasIndex("ProductId")
+                        .IsUnique();
+
+                    b.HasIndex("CategoryId", "IsActive", "CreatedAt")
+                        .HasDatabaseName("IX_JobListing_Category_Active_Date");
+
+                    b.HasIndex("EmployerId", "JobStatus", "IsActive")
+                        .HasDatabaseName("IX_JobListing_Employer_Status_Active");
+
+                    b.HasIndex("JobTypeId", "ExperienceLevelId", "IsRemote", "IsActive")
+                        .HasDatabaseName("IX_JobListing_Type_Level_Remote_Active");
+
+                    b.ToTable("JobListings");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobOffer", b =>
+                {
+                    b.Property<Guid>("OfferId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Benefits")
+                        .HasMaxLength(3000)
+                        .HasColumnType("character varying(3000)");
+
+                    b.Property<decimal?>("BonusAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("BonusDescription")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("CandidateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CandidateResponse")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid?>("ContractAttachmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("ContractSigned")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ContractSignedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CounterOfferNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<decimal?>("CounterOfferSalary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Department")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("EmployerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EmploymentType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRemote")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int?>("NoticePeriodDays")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ProbationPeriodMonths")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("RejectedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("RespondedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SalaryCurrency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<decimal>("SalaryOffered")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SalaryPeriod")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Terms")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("WorkLocation")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("OfferId");
+
+                    b.HasIndex("ApplicationId");
+
+                    b.HasIndex("CandidateId");
+
+                    b.HasIndex("EmployerId");
+
+                    b.ToTable("JobOffers");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobSkill", b =>
+                {
+                    b.Property<Guid>("JobSkillId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("MinYearsExperience")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ProficiencyLevel")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("SkillId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("JobSkillId");
+
+                    b.HasIndex("JobId");
+
+                    b.HasIndex("SkillId");
+
+                    b.ToTable("JobSkills");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobType", b =>
+                {
+                    b.Property<Guid>("JobTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("TypeName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("JobTypeId");
+
+                    b.ToTable("JobTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            JobTypeId = new Guid("aa111111-1111-1111-1111-111111111111"),
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            Slug = "full-time",
+                            TypeName = "Full-time"
+                        },
+                        new
+                        {
+                            JobTypeId = new Guid("aa222222-2222-2222-2222-222222222222"),
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            Slug = "part-time",
+                            TypeName = "Part-time"
+                        },
+                        new
+                        {
+                            JobTypeId = new Guid("aa333333-3333-3333-3333-333333333333"),
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            Slug = "contract",
+                            TypeName = "Contract"
+                        },
+                        new
+                        {
+                            JobTypeId = new Guid("aa444444-4444-4444-4444-444444444444"),
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            Slug = "internship",
+                            TypeName = "Internship"
+                        },
+                        new
+                        {
+                            JobTypeId = new Guid("aa555555-5555-5555-5555-555555555555"),
+                            CreatedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            Slug = "remote",
+                            TypeName = "Remote"
+                        });
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobView", b =>
+                {
+                    b.Property<Guid>("ViewId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("DeviceType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)");
+
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReferrerUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("ViewDurationSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ViewedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("ViewId");
+
+                    b.HasIndex("JobId", "ViewedAt")
+                        .HasDatabaseName("IX_JobView_Job_Date");
+
+                    b.HasIndex("UserId", "ViewedAt")
+                        .HasDatabaseName("IX_JobView_User_Date");
+
+                    b.ToTable("JobViews");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.SavedJob", b =>
+                {
+                    b.Property<Guid>("SavedJobId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("SavedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("SavedJobId");
+
+                    b.HasIndex("JobId");
+
+                    b.HasIndex("UserId", "JobId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_SavedJob_User_Job_Unique");
+
+                    b.ToTable("SavedJobs");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.Skill", b =>
+                {
+                    b.Property<Guid>("SkillId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SkillName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("SkillId");
+
+                    b.HasIndex("SkillName")
+                        .HasDatabaseName("IX_Skill_Name");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Skill_Slug");
+
+                    b.ToTable("Skills");
                 });
 
             modelBuilder.Entity("Sob_Need_Server.Models.Locations.City", b =>
@@ -1104,6 +2298,272 @@ namespace Sob_Need_Server.Migrations
                     b.ToTable("SavedSearches");
                 });
 
+            modelBuilder.Entity("Sob_Need_Server.Models.Users.UserEducation", b =>
+                {
+                    b.Property<Guid>("EducationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Achievements")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Degree")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FieldOfStudy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Grade")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Institution")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("EducationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserEducations");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Users.UserExperience", b =>
+                {
+                    b.Property<Guid>("ExperienceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CompanyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EmploymentType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("KeyAchievements")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Skills")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("ExperienceId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserExperiences");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Users.UserResume", b =>
+                {
+                    b.Property<Guid>("ResumeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsScanned")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ParsedContent")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ResumeTitle")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("ScannedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("TimesUsed")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ResumeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserResumes");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Users.UserSkill", b =>
+                {
+                    b.Property<Guid>("UserSkillId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EndorsementCount")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ProficiencyLevel")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("SkillId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("VerificationSource")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("YearsOfExperience")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserSkillId");
+
+                    b.HasIndex("SkillId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserSkills");
+                });
+
             modelBuilder.Entity("Models.Attachment.Attachment", b =>
                 {
                     b.HasOne("Models.Products.Product", null)
@@ -1236,6 +2696,262 @@ namespace Sob_Need_Server.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.ApplicationStatusHistory", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Jobs.JobApplication", "Application")
+                        .WithMany("StatusHistory")
+                        .HasForeignKey("ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Jobs.ApplicationStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Application");
+
+                    b.Navigation("Status");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.CompanyProfile", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "Owner")
+                        .WithOne("CompanyProfile")
+                        .HasForeignKey("Sob_Need_Server.Models.Jobs.CompanyProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.Interview", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Jobs.JobApplication", "Application")
+                        .WithMany("Interviews")
+                        .HasForeignKey("ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "Candidate")
+                        .WithMany()
+                        .HasForeignKey("CandidateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "Employer")
+                        .WithMany()
+                        .HasForeignKey("EmployerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Application");
+
+                    b.Navigation("Candidate");
+
+                    b.Navigation("Employer");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobAlert", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Categories.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Sob_Need_Server.Models.Jobs.ExperienceLevel", "ExperienceLevel")
+                        .WithMany()
+                        .HasForeignKey("ExperienceLevelId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Sob_Need_Server.Models.Jobs.JobType", "JobType")
+                        .WithMany()
+                        .HasForeignKey("JobTypeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "User")
+                        .WithMany("JobAlerts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("ExperienceLevel");
+
+                    b.Navigation("JobType");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobApplication", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "Applicant")
+                        .WithMany("JobApplications")
+                        .HasForeignKey("ApplicantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Jobs.ApplicationStatus", "Status")
+                        .WithMany("Applications")
+                        .HasForeignKey("ApplicationStatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Attachment.Attachment", "Resume")
+                        .WithMany()
+                        .HasForeignKey("AttachmentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Sob_Need_Server.Models.Jobs.JobListing", "Job")
+                        .WithMany("Applications")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Applicant");
+
+                    b.Navigation("Job");
+
+                    b.Navigation("Resume");
+
+                    b.Navigation("Status");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobListing", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Categories.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Jobs.CompanyProfile", "CompanyProfile")
+                        .WithMany("JobListings")
+                        .HasForeignKey("CompanyProfileId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "Employer")
+                        .WithMany("JobListings")
+                        .HasForeignKey("EmployerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Jobs.ExperienceLevel", "ExperienceLevel")
+                        .WithMany("JobListings")
+                        .HasForeignKey("ExperienceLevelId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Jobs.JobType", "JobType")
+                        .WithMany("JobListings")
+                        .HasForeignKey("JobTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Products.Product", "Product")
+                        .WithOne()
+                        .HasForeignKey("Sob_Need_Server.Models.Jobs.JobListing", "ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("CompanyProfile");
+
+                    b.Navigation("Employer");
+
+                    b.Navigation("ExperienceLevel");
+
+                    b.Navigation("JobType");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobOffer", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Jobs.JobApplication", "Application")
+                        .WithMany("Offers")
+                        .HasForeignKey("ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "Candidate")
+                        .WithMany()
+                        .HasForeignKey("CandidateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "Employer")
+                        .WithMany()
+                        .HasForeignKey("EmployerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Application");
+
+                    b.Navigation("Candidate");
+
+                    b.Navigation("Employer");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobSkill", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Jobs.JobListing", "Job")
+                        .WithMany("RequiredSkills")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Jobs.Skill", "Skill")
+                        .WithMany("JobSkills")
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Job");
+
+                    b.Navigation("Skill");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobView", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Jobs.JobListing", "Job")
+                        .WithMany("Views")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Job");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.SavedJob", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Jobs.JobListing", "Job")
+                        .WithMany("SavedByUsers")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "User")
+                        .WithMany("SavedJobs")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Job");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Sob_Need_Server.Models.Products.ProductAttribute", b =>
@@ -1372,6 +3088,58 @@ namespace Sob_Need_Server.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Sob_Need_Server.Models.Users.UserEducation", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "User")
+                        .WithMany("Educations")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Users.UserExperience", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "User")
+                        .WithMany("Experiences")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Users.UserResume", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "User")
+                        .WithMany("Resumes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Users.UserSkill", b =>
+                {
+                    b.HasOne("Sob_Need_Server.Models.Jobs.Skill", "Skill")
+                        .WithMany("UserSkills")
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sob_Need_Server.Models.Authentication.User", "User")
+                        .WithMany("Skills")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Skill");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Models.Products.Product", b =>
                 {
                     b.Navigation("Attachments");
@@ -1393,17 +3161,35 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Authentication.User", b =>
                 {
+                    b.Navigation("CompanyProfile");
+
+                    b.Navigation("Educations");
+
+                    b.Navigation("Experiences");
+
                     b.Navigation("Favorites");
+
+                    b.Navigation("JobAlerts");
+
+                    b.Navigation("JobApplications");
+
+                    b.Navigation("JobListings");
 
                     b.Navigation("ProductViews");
 
                     b.Navigation("Products");
 
+                    b.Navigation("Resumes");
+
                     b.Navigation("ReviewsGiven");
 
                     b.Navigation("ReviewsReceived");
 
+                    b.Navigation("SavedJobs");
+
                     b.Navigation("SavedSearches");
+
+                    b.Navigation("Skills");
                 });
 
             modelBuilder.Entity("Sob_Need_Server.Models.Authentication.UserType", b =>
@@ -1419,6 +3205,53 @@ namespace Sob_Need_Server.Migrations
             modelBuilder.Entity("Sob_Need_Server.Models.Chat.Conversation", b =>
                 {
                     b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.ApplicationStatus", b =>
+                {
+                    b.Navigation("Applications");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.CompanyProfile", b =>
+                {
+                    b.Navigation("JobListings");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.ExperienceLevel", b =>
+                {
+                    b.Navigation("JobListings");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobApplication", b =>
+                {
+                    b.Navigation("Interviews");
+
+                    b.Navigation("Offers");
+
+                    b.Navigation("StatusHistory");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobListing", b =>
+                {
+                    b.Navigation("Applications");
+
+                    b.Navigation("RequiredSkills");
+
+                    b.Navigation("SavedByUsers");
+
+                    b.Navigation("Views");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.JobType", b =>
+                {
+                    b.Navigation("JobListings");
+                });
+
+            modelBuilder.Entity("Sob_Need_Server.Models.Jobs.Skill", b =>
+                {
+                    b.Navigation("JobSkills");
+
+                    b.Navigation("UserSkills");
                 });
 
             modelBuilder.Entity("Sob_Need_Server.Models.Products.Condition", b =>

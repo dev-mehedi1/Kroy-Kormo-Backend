@@ -18,6 +18,7 @@ using AttachmentEntity = Models.Attachment.Attachment;
 using DTOs.Product;
 using Models.Locations;
 using DTOs.Category;
+using Sob_Need_Server.DTOs.Jobs;
 
 namespace Mappings
 {
@@ -181,7 +182,68 @@ namespace Mappings
             CreateMap<State, StateDto>().ReverseMap();
             CreateMap<City, CityDto>().ReverseMap();
             CreateMap<Region, RegionDto>().ReverseMap();
+            
+            // Job-related mappings
+            CreateMap<Sob_Need_Server.Models.Jobs.JobType, JobTypeDto>().ReverseMap();
+            CreateMap<Sob_Need_Server.Models.Jobs.ExperienceLevel, ExperienceLevelDto>().ReverseMap();
+            CreateMap<Sob_Need_Server.Models.Jobs.Skill, SkillDto>().ReverseMap();
+            
+            CreateMap<Sob_Need_Server.Models.Jobs.JobListing, JobListingDto>()
+
+                .ForMember(dest => dest.EmployerName, opt => opt.MapFrom(src => src.Employer != null ? src.Employer.FullName : null))
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.CompanyProfile != null ? src.CompanyProfile.CompanyName : null))
+                .ForMember(dest => dest.CompanyLogoUrl, opt => opt.MapFrom(src => src.CompanyProfile != null ? src.CompanyProfile.LogoUrl : null))
+                .ForMember(dest => dest.JobTypeName, opt => opt.MapFrom(src => src.JobType != null ? src.JobType.TypeName : null))
+                .ForMember(dest => dest.ExperienceLevelName, opt => opt.MapFrom(src => src.ExperienceLevel != null ? src.ExperienceLevel.LevelName : null))
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : null))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Product != null ? src.Product.Title : null))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Product != null ? src.Product.Description : null))
+                .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => src.Product != null ? src.Product.Slug : null))
+                .ForMember(dest => dest.RequiredSkills, opt => opt.MapFrom(src => src.RequiredSkills.Select(rs => rs.Skill)))
+                .ReverseMap();
+
+            CreateMap<CreateJobListingDto, Sob_Need_Server.Models.Jobs.JobListing>()
+                .ForMember(dest => dest.RequiredSkills, opt => opt.Ignore());
+
+            CreateMap<Sob_Need_Server.Models.Jobs.JobApplication, JobApplicationDto>()
+                .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.Job != null && src.Job.Product != null ? src.Job.Product.Title : null))
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Job != null && src.Job.CompanyProfile != null ? src.Job.CompanyProfile.CompanyName : null))
+                .ForMember(dest => dest.ApplicantName, opt => opt.MapFrom(src => src.Applicant != null ? src.Applicant.FullName : null))
+                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.StatusName : null))
+                .ForMember(dest => dest.StatusColorCode, opt => opt.MapFrom(src => src.Status != null ? src.Status.ColorCode : null))
+                .ReverseMap();
+
+            CreateMap<CreateApplicationDto, Sob_Need_Server.Models.Jobs.JobApplication>().ReverseMap();
+            CreateMap<Sob_Need_Server.Models.Jobs.ApplicationStatusHistory, ApplicationStatusHistoryDto>()
+                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.StatusName : null))
+                .ReverseMap();
+
+            // User Profile Extension mappings
+            CreateMap<UserEducation, UserEducationDto>().ReverseMap();
+            CreateMap<UserExperience, UserExperienceDto>().ReverseMap();
+            CreateMap<UserSkill, UserSkillDto>()
+                .ForMember(dest => dest.SkillName, opt => opt.MapFrom(src => src.Skill != null ? src.Skill.SkillName : null))
+                .ReverseMap();
+            CreateMap<UserResume, UserResumeDto>().ReverseMap();
+            
+            CreateMap<User, ExtendedProfileDto>()
+                .ForMember(dest => dest.Educations, opt => opt.MapFrom(src => src.Educations))
+                .ForMember(dest => dest.Experiences, opt => opt.MapFrom(src => src.Experiences))
+                .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.Skills))
+                .ForMember(dest => dest.Resumes, opt => opt.MapFrom(src => src.Resumes));
+
+            // Recruitment mappings
+            CreateMap<Sob_Need_Server.Models.Jobs.CompanyProfile, CompanyProfileDto>().ReverseMap();
+            CreateMap<Sob_Need_Server.Models.Jobs.Interview, InterviewDto>()
+                .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.Application != null && src.Application.Job != null && src.Application.Job.Product != null ? src.Application.Job.Product.Title : null))
+                .ForMember(dest => dest.CandidateName, opt => opt.MapFrom(src => src.Candidate != null ? src.Candidate.FullName : null))
+                .ReverseMap();
+            CreateMap<Sob_Need_Server.Models.Jobs.JobOffer, JobOfferDto>()
+                .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.JobTitle))
+                .ReverseMap();
+
         }
     }
 }
+
 

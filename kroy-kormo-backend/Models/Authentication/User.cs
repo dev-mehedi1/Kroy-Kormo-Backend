@@ -60,5 +60,16 @@ namespace Sob_Need_Server.Models.Authentication
         public virtual ICollection<Review> ReviewsGiven { get; set; } = new List<Review>();
         public virtual ICollection<Review> ReviewsReceived { get; set; } = new List<Review>();
         public virtual ICollection<ProductView> ProductViews { get; set; } = new List<ProductView>();
+        
+        // Job-related navigation properties
+        public virtual ICollection<Models.Jobs.JobListing> JobListings { get; set; } = new List<Models.Jobs.JobListing>();
+        public virtual ICollection<Models.Jobs.JobApplication> JobApplications { get; set; } = new List<Models.Jobs.JobApplication>();
+        public virtual ICollection<UserEducation> Educations { get; set; } = new List<UserEducation>();
+        public virtual ICollection<UserExperience> Experiences { get; set; } = new List<UserExperience>();
+        public virtual ICollection<UserSkill> Skills { get; set; } = new List<UserSkill>();
+        public virtual ICollection<UserResume> Resumes { get; set; } = new List<UserResume>();
+        public virtual ICollection<Models.Jobs.SavedJob> SavedJobs { get; set; } = new List<Models.Jobs.SavedJob>();
+        public virtual ICollection<Models.Jobs.JobAlert> JobAlerts { get; set; } = new List<Models.Jobs.JobAlert>();
+        public virtual Models.Jobs.CompanyProfile? CompanyProfile { get; set; }
     }
 }
