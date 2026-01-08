@@ -61,6 +61,20 @@ namespace Sob_Need_Server.Controllers.Jobs
         }
 
         [Authorize]
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> UpdateJobStatus(Guid id, [FromBody] string status)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
+
+            var success = await _jobService.UpdateJobStatusAsync(id, userId, status);
+            if (!success) return NotFound(new ResponseDto<object>(false, "Job not found or unauthorized", null!));
+            
+            return Ok(new ResponseDto<object>(true, "Job status updated successfully", null!));
+        }
+
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteJob(Guid id)
         {
