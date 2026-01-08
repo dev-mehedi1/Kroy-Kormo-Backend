@@ -98,6 +98,17 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             if (filters.CityId.HasValue) query = query.Where(x => x.Locations.Any(l => l.CityId == filters.CityId));
             if (filters.RegionId.HasValue) query = query.Where(x => x.Locations.Any(l => l.RegionId == filters.RegionId));
 
+            // IDs and Job Ads Filtering
+            if (filters.IsJobAd.HasValue)
+            {
+                query = query.Where(x => x.IsJobAd == filters.IsJobAd);
+            }
+            else
+            {
+                // Default: Hide Job Ads in standard product listings unless explicitly requested
+                query = query.Where(x => x.IsJobAd == false);
+            }
+
             // Is top ads
             if (filters.IsTopAd.HasValue)
             {

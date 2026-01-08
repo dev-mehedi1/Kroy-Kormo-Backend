@@ -91,6 +91,7 @@ builder.Services.AddHttpContextAccessor();
 
 // Register extension 
 builder.Services.AddApplicationServices();
+builder.Services.AddTransient<Sob_Need_Server.Services.Seeding.CategorySeeder>();
 builder.Services.AddHostedService<Sob_Need_Server.Services.Background.RankingBackgroundService>();
 
 

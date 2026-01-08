@@ -514,8 +514,8 @@ namespace Sob_Need_Server.Context
             // CompanyProfile relationships
             modelBuilder.Entity<Models.Jobs.CompanyProfile>()
                 .HasOne(cp => cp.Owner)
-                .WithOne(u => u.CompanyProfile)
-                .HasForeignKey<Models.Jobs.CompanyProfile>(cp => cp.UserId)
+                .WithMany(u => u.CompanyProfiles)
+                .HasForeignKey(cp => cp.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
             
             // Interview relationships

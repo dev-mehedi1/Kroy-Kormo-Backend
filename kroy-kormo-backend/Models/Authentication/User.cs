@@ -70,6 +70,6 @@ namespace Sob_Need_Server.Models.Authentication
         public virtual ICollection<UserResume> Resumes { get; set; } = new List<UserResume>();
         public virtual ICollection<Models.Jobs.SavedJob> SavedJobs { get; set; } = new List<Models.Jobs.SavedJob>();
         public virtual ICollection<Models.Jobs.JobAlert> JobAlerts { get; set; } = new List<Models.Jobs.JobAlert>();
-        public virtual Models.Jobs.CompanyProfile? CompanyProfile { get; set; }
+        public virtual ICollection<Models.Jobs.CompanyProfile> CompanyProfiles { get; set; } = new List<Models.Jobs.CompanyProfile>();
     }
 }

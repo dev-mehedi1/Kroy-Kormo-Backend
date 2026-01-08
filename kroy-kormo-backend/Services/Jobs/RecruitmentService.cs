@@ -30,8 +30,8 @@ namespace Sob_Need_Server.Services.Jobs
 
         public async Task<CompanyProfileDto> UpdateCompanyProfileAsync(Guid userId, CompanyProfileDto dto)
         {
-            var profile = await _context.CompanyProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
-            if (profile == null) throw new KeyNotFoundException("Company profile not found.");
+            var profile = await _context.CompanyProfiles.FirstOrDefaultAsync(p => p.CompanyId == dto.CompanyId && p.UserId == userId);
+            if (profile == null) throw new KeyNotFoundException("Company profile not found or unauthorized.");
 
             _mapper.Map(dto, profile);
             profile.UpdatedAt = DateTime.UtcNow;
@@ -46,10 +46,10 @@ namespace Sob_Need_Server.Services.Jobs
             return _mapper.Map<CompanyProfileDto>(profile);
         }
 
-        public async Task<CompanyProfileDto?> GetUserCompanyProfileAsync(Guid userId)
+        public async Task<IEnumerable<CompanyProfileDto>> GetUserCompanyProfilesAsync(Guid userId)
         {
-            var profile = await _context.CompanyProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
-            return _mapper.Map<CompanyProfileDto>(profile);
+            var profiles = await _context.CompanyProfiles.Where(p => p.UserId == userId).ToListAsync();
+            return _mapper.Map<IEnumerable<CompanyProfileDto>>(profiles);
         }
 
         public async Task<InterviewDto> ScheduleInterviewAsync(Guid employerId, InterviewDto dto)

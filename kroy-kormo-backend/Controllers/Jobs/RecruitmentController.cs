@@ -21,13 +21,13 @@ namespace Sob_Need_Server.Controllers.Jobs
 
         // Company Profile
         [HttpGet("company/my")]
-        public async Task<IActionResult> GetMyCompany()
+        public async Task<IActionResult> GetMyCompanies()
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
             var userId = Guid.Parse(userIdStr);
-            var result = await _recruitmentService.GetUserCompanyProfileAsync(userId);
-            return Ok(new ResponseDto<CompanyProfileDto>(true, "Company profile retrieved", result!));
+            var result = await _recruitmentService.GetUserCompanyProfilesAsync(userId);
+            return Ok(new ResponseDto<IEnumerable<CompanyProfileDto>>(true, "Company profiles retrieved", result));
         }
 
         [HttpPost("company")]
