@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.Jobs;
 using Sob_Need_Server.Models.Jobs;
+using Microsoft.AspNetCore.SignalR;
+using Sob_Need_Server.SignalR;
 
 namespace Sob_Need_Server.Services.Jobs
 {
@@ -10,11 +12,13 @@ namespace Sob_Need_Server.Services.Jobs
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public JobApplicationService(AppDbContext context, IMapper mapper)
+        public JobApplicationService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext)
         {
             _context = context;
             _mapper = mapper;
+            _hubContext = hubContext;
         }
 
         public async Task<JobApplicationDto> ApplyForJobAsync(Guid applicantId, CreateApplicationDto dto)
