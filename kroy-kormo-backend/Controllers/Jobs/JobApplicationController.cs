@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.DTOs.Jobs;
 using Sob_Need_Server.Services.Jobs;
 using System.Security.Claims;
@@ -7,7 +8,7 @@ using System.Security.Claims;
 namespace Sob_Need_Server.Controllers.Jobs
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [Authorize]
     public class JobApplicationController : ControllerBase
     {
@@ -21,59 +22,74 @@ namespace Sob_Need_Server.Controllers.Jobs
         [HttpPost]
         public async Task<IActionResult> Apply([FromBody] CreateApplicationDto dto)
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
             try
             {
                 var result = await _applicationService.ApplyForJobAsync(userId, dto);
-                return Ok(result);
+                return Ok(new ResponseDto<JobApplicationDto>(true, "Application submitted successfully", result));
             }
-            catch (InvalidOperationException ex) { return BadRequest(ex.Message); }
+            catch (InvalidOperationException ex) { return BadRequest(new ResponseDto<object>(false, ex.Message, null!)); }
         }
 
         [HttpGet("my-applications")]
         public async Task<IActionResult> GetMyApplications()
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            return Ok(await _applicationService.GetUserApplicationsAsync(userId));
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
+            var result = await _applicationService.GetUserApplicationsAsync(userId);
+            return Ok(new ResponseDto<IEnumerable<JobApplicationDto>>(true, "User applications retrieved", result));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetApplication(Guid id)
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
             var app = await _applicationService.GetApplicationDetailAsync(id, userId);
-            if (app == null) return NotFound();
-            return Ok(app);
+            if (app == null) return NotFound(new ResponseDto<object>(false, "Application not found", null!));
+            return Ok(new ResponseDto<JobApplicationDto>(true, "Application details retrieved", app));
         }
 
         [HttpPost("{id}/withdraw")]
         public async Task<IActionResult> Withdraw(Guid id)
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
             var success = await _applicationService.WithdrawApplicationAsync(id, userId);
-            return success ? Ok() : NotFound();
+            return success ? Ok(new ResponseDto<object>(true, "Application withdrawn", null!)) : NotFound(new ResponseDto<object>(false, "Application not found", null!));
         }
 
         // Employer endpoints
         [HttpGet("job/{jobId}")]
         public async Task<IActionResult> GetApplicationsForJob(Guid jobId)
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            return Ok(await _applicationService.GetJobApplicationsAsync(jobId, userId));
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
+            var result = await _applicationService.GetJobApplicationsAsync(jobId, userId);
+            return Ok(new ResponseDto<IEnumerable<JobApplicationDto>>(true, "Job applications retrieved", result));
         }
 
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateStatusDto dto)
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
             var success = await _applicationService.UpdateApplicationStatusAsync(id, userId, dto.StatusId, dto.Notes);
-            return success ? Ok() : NotFound();
+            return success ? Ok(new ResponseDto<object>(true, "Status updated successfully", null!)) : NotFound(new ResponseDto<object>(false, "Application not found", null!));
         }
 
         [HttpGet("{id}/history")]
         public async Task<IActionResult> GetHistory(Guid id)
         {
-            return Ok(await _applicationService.GetApplicationHistoryAsync(id));
+            var result = await _applicationService.GetApplicationHistoryAsync(id);
+            return Ok(new ResponseDto<IEnumerable<ApplicationStatusHistoryDto>>(true, "Application history retrieved", result));
         }
     }
 

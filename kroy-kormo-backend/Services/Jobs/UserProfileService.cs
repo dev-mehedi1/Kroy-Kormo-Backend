@@ -34,6 +34,8 @@ namespace Sob_Need_Server.Services.Jobs
         {
             var edu = _mapper.Map<UserEducation>(dto);
             edu.UserId = userId;
+            if (edu.StartDate.HasValue) edu.StartDate = edu.StartDate.Value.ToUniversalTime();
+            if (edu.EndDate.HasValue) edu.EndDate = edu.EndDate.Value.ToUniversalTime();
             _context.UserEducations.Add(edu);
             await _context.SaveChangesAsync();
             return _mapper.Map<UserEducationDto>(edu);
@@ -45,6 +47,8 @@ namespace Sob_Need_Server.Services.Jobs
             if (edu == null) return false;
 
             _mapper.Map(dto, edu);
+            if (edu.StartDate.HasValue) edu.StartDate = edu.StartDate.Value.ToUniversalTime();
+            if (edu.EndDate.HasValue) edu.EndDate = edu.EndDate.Value.ToUniversalTime();
             await _context.SaveChangesAsync();
             return true;
         }
@@ -63,6 +67,8 @@ namespace Sob_Need_Server.Services.Jobs
         {
             var exp = _mapper.Map<UserExperience>(dto);
             exp.UserId = userId;
+            if (exp.StartDate.HasValue) exp.StartDate = exp.StartDate.Value.ToUniversalTime();
+            if (exp.EndDate.HasValue) exp.EndDate = exp.EndDate.Value.ToUniversalTime();
             _context.UserExperiences.Add(exp);
             await _context.SaveChangesAsync();
             return _mapper.Map<UserExperienceDto>(exp);
@@ -74,6 +80,8 @@ namespace Sob_Need_Server.Services.Jobs
             if (exp == null) return false;
 
             _mapper.Map(dto, exp);
+            if (exp.StartDate.HasValue) exp.StartDate = exp.StartDate.Value.ToUniversalTime();
+            if (exp.EndDate.HasValue) exp.EndDate = exp.EndDate.Value.ToUniversalTime();
             await _context.SaveChangesAsync();
             return true;
         }

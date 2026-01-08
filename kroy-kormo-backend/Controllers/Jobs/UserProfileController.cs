@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.DTOs.User;
 using Sob_Need_Server.Services.Jobs;
 using System.Security.Claims;
@@ -7,7 +8,7 @@ using System.Security.Claims;
 namespace Sob_Need_Server.Controllers.Jobs
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [Authorize]
     public class UserProfileController : ControllerBase
     {
@@ -21,9 +22,11 @@ namespace Sob_Need_Server.Controllers.Jobs
         [HttpGet]
         public async Task<IActionResult> GetMyProfile()
         {
-            var userId = Guid.Parse(User.FindFirstValue("UserId")!);
+            var userIdStr = User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
             var profile = await _profileService.GetProfileByUserIdAsync(userId);
-            return Ok(profile);
+            return Ok(new ResponseDto<ExtendedProfileDto>(true, "Profile retrieved", profile!));
         }
 
         [HttpGet("{userId}")]
@@ -31,8 +34,8 @@ namespace Sob_Need_Server.Controllers.Jobs
         public async Task<IActionResult> GetUserProfile(Guid userId)
         {
             var profile = await _profileService.GetProfileByUserIdAsync(userId);
-            if (profile == null) return NotFound();
-            return Ok(profile);
+            if (profile == null) return NotFound(new ResponseDto<object>(false, "Profile not found", null!));
+            return Ok(new ResponseDto<ExtendedProfileDto>(true, "Profile retrieved", profile));
         }
 
         // Education
@@ -40,7 +43,8 @@ namespace Sob_Need_Server.Controllers.Jobs
         public async Task<IActionResult> AddEducation([FromBody] UserEducationDto dto)
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
-            return Ok(await _profileService.AddEducationAsync(userId, dto));
+            var result = await _profileService.AddEducationAsync(userId, dto);
+            return Ok(new ResponseDto<UserEducationDto>(true, "Education added", result));
         }
 
         [HttpPut("education/{id}")]
@@ -48,7 +52,7 @@ namespace Sob_Need_Server.Controllers.Jobs
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
             var success = await _profileService.UpdateEducationAsync(userId, id, dto);
-            return success ? Ok() : NotFound();
+            return success ? Ok(new ResponseDto<object>(true, "Education updated", null!)) : NotFound(new ResponseDto<object>(false, "Education not found", null!));
         }
 
         [HttpDelete("education/{id}")]
@@ -56,7 +60,7 @@ namespace Sob_Need_Server.Controllers.Jobs
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
             var success = await _profileService.DeleteEducationAsync(userId, id);
-            return success ? NoContent() : NotFound();
+            return success ? Ok(new ResponseDto<object>(true, "Education deleted", null!)) : NotFound(new ResponseDto<object>(false, "Education not found", null!));
         }
 
         // Experience
@@ -64,7 +68,8 @@ namespace Sob_Need_Server.Controllers.Jobs
         public async Task<IActionResult> AddExperience([FromBody] UserExperienceDto dto)
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
-            return Ok(await _profileService.AddExperienceAsync(userId, dto));
+            var result = await _profileService.AddExperienceAsync(userId, dto);
+            return Ok(new ResponseDto<UserExperienceDto>(true, "Experience added", result));
         }
 
         [HttpPut("experience/{id}")]
@@ -72,7 +77,7 @@ namespace Sob_Need_Server.Controllers.Jobs
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
             var success = await _profileService.UpdateExperienceAsync(userId, id, dto);
-            return success ? Ok() : NotFound();
+            return success ? Ok(new ResponseDto<object>(true, "Experience updated", null!)) : NotFound(new ResponseDto<object>(false, "Experience not found", null!));
         }
 
         [HttpDelete("experience/{id}")]
@@ -80,7 +85,7 @@ namespace Sob_Need_Server.Controllers.Jobs
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
             var success = await _profileService.DeleteExperienceAsync(userId, id);
-            return success ? NoContent() : NotFound();
+            return success ? Ok(new ResponseDto<object>(true, "Experience deleted", null!)) : NotFound(new ResponseDto<object>(false, "Experience not found", null!));
         }
 
         // Skills
@@ -89,7 +94,7 @@ namespace Sob_Need_Server.Controllers.Jobs
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
             await _profileService.AddSkillAsync(userId, dto);
-            return Ok();
+            return Ok(new ResponseDto<object>(true, "Skill added", null!));
         }
 
         [HttpDelete("skill/{skillId}")]
@@ -97,7 +102,7 @@ namespace Sob_Need_Server.Controllers.Jobs
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
             var success = await _profileService.RemoveSkillAsync(userId, skillId);
-            return success ? NoContent() : NotFound();
+            return success ? Ok(new ResponseDto<object>(true, "Skill removed", null!)) : NotFound(new ResponseDto<object>(false, "Skill not found on profile", null!));
         }
 
         // Resumes
@@ -105,7 +110,8 @@ namespace Sob_Need_Server.Controllers.Jobs
         public async Task<IActionResult> UploadResume([FromBody] UserResumeDto dto)
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
-            return Ok(await _profileService.UploadResumeAsync(userId, dto));
+            var result = await _profileService.UploadResumeAsync(userId, dto);
+            return Ok(new ResponseDto<UserResumeDto>(true, "Resume uploaded", result));
         }
 
         [HttpPatch("resume/{id}/default")]
@@ -113,7 +119,7 @@ namespace Sob_Need_Server.Controllers.Jobs
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
             var success = await _profileService.SetDefaultResumeAsync(userId, id);
-            return success ? Ok() : NotFound();
+            return success ? Ok(new ResponseDto<object>(true, "Default resume updated", null!)) : NotFound(new ResponseDto<object>(false, "Resume not found", null!));
         }
 
         [HttpDelete("resume/{id}")]
@@ -121,7 +127,7 @@ namespace Sob_Need_Server.Controllers.Jobs
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
             var success = await _profileService.DeleteResumeAsync(userId, id);
-            return success ? NoContent() : NotFound();
+            return success ? Ok(new ResponseDto<object>(true, "Resume deleted", null!)) : NotFound(new ResponseDto<object>(false, "Resume not found", null!));
         }
     }
 }

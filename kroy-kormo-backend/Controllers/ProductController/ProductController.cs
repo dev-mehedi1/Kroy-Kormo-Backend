@@ -72,7 +72,7 @@ namespace Sob_Need_Server.Controllers.ProductController
         public async Task<ActionResult<ResponseDto<ProductDto>>> GetProductBySlug(string slug)
         {
             var resonse = await _productService.GetProductBySlugAsync(slug);
-            if (!resonse.IsSuccess) BadRequest(resonse);
+            if (!resonse.IsSuccess) return BadRequest(resonse);
             return Ok(resonse);
             
         }
@@ -82,7 +82,7 @@ namespace Sob_Need_Server.Controllers.ProductController
         public async Task<ActionResult<ResponseDto<ProductDto>>> DeleteProduct(Guid id)
         {
             var userIdStr = User.FindFirst("UserId")?.Value;
-            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
             var userId = Guid.Parse(userIdStr);
 
             var response = await _productService.DeleteAsync(id, userId);
@@ -98,7 +98,7 @@ namespace Sob_Need_Server.Controllers.ProductController
         public async Task<ActionResult<ResponseDto<ProductDto>>> UpdateProductStatus(Guid id, [FromBody] StatusUpdateDto updateDto)
         {
             var userIdStr = User.FindFirst("UserId")?.Value;
-            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
             var userId = Guid.Parse(userIdStr);
 
             var response = await _productService.UpdateStatusAsync(id, updateDto.StatusSlug, userId);
@@ -113,7 +113,7 @@ namespace Sob_Need_Server.Controllers.ProductController
         public async Task<ActionResult<ResponseDto<ProductDto>>> UpdateProductStatusById(Guid id, [FromBody] StatusUpdateByIdDto updateDto)
         {
             var userIdStr = User.FindFirst("UserId")?.Value;
-            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
             var userId = Guid.Parse(userIdStr);
 
             var response = await _productService.UpdateStatusByIdAsync(id, updateDto.StatusId, userId);
@@ -160,7 +160,7 @@ namespace Sob_Need_Server.Controllers.ProductController
         public async Task<ActionResult<ResponseDto<ProductDto>>> CancelProduct(Guid id, [FromBody] CancelProductRequest request)
         {
             var userIdStr = User.FindFirst("UserId")?.Value;
-            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
             var userId = Guid.Parse(userIdStr);
 
             var response = await _productService.CancelAsync(id, request.Reason, userId);

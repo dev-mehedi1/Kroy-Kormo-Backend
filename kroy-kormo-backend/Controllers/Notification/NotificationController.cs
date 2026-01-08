@@ -5,7 +5,7 @@ using Sob_Need_Server.Interface.Notification;
 
 namespace Sob_Need_Server.Controllers.Notification;
 
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 [ApiController]
 public class NotificationController(INotificationService notificationService) : ControllerBase
 {
