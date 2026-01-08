@@ -79,6 +79,7 @@ namespace Mappings
             
             // Category mappings
             CreateMap<Category, CategoryDto>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()))
                 .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => src.Products.Count))
                 .ReverseMap();
 

@@ -443,6 +443,9 @@ namespace Sob_Need_Server.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -781,8 +784,7 @@ namespace Sob_Need_Server.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_CompanyProfile_Slug");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.HasIndex("IsVerified", "IsActive")
                         .HasDatabaseName("IX_CompanyProfile_Verified_Active");
@@ -2720,8 +2722,8 @@ namespace Sob_Need_Server.Migrations
             modelBuilder.Entity("Sob_Need_Server.Models.Jobs.CompanyProfile", b =>
                 {
                     b.HasOne("Sob_Need_Server.Models.Authentication.User", "Owner")
-                        .WithOne("CompanyProfile")
-                        .HasForeignKey("Sob_Need_Server.Models.Jobs.CompanyProfile", "UserId")
+                        .WithMany("CompanyProfiles")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -3161,7 +3163,7 @@ namespace Sob_Need_Server.Migrations
 
             modelBuilder.Entity("Sob_Need_Server.Models.Authentication.User", b =>
                 {
-                    b.Navigation("CompanyProfile");
+                    b.Navigation("CompanyProfiles");
 
                     b.Navigation("Educations");
 

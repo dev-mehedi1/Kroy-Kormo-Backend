@@ -79,6 +79,12 @@ namespace Sob_Need_Server.Services.CategoryService
                     query = query.Where(x => x.CategoryName.Contains(filter.SearchText));
                 }
 
+                // Apply the Type filter (if any)
+                if (filter.Type.HasValue)
+                {
+                    query = query.Where(x => (int)x.Type == filter.Type.Value);
+                }
+
                 // Apply the parentId filter (if any)
                 if (filter.ParentCategoryId.HasValue)
                 {
@@ -143,6 +149,12 @@ namespace Sob_Need_Server.Services.CategoryService
                     query = query.Where(x => x.CategoryName.Contains(filter.SearchText));
                 }
 
+                // Apply the Type filter (if any)
+                if (filter.Type.HasValue)
+                {
+                    query = query.Where(x => (int)x.Type == filter.Type.Value);
+                }
+
                 // Get all categories as flat list
                 var allCategories = await query
                     .Select(x => new CategoryDto
@@ -150,6 +162,7 @@ namespace Sob_Need_Server.Services.CategoryService
                         CategoryId = x.CategoryId,
                         CategoryName = x.CategoryName,
                         ParentCategoryId = x.ParentCategoryId,
+                        Type = x.Type.ToString(),
                         ProductCount = x.Products.Count
                     })
                     .ToListAsync();

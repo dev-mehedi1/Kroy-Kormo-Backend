@@ -3,6 +3,7 @@
     public class CategoryFilterDto
     {
         public Guid? ParentCategoryId { get; set; }
+        public int? Type { get; set; } // 0 = Marketplace, 1 = Job
         public int? Page { get; set; }
         public int? PageSize { get; set; }
         public string? SearchText { get; set; }

@@ -94,6 +94,7 @@ namespace Sob_Need_Server.Services.Seeding
                     CategoryId = Guid.NewGuid(),
                     CategoryName = parentName,
                     Slug = StringUtilities.GenerateSlug(parentName) + "-" + Guid.NewGuid().ToString().Substring(0,4), // Ensure uniqueness
+                    Type = CategoryType.Job, // Mark as Job category
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = "System_Seeder"
@@ -119,6 +120,7 @@ namespace Sob_Need_Server.Services.Seeding
                         CategoryName = childName,
                         Slug = childSlugBase + "-" + Guid.NewGuid().ToString().Substring(0, 4),
                         ParentCategoryId = parent.CategoryId,
+                        Type = CategoryType.Job, // Mark as Job category
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = "System_Seeder"
