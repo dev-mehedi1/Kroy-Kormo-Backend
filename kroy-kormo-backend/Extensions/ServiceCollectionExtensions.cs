@@ -68,9 +68,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IJobViewService, JobViewService>();
         services.AddScoped<IJobAlertService, JobAlertService>();
         services.AddScoped<IJobRecommendationService, JobRecommendationService>();
+        services.AddScoped<ISavedJobService, SavedJobService>();
 
         return services;
 
     }
 }
-

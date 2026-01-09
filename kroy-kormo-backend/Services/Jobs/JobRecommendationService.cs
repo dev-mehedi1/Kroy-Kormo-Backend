@@ -23,15 +23,32 @@ namespace Sob_Need_Server.Services.Jobs
 
         public async Task<IEnumerable<JobWithScoreDto>> GetRecommendedJobsAsync(Guid userId, int count = 20)
         {
-            // 1. Get user skills
+            // 1. Get user skills profile
             var userSkills = await _context.UserSkills
                 .Where(us => us.UserId == userId)
                 .Select(us => us.SkillId)
                 .ToListAsync();
 
-            if (!userSkills.Any())
+            // 2. Get skills from saved jobs
+            var savedJobSkills = await _context.SavedJobs
+                .Where(sj => sj.UserId == userId)
+                .SelectMany(sj => sj.Job!.RequiredSkills.Select(rs => rs.SkillId))
+                .ToListAsync();
+
+            // 3. Get skills from recently viewed jobs (last 10)
+            var viewedJobSkills = await _context.JobViews
+                .Where(jv => jv.UserId == userId)
+                .OrderByDescending(jv => jv.ViewedAt)
+                .Take(10)
+                .SelectMany(jv => jv.Job!.RequiredSkills.Select(rs => rs.SkillId))
+                .ToListAsync();
+
+            // Combine and unique
+            var combinedSkills = userSkills.Union(savedJobSkills).Union(viewedJobSkills).Distinct().ToList();
+
+            if (!combinedSkills.Any())
             {
-                // Fallback to most recent active jobs if user has no skills listed
+                // Fallback to most recent active jobs
                 var recentJobs = await _context.JobListings
                     .Include(j => j.Product)
                     .Include(j => j.Employer)
@@ -54,9 +71,9 @@ namespace Sob_Need_Server.Services.Jobs
                 });
             }
 
-            // 2. Find jobs that require at least one of these skills
+            // 4. Find jobs that require at least one of these combined skills
             var candidateJobIds = await _context.JobSkills
-                .Where(js => userSkills.Contains(js.SkillId))
+                .Where(js => combinedSkills.Contains(js.SkillId))
                 .Select(js => js.JobId)
                 .Distinct()
                 .ToListAsync();
@@ -72,21 +89,23 @@ namespace Sob_Need_Server.Services.Jobs
                 .Where(j => j.IsActive && j.JobStatus == "Active" && candidateJobIds.Contains(j.JobId))
                 .ToListAsync();
 
-            var scoredJobs = jobs.Select(j => 
+            return jobs.Select(j => 
             {
                 var dto = _mapper.Map<JobWithScoreDto>(j);
                 var requiredSkillIds = j.RequiredSkills.Select(rs => rs.SkillId).ToList();
-                var matchingSkills = requiredSkillIds.Intersect(userSkills).ToList();
                 
-                // Scoring
-                double skillMatchScore = (double)matchingSkills.Count / (requiredSkillIds.Count > 0 ? requiredSkillIds.Count : 1);
-                dto.MatchScore = skillMatchScore * 100;
-                
-                foreach (var skillId in matchingSkills)
-                {
-                    var skillName = j.RequiredSkills.First(rs => rs.SkillId == skillId).Skill!.SkillName;
-                    dto.MatchReasons.Add($"Matches your skill: {skillName}");
-                }
+                // Scoring weights
+                double userSkillCount = requiredSkillIds.Intersect(userSkills).Count();
+                double savedSkillCount = requiredSkillIds.Intersect(savedJobSkills).Count();
+                double viewedSkillCount = requiredSkillIds.Intersect(viewedJobSkills).Count();
+
+                // Weighted score: User skills (50%), Saved jobs (30%), Viewed jobs (20%)
+                double score = (userSkillCount * 0.5) + (savedSkillCount * 0.3) + (viewedSkillCount * 0.2);
+                dto.MatchScore = Math.Min(100, score * 20); // Scale up a bit
+
+                if (userSkillCount > 0) dto.MatchReasons.Add($"Matches {userSkillCount} of your skills");
+                if (savedSkillCount > 0) dto.MatchReasons.Add($"Similar to jobs you saved");
+                if (viewedSkillCount > 0) dto.MatchReasons.Add($"Similar to jobs you viewed");
 
                 return dto;
             })
@@ -94,8 +113,6 @@ namespace Sob_Need_Server.Services.Jobs
             .OrderByDescending(j => j.CreatedAt)
             .Take(count)
             .ToList();
-
-            return scoredJobs;
         }
 
         public async Task<IEnumerable<TrendingJobDto>> GetTrendingJobsAsync(int count = 20)

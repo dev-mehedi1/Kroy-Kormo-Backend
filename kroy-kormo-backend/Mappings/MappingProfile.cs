@@ -259,6 +259,17 @@ namespace Mappings
             CreateMap<Sob_Need_Server.Models.Jobs.JobListing, JobWithScoreDto>().IncludeBase<Sob_Need_Server.Models.Jobs.JobListing, JobListingDto>();
             CreateMap<Sob_Need_Server.Models.Jobs.JobListing, TrendingJobDto>().IncludeBase<Sob_Need_Server.Models.Jobs.JobListing, JobListingDto>();
 
+            // Saved Job mappings
+            CreateMap<Sob_Need_Server.Models.Jobs.SavedJob, SavedJobDto>()
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Job!.Product!.Title))
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Job!.CompanyProfile != null ? src.Job.CompanyProfile.CompanyName : src.Job!.Product!.User!.FullName))
+                .ForMember(dest => dest.CompanyLogoUrl, opt => opt.MapFrom(src => src.Job!.CompanyProfile != null ? src.Job.CompanyProfile.LogoUrl : null))
+                .ForMember(dest => dest.JobTypeName, opt => opt.MapFrom(src => src.Job!.JobType!.TypeName))
+                .ForMember(dest => dest.LocationName, opt => opt.MapFrom(src => src.Job!.OfficeLocation))
+                .ForMember(dest => dest.IsRemote, opt => opt.MapFrom(src => src.Job!.IsRemote))
+                .ForMember(dest => dest.SalaryMin, opt => opt.MapFrom(src => src.Job!.SalaryMin))
+                .ForMember(dest => dest.SalaryMax, opt => opt.MapFrom(src => src.Job!.SalaryMax))
+                .ForMember(dest => dest.SalaryCurrency, opt => opt.MapFrom(src => src.Job!.SalaryCurrency));
         }
     }
 }
