@@ -26,7 +26,8 @@ namespace Sob_Need_Server.Utils.Helpers
                 new Claim("TokenId", Guid.NewGuid().ToString()),
                 new Claim("UserId", user.UserId.ToString()),
                 new Claim("FullName", user.FullName),
-                new Claim("Email", user.Email)
+                new Claim("Email", user.Email),
+                new Claim(ClaimTypes.Role, user.UserType?.TypeName ?? "User")
             };
 
             // Generate token

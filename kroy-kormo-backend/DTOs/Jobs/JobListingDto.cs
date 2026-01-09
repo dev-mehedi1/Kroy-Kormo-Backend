@@ -17,12 +17,7 @@ namespace Sob_Need_Server.DTOs.Jobs
         public int? MaxYears { get; set; }
     }
 
-    public class SkillDto
-    {
-        public Guid SkillId { get; set; }
-        public string SkillName { get; set; } = null!;
-        public string Slug { get; set; } = null!;
-    }
+
 
     public class JobListingDto
     {

@@ -24,6 +24,9 @@ using Sob_Need_Server.Utils.Helpers;
 using Services.ProductService;
 using Sob_Need_Server.Services.Jobs;
 
+using Sob_Need_Server.Services.Jobs; // Added
+using Sob_Need_Server.Interface.Jobs; // Added
+
 namespace Sob_Need_Server.Extensions;
 
 
@@ -61,6 +64,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IJobApplicationService, JobApplicationService>();
         services.AddScoped<IUserProfileService, UserProfileService>();
         services.AddScoped<IRecruitmentService, RecruitmentService>();
+        services.AddScoped<ISkillService, SkillService>();
 
         return services;
 

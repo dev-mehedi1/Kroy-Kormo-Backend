@@ -5,11 +5,13 @@ using Sob_Need_Server.DTOs.Authentication;
 using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.Utils;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace Sob_Need_Server.Controllers.Admin
 {
     [Route(Constants.BasePath + "/admin/users")]
     [ApiController]
-
+    [Authorize(Roles = "SuperAdmin,Admin,Owner")]
     public class AdminUserController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -51,7 +53,7 @@ namespace Sob_Need_Server.Controllers.Admin
         }
         
         [HttpPatch("{userId}/status")]
-         public async Task<ActionResult<ResponseDto<bool>>> UpdateUserStatus(Guid userId, [FromBody] bool isActive)
+        public async Task<ActionResult<ResponseDto<bool>>> UpdateUserStatus(Guid userId, [FromBody] bool isActive)
         {
             try
             {
@@ -63,7 +65,30 @@ namespace Sob_Need_Server.Controllers.Admin
 
                 return Ok(new ResponseDto<bool>(true, $"User status updated to {(isActive ? "Active" : "Inactive")}", true));
             }
-             catch (Exception ex)
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto<bool>(false, ex.Message, false));
+            }
+        }
+
+        [HttpPatch("{userId}/role")]
+        public async Task<ActionResult<ResponseDto<bool>>> UpdateUserRole(Guid userId, [FromBody] string roleName)
+        {
+            try
+            {
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null) return NotFound(new ResponseDto<bool>(false, "User not found", false));
+
+                // Find UserType by name
+                var userType = await _context.UserTypes.FirstOrDefaultAsync(ut => ut.TypeName == roleName);
+                if (userType == null) return BadRequest(new ResponseDto<bool>(false, "Invalid Role Name", false));
+
+                user.UserTypeId = userType.UserTypeId;
+                await _context.SaveChangesAsync();
+
+                return Ok(new ResponseDto<bool>(true, $"User role updated to {roleName}", true));
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new ResponseDto<bool>(false, ex.Message, false));
             }

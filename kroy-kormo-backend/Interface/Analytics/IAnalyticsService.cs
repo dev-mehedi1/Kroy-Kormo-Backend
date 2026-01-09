@@ -9,5 +9,6 @@ namespace Sob_Need_Server.Interface.Analytics
     {
         Task<ResponseDto<SellerStatsDto>> GetSellerStatsAsync(Guid userId);
         Task<ResponseDto<bool>> TrackProductViewAsync(Guid productId, Guid? userId, string ipAddress, string userAgent);
+        Task<ResponseDto<DashboardStatsDto>> GetDashboardStatsAsync();
     }
 }

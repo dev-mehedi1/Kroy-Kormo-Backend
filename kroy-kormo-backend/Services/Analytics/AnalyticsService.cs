@@ -121,5 +121,55 @@ namespace Sob_Need_Server.Services.Analytics
                 return new ResponseDto<bool>(false, ex.Message, false);
             }
         }
+        public async Task<ResponseDto<DashboardStatsDto>> GetDashboardStatsAsync()
+        {
+            try
+            {
+                var stats = new DashboardStatsDto
+                {
+                    TotalUsers = await _context.Users.CountAsync(),
+                    ActiveUsers = await _context.Users.CountAsync(u => u.IsActive),
+                    TotalListings = await _context.Products.CountAsync(),
+                    ActiveListings = await _context.Products.CountAsync(p => p.IsActive),
+                    TotalRevenue = 0 // Placeholder
+                };
+
+                // User Growth (Last 7 days)
+                var sevenDaysAgo = DateTime.UtcNow.Date.AddDays(-7);
+                var userGrowth = await _context.Users
+                    .Where(u => u.CreatedAt >= sevenDaysAgo)
+                    .GroupBy(u => u.CreatedAt.Date)
+                    .Select(g => new { Date = g.Key, Count = g.Count() })
+                    .ToListAsync();
+                
+                var allDates = Enumerable.Range(0, 8)
+                    .Select(i => sevenDaysAgo.AddDays(i))
+                    .ToList();
+
+                stats.UserGrowth = allDates.Select(date => new DailyStatDto
+                {
+                    Date = date,
+                    Views = userGrowth.FirstOrDefault(u => u.Date == date)?.Count ?? 0, // Reuse Views field for Count to simplify DTO usage or create new field
+                    Favorites = 0
+                }).ToList();
+
+                // Category Distribution
+                stats.CategoryDistribution = await _context.Categories
+                    .Select(c => new CategoryStatDto
+                    {
+                        CategoryName = c.CategoryName,
+                        Count = c.Products.Count
+                    })
+                    .OrderByDescending(c => c.Count)
+                    .Take(5)
+                    .ToListAsync();
+
+                return new ResponseDto<DashboardStatsDto>(true, "Dashboard stats retrieved", stats);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto<DashboardStatsDto>(false, ex.Message, null!);
+            }
+        }
     }
 }

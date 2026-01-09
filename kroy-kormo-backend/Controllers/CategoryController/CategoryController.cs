@@ -16,7 +16,7 @@ namespace Sob_Need_Server.Controllers.CategoryController
         private readonly ICategoryService _categoryService = categoryService;
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "SuperAdmin,Admin,Owner")]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryDto categoryDto)
         {
             if (!ModelState.IsValid)
