@@ -23,9 +23,9 @@ namespace Sob_Need_Server.Controllers.Authentication
 
         // Login user controller
         [HttpPost("login")]
-        public async Task<ActionResult<ResponseDto<UserDto>>> Login(string UserName , string Password)
+        public async Task<ActionResult<ResponseDto<UserDto>>> Login([FromBody] UserLoginDto loginDto)
         {
-            var response = await _userService.LoginAsync(UserName, Password);
+            var response = await _userService.LoginAsync(loginDto.UserName, loginDto.Password);
             if (response.IsSuccess) return Ok(response);
             return BadRequest(response);
         }

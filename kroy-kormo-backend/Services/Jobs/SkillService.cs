@@ -13,19 +13,39 @@ namespace Sob_Need_Server.Services.Jobs
         private readonly AppDbContext _context = context;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<ResponseDto<IEnumerable<SkillDto>>> GetAllAsync(string? search = null)
+        public async Task<ResponseDto<IEnumerable<SkillDto>>> GetAllAsync(string? search = null, Guid? categoryId = null)
         {
             try
             {
-                var query = _context.Skills.AsQueryable();
+                var query = from skill in _context.Skills
+                            join category in _context.Categories
+                            on skill.CategoryId equals category.CategoryId into categoryGroup
+                            from cat in categoryGroup.DefaultIfEmpty()
+                            select new { Skill = skill, CategoryName = cat != null ? cat.CategoryName : null };
 
                 if (!string.IsNullOrEmpty(search))
                 {
-                    query = query.Where(s => s.SkillName.ToLower().Contains(search.ToLower()));
+                    query = query.Where(s => s.Skill.SkillName.ToLower().Contains(search.ToLower()));
                 }
 
-                var skills = await query.OrderBy(s => s.SkillName).ToListAsync();
-                var skillDtos = _mapper.Map<IEnumerable<SkillDto>>(skills);
+                if (categoryId.HasValue)
+                {
+                    query = query.Where(s => s.Skill.CategoryId == categoryId.Value);
+                }
+
+                var results = await query.OrderBy(s => s.Skill.SkillName).ToListAsync();
+                
+                var skillDtos = results.Select(r => new SkillDto
+                {
+                    SkillId = r.Skill.SkillId,
+                    SkillName = r.Skill.SkillName,
+                    Slug = r.Skill.Slug,
+                    Description = r.Skill.Description,
+                    CategoryId = r.Skill.CategoryId,
+                    CategoryName = r.CategoryName,
+                    IsActive = r.Skill.IsActive,
+                    CreatedAt = r.Skill.CreatedAt
+                }).ToList();
 
                 return new ResponseDto<IEnumerable<SkillDto>>(true, "Skills retrieved successfully", skillDtos);
             }
@@ -87,6 +107,7 @@ namespace Sob_Need_Server.Services.Jobs
                 skill.IsActive = entity.IsActive;
                 skill.Slug = entity.Slug ?? skill.Slug;
                 skill.Description = entity.Description;
+                skill.CategoryId = entity.CategoryId;
                 skill.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();

@@ -14,9 +14,9 @@ namespace Sob_Need_Server.Controllers.Jobs
         private readonly ISkillService _skillService = skillService;
 
         [HttpGet]
-        public async Task<IActionResult> GetSkills([FromQuery] string? search)
+        public async Task<IActionResult> GetSkills([FromQuery] string? search, [FromQuery] Guid? categoryId)
         {
-            var response = await _skillService.GetAllAsync(search);
+            var response = await _skillService.GetAllAsync(search, categoryId);
             return response.IsSuccess ? Ok(response) : BadRequest(response);
         }
 
