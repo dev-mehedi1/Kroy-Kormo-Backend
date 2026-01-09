@@ -45,7 +45,12 @@ namespace Sob_Need_Server.Services.Jobs
                 .Include(s => s.Job)
                     .ThenInclude(j => j!.Product)
                 .Include(s => s.Job)
+                    .ThenInclude(j => j!.Employer)
+                .Include(s => s.Job)
                     .ThenInclude(j => j!.JobType)
+                .Include(s => s.Job)
+                    .ThenInclude(j => j!.RequiredSkills)
+                        .ThenInclude(rs => rs.Skill)
                 .FirstOrDefaultAsync(s => s.SavedJobId == savedJob.SavedJobId);
 
             return _mapper.Map<SavedJobDto>(reloaded);
@@ -70,9 +75,17 @@ namespace Sob_Need_Server.Services.Jobs
                     .ThenInclude(j => j!.Product)
                         .ThenInclude(p => p!.Category)
                 .Include(s => s.Job)
+                    .ThenInclude(j => j!.Product)
+                        .ThenInclude(p => p!.User)
+                .Include(s => s.Job)
+                    .ThenInclude(j => j!.Employer)
+                .Include(s => s.Job)
                     .ThenInclude(j => j!.JobType)
                 .Include(s => s.Job)
                     .ThenInclude(j => j!.CompanyProfile)
+                .Include(s => s.Job)
+                    .ThenInclude(j => j!.RequiredSkills)
+                        .ThenInclude(rs => rs.Skill)
                 .Where(s => s.UserId == userId)
                 .OrderByDescending(s => s.SavedAt)
                 .ToListAsync();

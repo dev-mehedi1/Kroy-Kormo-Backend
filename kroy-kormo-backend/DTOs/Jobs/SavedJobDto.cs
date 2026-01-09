@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Sob_Need_Server.DTOs.Jobs
 {
@@ -20,6 +21,8 @@ namespace Sob_Need_Server.DTOs.Jobs
         public decimal? SalaryMin { get; set; }
         public decimal? SalaryMax { get; set; }
         public string? SalaryCurrency { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public List<SkillDto> RequiredSkills { get; set; } = new();
     }
 
     public class CreateSavedJobDto

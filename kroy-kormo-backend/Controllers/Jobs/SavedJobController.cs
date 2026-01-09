@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.DTOs.Jobs;
 using Sob_Need_Server.Services.Jobs;
 using System;
@@ -25,7 +26,7 @@ namespace Sob_Need_Server.Controllers.Jobs
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId")!);
             var savedJobs = await _savedJobService.GetUserSavedJobsAsync(userId);
-            return Ok(savedJobs);
+            return Ok(new ResponseDto<IEnumerable<SavedJobDto>>(true, "Saved jobs retrieved", savedJobs));
         }
 
         [HttpPost]
@@ -33,7 +34,7 @@ namespace Sob_Need_Server.Controllers.Jobs
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId")!);
             var result = await _savedJobService.SaveJobAsync(userId, dto);
-            return Ok(result);
+            return Ok(new ResponseDto<SavedJobDto>(true, "Job saved successfully", result));
         }
 
         [HttpDelete("{jobId}")]
@@ -41,8 +42,8 @@ namespace Sob_Need_Server.Controllers.Jobs
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId")!);
             var result = await _savedJobService.UnsaveJobAsync(userId, jobId);
-            if (!result) return NotFound();
-            return Ok(new { message = "Job removed from saved list" });
+            if (!result) return NotFound(new ResponseDto<object>(false, "Job not found in saved list", null!));
+            return Ok(new ResponseDto<object>(true, "Job removed from saved list", null!));
         }
 
         [HttpGet("check/{jobId}")]
@@ -50,7 +51,7 @@ namespace Sob_Need_Server.Controllers.Jobs
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId")!);
             var isSaved = await _savedJobService.IsJobSavedAsync(userId, jobId);
-            return Ok(isSaved);
+            return Ok(new ResponseDto<bool>(true, "Saved status checked", isSaved));
         }
     }
 }
