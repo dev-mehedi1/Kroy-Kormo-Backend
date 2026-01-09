@@ -36,7 +36,18 @@ namespace Sob_Need_Server.Services.Jobs
         public decimal? MaxSalary { get; set; }
         public bool? IsRemote { get; set; }
         public string? Location { get; set; }
-        public string? SortBy { get; set; } // "newest", "salary_asc", "salary_desc"
+        
+        // Advanced Filters
+        public List<Guid>? SkillIds { get; set; }
+        public int? DaysAgo { get; set; }
+        public Guid? CompanyId { get; set; }
+        
+        // Geospatial (Placeholder)
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+        public double? RadiusKm { get; set; }
+
+        public string? SortBy { get; set; } // "newest", "salary_asc", "salary_desc", "mostviewed", "mostapplied"
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
     }

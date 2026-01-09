@@ -65,6 +65,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserProfileService, UserProfileService>();
         services.AddScoped<IRecruitmentService, RecruitmentService>();
         services.AddScoped<ISkillService, SkillService>();
+        services.AddScoped<IJobViewService, JobViewService>();
+        services.AddScoped<IJobAlertService, JobAlertService>();
+        services.AddScoped<IJobRecommendationService, JobRecommendationService>();
 
         return services;
 

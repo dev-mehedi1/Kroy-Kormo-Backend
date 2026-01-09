@@ -179,11 +179,25 @@ namespace Sob_Need_Server.Services.Jobs
             if (filter.MaxSalary.HasValue)
                 query = query.Where(j => j.SalaryMin <= filter.MaxSalary.Value);
 
+            if (filter.SkillIds != null && filter.SkillIds.Any())
+                query = query.Where(j => j.RequiredSkills.Any(rs => filter.SkillIds.Contains(rs.SkillId)));
+
+            if (filter.DaysAgo.HasValue)
+            {
+                var cutoff = DateTime.UtcNow.AddDays(-filter.DaysAgo.Value);
+                query = query.Where(j => j.CreatedAt >= cutoff);
+            }
+
+            if (filter.CompanyId.HasValue)
+                query = query.Where(j => j.CompanyProfileId == filter.CompanyId.Value);
+
             // Sorting
-            query = filter.SortBy switch
+            query = filter.SortBy?.ToLower() switch
             {
                 "salary_desc" => query.OrderByDescending(j => j.SalaryMax),
                 "salary_asc" => query.OrderBy(j => j.SalaryMin),
+                "mostviewed" => query.OrderByDescending(j => j.ViewCount),
+                "mostapplied" => query.OrderByDescending(j => j.ApplicationCount),
                 _ => query.OrderByDescending(j => j.CreatedAt)
             };
 

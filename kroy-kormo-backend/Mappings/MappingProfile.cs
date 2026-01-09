@@ -243,6 +243,22 @@ namespace Mappings
                 .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.JobTitle))
                 .ReverseMap();
 
+            // Job Alert mappings
+            CreateMap<Sob_Need_Server.Models.Jobs.JobAlert, JobAlertDto>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : null))
+                .ForMember(dest => dest.JobTypeName, opt => opt.MapFrom(src => src.JobType != null ? src.JobType.TypeName : null))
+                .ForMember(dest => dest.ExperienceLevelName, opt => opt.MapFrom(src => src.ExperienceLevel != null ? src.ExperienceLevel.LevelName : null))
+                .ReverseMap();
+            CreateMap<CreateJobAlertDto, Sob_Need_Server.Models.Jobs.JobAlert>();
+            CreateMap<UpdateJobAlertDto, Sob_Need_Server.Models.Jobs.JobAlert>();
+
+            // Job View mappings
+            CreateMap<Sob_Need_Server.Models.Jobs.JobView, JobViewDto>().ReverseMap();
+
+            // Recommendation mappings
+            CreateMap<Sob_Need_Server.Models.Jobs.JobListing, JobWithScoreDto>().IncludeBase<Sob_Need_Server.Models.Jobs.JobListing, JobListingDto>();
+            CreateMap<Sob_Need_Server.Models.Jobs.JobListing, TrendingJobDto>().IncludeBase<Sob_Need_Server.Models.Jobs.JobListing, JobListingDto>();
+
         }
     }
 }
