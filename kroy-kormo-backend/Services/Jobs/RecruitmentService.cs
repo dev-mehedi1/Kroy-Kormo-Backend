@@ -103,31 +103,51 @@ namespace Sob_Need_Server.Services.Jobs
 
         public async Task<InterviewDto?> RescheduleInterviewAsync(Guid employerId, Guid interviewId, DateTime newTime, string? notes)
         {
-            var interview = await _context.Interviews
+            var oldInterview = await _context.Interviews
                 .Include(i => i.Application).ThenInclude(a => a.Job).ThenInclude(j => j.Product)
                 .FirstOrDefaultAsync(i => i.InterviewId == interviewId);
 
-            if (interview == null || interview.EmployerId != employerId)
+            if (oldInterview == null || oldInterview.EmployerId != employerId)
                 throw new UnauthorizedAccessException("Unauthorized or interview not found.");
 
-            interview.ScheduledAt = newTime;
-            if (!string.IsNullOrEmpty(notes)) interview.Notes = notes;
-            interview.UpdatedAt = DateTime.UtcNow;
+            // 1. Mark old interview as Rescheduled
+            oldInterview.Status = "Rescheduled";
+            oldInterview.UpdatedAt = DateTime.UtcNow;
 
+            // 2. Create NEW interview record
+            var newInterview = new Interview
+            {
+                InterviewId = Guid.NewGuid(),
+                ApplicationId = oldInterview.ApplicationId,
+                EmployerId = oldInterview.EmployerId,
+                CandidateId = oldInterview.CandidateId,
+                InterviewType = oldInterview.InterviewType,
+                ScheduledAt = newTime,
+                DurationMinutes = oldInterview.DurationMinutes,
+                Location = oldInterview.Location,
+                MeetingLink = oldInterview.MeetingLink,
+                Notes = notes ?? oldInterview.Notes,
+                Status = "Scheduled",
+                RescheduledFrom = oldInterview.InterviewId,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Interviews.Add(newInterview);
             await _context.SaveChangesAsync();
 
             // Notify Candidate
             await _notificationService.CreateAsync(new NotificationDto
             {
                 Title = "Interview Rescheduled",
-                Message = $"Your interview for {interview.Application?.Job?.Product?.Title} has been rescheduled to {newTime:f}. Notes: {notes}",
+                Message = $"Your interview for {oldInterview.Application?.Job?.Product?.Title} has been rescheduled to {newTime:f}. Notes: {notes}",
                 Type = "Interview",
-                RecipientId = interview.CandidateId,
+                RecipientId = oldInterview.CandidateId,
                 ActionUrl = $"/dashboard/interviews",
                 IsRead = false
             });
 
-            return _mapper.Map<InterviewDto>(interview);
+            // Map the NEW interview to DTO
+            return _mapper.Map<InterviewDto>(newInterview);
         }
 
         public async Task<IEnumerable<InterviewDto>> GetJobInterviewsAsync(Guid jobId, Guid employerId)
