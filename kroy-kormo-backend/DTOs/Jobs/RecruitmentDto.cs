@@ -18,7 +18,10 @@ namespace Sob_Need_Server.DTOs.Jobs
     {
         public Guid InterviewId { get; set; }
         public Guid ApplicationId { get; set; }
+        public Guid JobId { get; set; }
         public string JobTitle { get; set; } = null!;
+        public string? CompanyName { get; set; }
+        public string? CompanyLogo { get; set; }
         public string CandidateName { get; set; } = null!;
         
         public string InterviewType { get; set; } = null!;

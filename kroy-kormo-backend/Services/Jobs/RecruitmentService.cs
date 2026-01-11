@@ -108,6 +108,35 @@ namespace Sob_Need_Server.Services.Jobs
             return true;
         }
 
+        public async Task<InterviewDto?> RescheduleInterviewAsync(Guid employerId, Guid interviewId, DateTime newTime, string? notes)
+        {
+            var interview = await _context.Interviews
+                .Include(i => i.Application).ThenInclude(a => a.Job).ThenInclude(j => j.Product)
+                .FirstOrDefaultAsync(i => i.InterviewId == interviewId);
+
+            if (interview == null || interview.EmployerId != employerId)
+                throw new UnauthorizedAccessException("Unauthorized or interview not found.");
+
+            interview.ScheduledAt = newTime;
+            if (!string.IsNullOrEmpty(notes)) interview.Notes = notes;
+            interview.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            // Notify Candidate
+            await _notificationService.CreateAsync(new NotificationDto
+            {
+                Title = "Interview Rescheduled",
+                Message = $"Your interview for {interview.Application?.Job?.Product?.Title} has been rescheduled to {newTime:f}. Notes: {notes}",
+                Type = "Interview",
+                RecipientId = interview.CandidateId,
+                ActionUrl = $"/dashboard/interviews",
+                IsRead = false
+            });
+
+            return _mapper.Map<InterviewDto>(interview);
+        }
+
         public async Task<IEnumerable<InterviewDto>> GetJobInterviewsAsync(Guid jobId, Guid employerId)
         {
             var interviews = await _context.Interviews
@@ -134,8 +163,9 @@ namespace Sob_Need_Server.Services.Jobs
 
         public async Task<IEnumerable<InterviewDto>> GetMyCandidateInterviewsAsync(Guid candidateId)
         {
-             var interviews = await _context.Interviews
-                .Include(i => i.Application)
+            var interviews = await _context.Interviews
+                .Include(i => i.Application).ThenInclude(a => a.Job).ThenInclude(j => j.Product)
+                .Include(i => i.Application).ThenInclude(a => a.Job).ThenInclude(j => j.CompanyProfile)
                 .Include(i => i.Candidate)
                 .Where(i => i.CandidateId == candidateId)
                 .OrderByDescending(i => i.ScheduledAt)

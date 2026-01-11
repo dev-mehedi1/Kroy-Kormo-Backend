@@ -79,6 +79,23 @@ namespace Sob_Need_Server.Controllers.Jobs
             return success ? Ok(new ResponseDto<object>(true, "Interview status updated", null!)) : NotFound(new ResponseDto<object>(false, "Interview not found", null!));
         }
 
+        [HttpPost("interview/{id}/reschedule")]
+        public async Task<IActionResult> RescheduleInterview(Guid id, [FromBody] RescheduleInterviewDto dto)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
+            var result = await _recruitmentService.RescheduleInterviewAsync(userId, id, dto.NewTime, dto.Notes);
+            return result != null ? Ok(new ResponseDto<InterviewDto>(true, "Interview rescheduled", result))
+                                  : BadRequest(new ResponseDto<object>(false, "Failed to reschedule", null!));
+        }
+
+        public class RescheduleInterviewDto
+        {
+            public DateTime NewTime { get; set; }
+            public string? Notes { get; set; }
+        }
+
         [HttpGet("job/{jobId}/interviews")]
         public async Task<IActionResult> GetJobInterviews(Guid jobId)
         {
