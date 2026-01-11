@@ -99,6 +99,18 @@ namespace Sob_Need_Server.Services.Jobs
             return _mapper.Map<IEnumerable<InterviewDto>>(interviews);
         }
 
+        public async Task<IEnumerable<InterviewDto>> GetMyInterviewsAsync(Guid employerId)
+        {
+            var interviews = await _context.Interviews
+                .Include(i => i.Application)
+                .Include(i => i.Candidate)
+                .Where(i => i.EmployerId == employerId)
+                .OrderByDescending(i => i.ScheduledAt)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<InterviewDto>>(interviews);
+        }
+
         public async Task<JobOfferDto> CreateOfferAsync(Guid employerId, JobOfferDto dto)
         {
             var app = await _context.JobApplications

@@ -89,6 +89,16 @@ namespace Sob_Need_Server.Controllers.Jobs
             return Ok(new ResponseDto<IEnumerable<InterviewDto>>(true, "Job interviews retrieved", result));
         }
 
+        [HttpGet("interviews/my")]
+        public async Task<IActionResult> GetMyInterviews()
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
+            var result = await _recruitmentService.GetMyInterviewsAsync(userId);
+            return Ok(new ResponseDto<IEnumerable<InterviewDto>>(true, "All interviews retrieved", result));
+        }
+
         // Offers
         [HttpPost("offer")]
         public async Task<IActionResult> CreateOffer([FromBody] JobOfferDto dto)
