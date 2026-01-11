@@ -96,6 +96,29 @@ namespace Sob_Need_Server.Controllers.Jobs
             public string? Notes { get; set; }
         }
 
+        [HttpPost("interview/{id}/feedback")]
+        public async Task<IActionResult> SubmitInterviewFeedback(Guid id, [FromBody] InterviewFeedbackDto dto)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
+            dto.InterviewId = id;
+            var result = await _recruitmentService.SubmitInterviewFeedbackAsync(userId, dto);
+            return result != null ? Ok(new ResponseDto<InterviewDto>(true, "Feedback submitted successfully", result))
+                                  : BadRequest(new ResponseDto<object>(false, "Failed to submit feedback", null!));
+        }
+
+        [HttpPost("interview/{id}/complete")]
+        public async Task<IActionResult> CompleteInterview(Guid id)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
+            var success = await _recruitmentService.CompleteInterviewAsync(id, userId);
+            return success ? Ok(new ResponseDto<object>(true, "Interview marked as completed", null!))
+                          : BadRequest(new ResponseDto<object>(false, "Failed to complete interview", null!));
+        }
+
         [HttpGet("job/{jobId}/interviews")]
         public async Task<IActionResult> GetJobInterviews(Guid jobId)
         {

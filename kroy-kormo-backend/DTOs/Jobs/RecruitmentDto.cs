@@ -31,6 +31,20 @@ namespace Sob_Need_Server.DTOs.Jobs
         public string? MeetingLink { get; set; }
         public string? Notes { get; set; }
         public string Status { get; set; } = null!;
+        
+        // Post-Interview Management
+        public string? Feedback { get; set; }
+        public string? Outcome { get; set; } // "Pending", "Accepted", "Rejected"
+        public DateTime? CompletedAt { get; set; }
+        public string? RejectionReason { get; set; }
+    }
+
+    public class InterviewFeedbackDto
+    {
+        public Guid InterviewId { get; set; }
+        public string Feedback { get; set; } = null!;
+        public string Outcome { get; set; } = null!; // "Accepted" or "Rejected"
+        public string? RejectionReason { get; set; }
     }
 
     public class JobOfferDto

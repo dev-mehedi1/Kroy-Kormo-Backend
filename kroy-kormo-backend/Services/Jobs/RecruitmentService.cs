@@ -9,18 +9,11 @@ using Models.Products;
 
 namespace Sob_Need_Server.Services.Jobs
 {
-    public class RecruitmentService : IRecruitmentService
+    public class RecruitmentService(AppDbContext context, IMapper mapper, INotificationService notificationService) : IRecruitmentService
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
-        private readonly INotificationService _notificationService;
-
-        public RecruitmentService(AppDbContext context, IMapper mapper, INotificationService notificationService)
-        {
-            _context = context;
-            _mapper = mapper;
-            _notificationService = notificationService;
-        }
+        private readonly AppDbContext _context = context;
+        private readonly IMapper _mapper = mapper;
+        private readonly INotificationService _notificationService = notificationService;
 
         public async Task<CompanyProfileDto> CreateCompanyProfileAsync(Guid userId, CompanyProfileDto dto)
         {
@@ -230,6 +223,103 @@ namespace Sob_Need_Server.Services.Jobs
             };
 
             return stats;
+        }
+
+        public async Task<InterviewDto?> SubmitInterviewFeedbackAsync(Guid employerId, InterviewFeedbackDto dto)
+        {
+            var interview = await _context.Interviews
+                .Include(i => i.Application).ThenInclude(a => a.Job).ThenInclude(j => j.Product)
+                .Include(i => i.Application).ThenInclude(a => a.Job).ThenInclude(j => j.CompanyProfile)
+                .Include(i => i.Candidate)
+                .FirstOrDefaultAsync(i => i.InterviewId == dto.InterviewId && i.EmployerId == employerId);
+
+            if (interview == null)
+                throw new UnauthorizedAccessException("Interview not found or unauthorized.");
+
+            // Update interview with feedback
+            interview.Feedback = dto.Feedback;
+            interview.Outcome = dto.Outcome;
+            interview.RejectionReason = dto.RejectionReason;
+            interview.Status = "Completed";
+            interview.CompletedAt = DateTime.UtcNow;
+            interview.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            // Update application status based on outcome
+            if (interview.Application != null)
+            {
+                if (dto.Outcome == "Accepted")
+                {
+                    // Find Offered status
+                    var offeredStatus = await _context.ApplicationStatuses
+                        .FirstOrDefaultAsync(s => s.StatusName == "Offered");
+                    
+                    if (offeredStatus != null)
+                    {
+                        interview.Application.ApplicationStatusId = offeredStatus.ApplicationStatusId;
+                    }
+
+                    // Send congratulation notification
+                    await _notificationService.CreateAsync(new NotificationDto
+                    {
+                        Title = "🎉 Congratulations on Your Interview!",
+                        Message = $"We're pleased to inform you that you've been selected for the {interview.Application.Job?.Product?.Title} position at {interview.Application.Job?.CompanyProfile?.CompanyName}. Our team will reach out soon with next steps.",
+                        Type = "Interview",
+                        RecipientId = interview.CandidateId,
+                        ActionUrl = $"/dashboard/interviews",
+                        IsRead = false
+                    });
+                }
+                else if (dto.Outcome == "Rejected")
+                {
+                    // Find Rejected status
+                    var rejectedStatus = await _context.ApplicationStatuses
+                        .FirstOrDefaultAsync(s => s.StatusName == "Rejected");
+                    
+                    if (rejectedStatus != null)
+                    {
+                        interview.Application.ApplicationStatusId = rejectedStatus.ApplicationStatusId;
+                    }
+
+                    // Send professional rejection notification
+                    var rejectionMessage = $"Thank you for taking the time to interview for the {interview.Application.Job?.Product?.Title} position. After careful consideration, we've decided to move forward with other candidates.";
+                    if (!string.IsNullOrEmpty(dto.RejectionReason))
+                    {
+                        rejectionMessage += $" {dto.RejectionReason}";
+                    }
+                    rejectionMessage += " We appreciate your interest and encourage you to apply for future opportunities.";
+
+                    await _notificationService.CreateAsync(new NotificationDto
+                    {
+                        Title = $"Interview Update for {interview.Application.Job?.Product?.Title}",
+                        Message = rejectionMessage,
+                        Type = "Interview",
+                        RecipientId = interview.CandidateId,
+                        ActionUrl = $"/dashboard/interviews",
+                        IsRead = false
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            return _mapper.Map<InterviewDto>(interview);
+        }
+
+        public async Task<bool> CompleteInterviewAsync(Guid interviewId, Guid employerId)
+        {
+            var interview = await _context.Interviews
+                .FirstOrDefaultAsync(i => i.InterviewId == interviewId && i.EmployerId == employerId);
+
+            if (interview == null) return false;
+
+            interview.Status = "Completed";
+            interview.CompletedAt = DateTime.UtcNow;
+            interview.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

@@ -236,6 +236,8 @@ namespace Mappings
             // Recruitment mappings
             CreateMap<Sob_Need_Server.Models.Jobs.CompanyProfile, CompanyProfileDto>().ReverseMap();
             CreateMap<Sob_Need_Server.Models.Jobs.Interview, InterviewDto>()
+                .ForMember(dest => dest.InterviewId, opt => opt.MapFrom(src => src.InterviewId))
+                .ForMember(dest => dest.ApplicationId, opt => opt.MapFrom(src => src.ApplicationId))
                 .ForMember(dest => dest.JobId, opt => opt.MapFrom(src => src.Application != null && src.Application.Job != null ? src.Application.Job.JobId : Guid.Empty))
                 .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.Application != null && src.Application.Job != null && src.Application.Job.Product != null ? src.Application.Job.Product.Title : null))
                 .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Application != null && src.Application.Job != null && src.Application.Job.CompanyProfile != null ? src.Application.Job.CompanyProfile.CompanyName : null))

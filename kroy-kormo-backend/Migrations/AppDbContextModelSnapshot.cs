@@ -910,6 +910,9 @@ namespace Sob_Need_Server.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime?>("ConfirmedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -962,8 +965,16 @@ namespace Sob_Need_Server.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<string>("Outcome")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<int?>("Rating")
                         .HasColumnType("integer");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<DateTime?>("RescheduledAt")
                         .HasColumnType("timestamp with time zone");

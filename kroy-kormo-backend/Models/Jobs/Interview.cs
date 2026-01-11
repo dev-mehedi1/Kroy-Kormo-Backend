@@ -54,6 +54,15 @@ namespace Sob_Need_Server.Models.Jobs
         
         public int? Rating { get; set; } // 1-5 rating of candidate performance
         
+        // Post-Interview Outcome
+        [MaxLength(50)]
+        public string? Outcome { get; set; } // "Pending", "Accepted", "Rejected"
+        
+        public DateTime? CompletedAt { get; set; }
+        
+        [MaxLength(1000)]
+        public string? RejectionReason { get; set; } // Optional professional reason for rejection
+        
         // Candidate Response
         public bool? CandidateConfirmed { get; set; }
         
@@ -78,6 +87,7 @@ namespace Sob_Need_Server.Models.Jobs
         // Metadata
         [Required]
         public bool IsActive { get; set; } = true;
+        
         
         [MaxLength(100)]
         public string? CreatedBy { get; set; }

@@ -17,6 +17,8 @@ namespace Sob_Need_Server.Services.Jobs
         Task<IEnumerable<InterviewDto>> GetMyInterviewsAsync(Guid employerId);
         Task<IEnumerable<InterviewDto>> GetMyCandidateInterviewsAsync(Guid candidateId);
         Task<InterviewDto?> RescheduleInterviewAsync(Guid employerId, Guid interviewId, DateTime newTime, string? notes);
+        Task<InterviewDto?> SubmitInterviewFeedbackAsync(Guid employerId, InterviewFeedbackDto dto);
+        Task<bool> CompleteInterviewAsync(Guid interviewId, Guid employerId);
         
         // Offers
         Task<JobOfferDto> CreateOfferAsync(Guid employerId, JobOfferDto dto);
