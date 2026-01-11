@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.Jobs;
 using Sob_Need_Server.Models.Jobs;
+using Sob_Need_Server.Interface.Notification;
+using Sob_Need_Server.DTOs.Notification;
+using Models.Products;
 
 namespace Sob_Need_Server.Services.Jobs
 {
@@ -10,11 +13,13 @@ namespace Sob_Need_Server.Services.Jobs
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly INotificationService _notificationService;
 
-        public RecruitmentService(AppDbContext context, IMapper mapper)
+        public RecruitmentService(AppDbContext context, IMapper mapper, INotificationService notificationService)
         {
             _context = context;
             _mapper = mapper;
+            _notificationService = notificationService;
         }
 
         public async Task<CompanyProfileDto> CreateCompanyProfileAsync(Guid userId, CompanyProfileDto dto)
@@ -55,7 +60,7 @@ namespace Sob_Need_Server.Services.Jobs
         public async Task<InterviewDto> ScheduleInterviewAsync(Guid employerId, InterviewDto dto)
         {
             var app = await _context.JobApplications
-                .Include(a => a.Job)
+                .Include(a => a.Job).ThenInclude(j => j.Product)
                 .FirstOrDefaultAsync(a => a.ApplicationId == dto.ApplicationId);
 
             if (app == null || app.Job?.EmployerId != employerId) 
@@ -69,9 +74,25 @@ namespace Sob_Need_Server.Services.Jobs
 
             _context.Interviews.Add(interview);
             
-            // Auto update application status to 'Interviewing' or similar if needed
+            // Auto update application status to 'Interviewing'
+            var interviewingStatus = await _context.ApplicationStatuses.FirstOrDefaultAsync(s => s.Slug == "interviewing" || s.StatusName == "Interviewing");
+            if (interviewingStatus != null) {
+                 app.ApplicationStatusId = interviewingStatus.ApplicationStatusId;
+            }
             
             await _context.SaveChangesAsync();
+
+            // Send Notification to Candidate
+            await _notificationService.CreateAsync(new NotificationDto
+            {
+                Title = "Interview Scheduled",
+                Message = $"You have an interview for {app.Job?.Product?.Title} scheduled on {interview.ScheduledAt:f}. Type: {interview.InterviewType}.",
+                Type = "Interview",
+                RecipientId = app.ApplicantId,
+                ActionUrl = $"/dashboard/interviews", 
+                IsRead = false
+            });
+
             return _mapper.Map<InterviewDto>(interview);
         }
 
@@ -105,6 +126,18 @@ namespace Sob_Need_Server.Services.Jobs
                 .Include(i => i.Application)
                 .Include(i => i.Candidate)
                 .Where(i => i.EmployerId == employerId)
+                .OrderByDescending(i => i.ScheduledAt)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<InterviewDto>>(interviews);
+        }
+
+        public async Task<IEnumerable<InterviewDto>> GetMyCandidateInterviewsAsync(Guid candidateId)
+        {
+             var interviews = await _context.Interviews
+                .Include(i => i.Application)
+                .Include(i => i.Candidate)
+                .Where(i => i.CandidateId == candidateId)
                 .OrderByDescending(i => i.ScheduledAt)
                 .ToListAsync();
 

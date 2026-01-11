@@ -5,6 +5,9 @@ using Sob_Need_Server.DTOs.Jobs;
 using Sob_Need_Server.Models.Jobs;
 using Microsoft.AspNetCore.SignalR;
 using Sob_Need_Server.SignalR;
+using Sob_Need_Server.Interface.Notification;
+using Sob_Need_Server.DTOs.Notification;
+using Models.Products;
 
 namespace Sob_Need_Server.Services.Jobs
 {
@@ -13,12 +16,14 @@ namespace Sob_Need_Server.Services.Jobs
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
         private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly INotificationService _notificationService;
 
-        public JobApplicationService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext)
+        public JobApplicationService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext, INotificationService notificationService)
         {
             _context = context;
             _mapper = mapper;
             _hubContext = hubContext;
+            _notificationService = notificationService;
         }
 
         public async Task<JobApplicationDto> ApplyForJobAsync(Guid applicantId, CreateApplicationDto dto)
@@ -79,7 +84,7 @@ namespace Sob_Need_Server.Services.Jobs
         public async Task<bool> UpdateApplicationStatusAsync(Guid applicationId, Guid employerId, Guid statusId, string? notes)
         {
             var app = await _context.JobApplications
-                .Include(a => a.Job)
+                .Include(a => a.Job).ThenInclude(j => j.Product)
                 .FirstOrDefaultAsync(a => a.ApplicationId == applicationId);
 
             if (app == null || app.Job?.EmployerId != employerId) return false;
@@ -98,6 +103,19 @@ namespace Sob_Need_Server.Services.Jobs
             });
 
             await _context.SaveChangesAsync();
+
+            // Notify Applicant
+            var newStatus = await _context.ApplicationStatuses.FindAsync(statusId);
+            await _notificationService.CreateAsync(new NotificationDto
+            {
+                 Title = "Application Status Updated",
+                 Message = $"Your application for {app.Job?.Product?.Title} has been updated to: {newStatus?.StatusName}. {notes}",
+                 Type = "Application",
+                 RecipientId = app.ApplicantId,
+                 ActionUrl = $"/jobs/apply",
+                 IsRead = false
+            });
+
             return true;
         }
 
