@@ -140,7 +140,8 @@ namespace Sob_Need_Server.Services.Jobs
         public async Task<IEnumerable<InterviewDto>> GetJobInterviewsAsync(Guid jobId, Guid employerId)
         {
             var interviews = await _context.Interviews
-                .Include(i => i.Application)
+                .Include(i => i.Application).ThenInclude(a => a.Job).ThenInclude(j => j.Product)
+                .Include(i => i.Application).ThenInclude(a => a.Job).ThenInclude(j => j.CompanyProfile)
                 .Include(i => i.Candidate)
                 .Where(i => i.Application!.JobId == jobId && i.EmployerId == employerId)
                 .OrderByDescending(i => i.ScheduledAt)
@@ -152,7 +153,8 @@ namespace Sob_Need_Server.Services.Jobs
         public async Task<IEnumerable<InterviewDto>> GetMyInterviewsAsync(Guid employerId)
         {
             var interviews = await _context.Interviews
-                .Include(i => i.Application)
+                .Include(i => i.Application).ThenInclude(a => a.Job).ThenInclude(j => j.Product)
+                .Include(i => i.Application).ThenInclude(a => a.Job).ThenInclude(j => j.CompanyProfile)
                 .Include(i => i.Candidate)
                 .Where(i => i.EmployerId == employerId)
                 .OrderByDescending(i => i.ScheduledAt)
