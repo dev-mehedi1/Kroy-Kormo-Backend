@@ -212,7 +212,13 @@ namespace Mappings
                 .ForMember(dest => dest.ApplicantName, opt => opt.MapFrom(src => src.Applicant != null ? src.Applicant.FullName : null))
                 .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.StatusName : null))
                 .ForMember(dest => dest.StatusColorCode, opt => opt.MapFrom(src => src.Status != null ? src.Status.ColorCode : null))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Applicant != null ? src.Applicant.Email : null))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Applicant != null ? src.Applicant.Phone : null))
+                .ForMember(dest => dest.Educations, opt => opt.MapFrom(src => src.Applicant != null ? src.Applicant.Educations : null))
+                .ForMember(dest => dest.Experiences, opt => opt.MapFrom(src => src.Applicant != null ? src.Applicant.Experiences : null))
+                .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.Applicant != null ? src.Applicant.Skills : null))
                 .ReverseMap();
+
 
             CreateMap<CreateApplicationDto, Sob_Need_Server.Models.Jobs.JobApplication>().ReverseMap();
             CreateMap<Sob_Need_Server.Models.Jobs.ApplicationStatusHistory, ApplicationStatusHistoryDto>()

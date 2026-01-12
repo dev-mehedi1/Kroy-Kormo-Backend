@@ -1,4 +1,7 @@
+using Sob_Need_Server.DTOs.User;
+
 namespace Sob_Need_Server.DTOs.Jobs
+
 {
     public class JobApplicationDto
     {
@@ -25,7 +28,15 @@ namespace Sob_Need_Server.DTOs.Jobs
         
         public bool IsWithdrawn { get; set; }
         public DateTime CreatedAt { get; set; }
+
+        // Candidate Profile Details
+        public string? Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        public List<UserEducationDto> Educations { get; set; } = new();
+        public List<UserExperienceDto> Experiences { get; set; } = new();
+        public List<UserSkillDto> Skills { get; set; } = new();
     }
+
 
     public class CreateApplicationDto
     {

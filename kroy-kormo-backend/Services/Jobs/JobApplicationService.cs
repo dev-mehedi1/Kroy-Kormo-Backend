@@ -123,11 +123,14 @@ namespace Sob_Need_Server.Services.Jobs
         public async Task<PaginatedResponseDto<JobApplicationDto>> GetJobApplicationsAsync(Guid jobId, Guid employerId, ApplicationFilterDto filter)
         {
             var query = _context.JobApplications
-                .Include(a => a.Applicant)
+                .Include(a => a.Applicant).ThenInclude(u => u!.Educations)
+                .Include(a => a.Applicant).ThenInclude(u => u!.Experiences)
+                .Include(a => a.Applicant).ThenInclude(u => u!.Skills).ThenInclude(us => us.Skill)
                 .Include(a => a.Status)
                 .Include(a => a.Job)
                 .Where(a => a.JobId == jobId && a.Job!.EmployerId == employerId && !a.IsWithdrawn)
                 .AsQueryable();
+
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
