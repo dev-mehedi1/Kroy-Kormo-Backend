@@ -1,13 +1,14 @@
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using Sob_Need_Server.Context;
-using Sob_Need_Server.DTOs.Jobs;
-using Sob_Need_Server.Models.Jobs;
 using Microsoft.AspNetCore.SignalR;
-using Sob_Need_Server.SignalR;
-using Sob_Need_Server.Interface.Notification;
-using Sob_Need_Server.DTOs.Notification;
+using Microsoft.EntityFrameworkCore;
 using Models.Products;
+using Sob_Need_Server.Context;
+using Sob_Need_Server.DTOs.Common;
+using Sob_Need_Server.DTOs.Jobs;
+using Sob_Need_Server.DTOs.Notification;
+using Sob_Need_Server.Interface.Notification;
+using Sob_Need_Server.Models.Jobs;
+using Sob_Need_Server.SignalR;
 
 namespace Sob_Need_Server.Services.Jobs
 {
@@ -119,17 +120,50 @@ namespace Sob_Need_Server.Services.Jobs
             return true;
         }
 
-        public async Task<IEnumerable<JobApplicationDto>> GetJobApplicationsAsync(Guid jobId, Guid employerId)
+        public async Task<PaginatedResponseDto<JobApplicationDto>> GetJobApplicationsAsync(Guid jobId, Guid employerId, ApplicationFilterDto filter)
         {
-            var apps = await _context.JobApplications
+            var query = _context.JobApplications
                 .Include(a => a.Applicant)
                 .Include(a => a.Status)
                 .Include(a => a.Job)
                 .Where(a => a.JobId == jobId && a.Job!.EmployerId == employerId && !a.IsWithdrawn)
-                .OrderByDescending(a => a.CreatedAt)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                query = query.Where(a => a.Applicant!.FullName.Contains(filter.Keyword) || a.CoverLetter!.Contains(filter.Keyword));
+            }
+
+            if (!string.IsNullOrEmpty(filter.Status) && filter.Status != "All")
+            {
+                query = query.Where(a => a.Status.StatusName == filter.Status);
+            }
+
+            query = filter.SortBy?.ToLower() switch
+            {
+                "oldest" => query.OrderBy(a => a.CreatedAt),
+                "name" => query.OrderBy(a => a.Applicant!.FullName),
+                _ => query.OrderByDescending(a => a.CreatedAt)
+            };
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize)
                 .ToListAsync();
 
-            return _mapper.Map<IEnumerable<JobApplicationDto>>(apps);
+            var dtos = _mapper.Map<IEnumerable<JobApplicationDto>>(items);
+
+            return new PaginatedResponseDto<JobApplicationDto>
+            {
+                Data = dtos,
+                TotalCount = totalCount,
+                Page = filter.PageNumber,
+                PageSize = filter.PageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)filter.PageSize),
+                HasNextPage = filter.PageNumber < (int)Math.Ceiling(totalCount / (double)filter.PageSize),
+                HasPreviousPage = filter.PageNumber > 1
+            };
         }
 
         public async Task<JobApplicationDto?> GetApplicationDetailAsync(Guid applicationId, Guid userId)
@@ -144,17 +178,65 @@ namespace Sob_Need_Server.Services.Jobs
             return _mapper.Map<JobApplicationDto>(app);
         }
 
-        public async Task<IEnumerable<JobApplicationDto>> GetUserApplicationsAsync(Guid applicantId)
+        public async Task<PaginatedResponseDto<JobApplicationDto>> GetUserApplicationsAsync(Guid applicantId, ApplicationFilterDto filter)
         {
-            var apps = await _context.JobApplications
+            var query = _context.JobApplications
                 .Include(a => a.Job).ThenInclude(j => j!.Product)
                 .Include(a => a.Job).ThenInclude(j => j!.CompanyProfile)
                 .Include(a => a.Status)
                 .Where(a => a.ApplicantId == applicantId)
-                .OrderByDescending(a => a.CreatedAt)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                query = query.Where(a => a.Job!.Product!.Title.Contains(filter.Keyword) || a.Job!.CompanyProfile!.CompanyName.Contains(filter.Keyword));
+            }
+
+            if (!string.IsNullOrEmpty(filter.Status) && filter.Status != "All")
+            {
+                // Simple status filtering for candidate dashboard tabs
+                if (filter.Status == "Active")
+                {
+                    query = query.Where(a => new[] { "Pending", "Reviewing", "Screening" }.Contains(a.Status.StatusName));
+                }
+                else if (filter.Status == "Interviewing")
+                {
+                    query = query.Where(a => new[] { "Interview", "Interviewing" }.Contains(a.Status.StatusName));
+                }
+                else if (filter.Status == "Archived")
+                {
+                    query = query.Where(a => new[] { "Rejected", "Withdrawn", "Offered" }.Contains(a.Status.StatusName));
+                }
+                else
+                {
+                    query = query.Where(a => a.Status.StatusName == filter.Status);
+                }
+            }
+
+            query = filter.SortBy?.ToLower() switch
+            {
+                "oldest" => query.OrderBy(a => a.CreatedAt),
+                _ => query.OrderByDescending(a => a.CreatedAt)
+            };
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize)
                 .ToListAsync();
 
-            return _mapper.Map<IEnumerable<JobApplicationDto>>(apps);
+            var dtos = _mapper.Map<IEnumerable<JobApplicationDto>>(items);
+
+            return new PaginatedResponseDto<JobApplicationDto>
+            {
+                Data = dtos,
+                TotalCount = totalCount,
+                Page = filter.PageNumber,
+                PageSize = filter.PageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)filter.PageSize),
+                HasNextPage = filter.PageNumber < (int)Math.Ceiling(totalCount / (double)filter.PageSize),
+                HasPreviousPage = filter.PageNumber > 1
+            };
         }
 
         public async Task<IEnumerable<ApplicationStatusHistoryDto>> GetApplicationHistoryAsync(Guid applicationId)

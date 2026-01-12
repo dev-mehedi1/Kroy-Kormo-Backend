@@ -14,7 +14,7 @@ namespace Sob_Need_Server.Services.Jobs
         // Search and Filtering
         Task<PaginatedResponseDto<JobListingDto>> SearchJobsAsync(JobSearchFilter filter);
 
-        Task<IEnumerable<JobListingDto>> GetEmployerJobsAsync(Guid employerId);
+        Task<PaginatedResponseDto<JobListingDto>> GetEmployerJobsAsync(Guid employerId, JobSearchFilter filter);
         
         // Job Status & Management
         Task<bool> UpdateJobStatusAsync(Guid jobId, Guid employerId, string status);

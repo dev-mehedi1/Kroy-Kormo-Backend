@@ -1,4 +1,6 @@
 using Sob_Need_Server.DTOs.Jobs;
+using Sob_Need_Server.DTOs.Common;
+
 
 namespace Sob_Need_Server.Services.Jobs
 {
@@ -10,11 +12,12 @@ namespace Sob_Need_Server.Services.Jobs
         
         // Employer Actions
         Task<bool> UpdateApplicationStatusAsync(Guid applicationId, Guid employerId, Guid statusId, string? notes);
-        Task<IEnumerable<JobApplicationDto>> GetJobApplicationsAsync(Guid jobId, Guid employerId);
+        Task<PaginatedResponseDto<JobApplicationDto>> GetJobApplicationsAsync(Guid jobId, Guid employerId, ApplicationFilterDto filter);
         Task<JobApplicationDto?> GetApplicationDetailAsync(Guid applicationId, Guid userId);
         
         // Applicant Actions
-        Task<IEnumerable<JobApplicationDto>> GetUserApplicationsAsync(Guid applicantId);
+        Task<PaginatedResponseDto<JobApplicationDto>> GetUserApplicationsAsync(Guid applicantId, ApplicationFilterDto filter);
+
         
         // History & Analytics
         Task<IEnumerable<ApplicationStatusHistoryDto>> GetApplicationHistoryAsync(Guid applicationId);

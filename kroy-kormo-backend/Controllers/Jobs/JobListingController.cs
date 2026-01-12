@@ -88,13 +88,13 @@ namespace Sob_Need_Server.Controllers.Jobs
 
         [HttpGet("my-jobs")]
         [Authorize]
-        public async Task<IActionResult> GetMyJobs()
+        public async Task<IActionResult> GetMyJobs([FromQuery] JobSearchFilter filter)
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
             var userId = Guid.Parse(userIdStr);
-            var jobs = await _jobService.GetEmployerJobsAsync(userId);
-            return Ok(new ResponseDto<IEnumerable<JobListingDto>>(true, "Employer jobs retrieved", jobs));
+            var result = await _jobService.GetEmployerJobsAsync(userId, filter);
+            return Ok(new ResponseDto<PaginatedResponseDto<JobListingDto>>(true, "Employer jobs retrieved", result));
         }
 
         // Lookups

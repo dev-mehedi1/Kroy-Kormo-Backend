@@ -34,13 +34,13 @@ namespace Sob_Need_Server.Controllers.Jobs
         }
 
         [HttpGet("my-applications")]
-        public async Task<IActionResult> GetMyApplications()
+        public async Task<IActionResult> GetMyApplications([FromQuery] ApplicationFilterDto filter)
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
             var userId = Guid.Parse(userIdStr);
-            var result = await _applicationService.GetUserApplicationsAsync(userId);
-            return Ok(new ResponseDto<IEnumerable<JobApplicationDto>>(true, "User applications retrieved", result));
+            var result = await _applicationService.GetUserApplicationsAsync(userId, filter);
+            return Ok(new ResponseDto<PaginatedResponseDto<JobApplicationDto>>(true, "User applications retrieved", result));
         }
 
         [HttpGet("{id}")]
@@ -66,13 +66,13 @@ namespace Sob_Need_Server.Controllers.Jobs
 
         // Employer endpoints
         [HttpGet("job/{jobId}")]
-        public async Task<IActionResult> GetApplicationsForJob(Guid jobId)
+        public async Task<IActionResult> GetApplicationsForJob(Guid jobId, [FromQuery] ApplicationFilterDto filter)
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
             var userId = Guid.Parse(userIdStr);
-            var result = await _applicationService.GetJobApplicationsAsync(jobId, userId);
-            return Ok(new ResponseDto<IEnumerable<JobApplicationDto>>(true, "Job applications retrieved", result));
+            var result = await _applicationService.GetJobApplicationsAsync(jobId, userId, filter);
+            return Ok(new ResponseDto<PaginatedResponseDto<JobApplicationDto>>(true, "Job applications retrieved", result));
         }
 
         [HttpPatch("{id}/status")]

@@ -221,15 +221,44 @@ namespace Sob_Need_Server.Services.Jobs
             };
         }
 
-        public async Task<IEnumerable<JobListingDto>> GetEmployerJobsAsync(Guid employerId)
+        public async Task<PaginatedResponseDto<JobListingDto>> GetEmployerJobsAsync(Guid employerId, JobSearchFilter filter)
         {
-            var jobs = await _context.JobListings
+            var query = _context.JobListings
                 .Include(j => j.Product)
+                .Include(j => j.JobType)
+                .Include(j => j.ExperienceLevel)
                 .Where(j => j.EmployerId == employerId && j.IsActive)
-                .OrderByDescending(j => j.CreatedAt)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                query = query.Where(j => j.Product!.Title.Contains(filter.Keyword) || j.Product!.Description.Contains(filter.Keyword));
+            }
+
+            query = filter.SortBy?.ToLower() switch
+            {
+                "oldest" => query.OrderBy(j => j.CreatedAt),
+                _ => query.OrderByDescending(j => j.CreatedAt)
+            };
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize)
                 .ToListAsync();
 
-            return _mapper.Map<IEnumerable<JobListingDto>>(jobs);
+            var dtos = _mapper.Map<IEnumerable<JobListingDto>>(items);
+
+            return new PaginatedResponseDto<JobListingDto>
+            {
+                Data = dtos,
+                TotalCount = totalCount,
+                Page = filter.PageNumber,
+                PageSize = filter.PageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)filter.PageSize),
+                HasNextPage = filter.PageNumber < (int)Math.Ceiling(totalCount / (double)filter.PageSize),
+                HasPreviousPage = filter.PageNumber > 1
+            };
         }
 
         public async Task<bool> UpdateJobStatusAsync(Guid jobId, Guid employerId, string status)
