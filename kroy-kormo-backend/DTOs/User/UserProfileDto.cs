@@ -41,7 +41,9 @@ namespace Sob_Need_Server.DTOs.User
         public Guid ResumeId { get; set; }
         public string FileName { get; set; } = null!;
         public string FileUrl { get; set; } = null!;
+        public string? FileId { get; set; }
         public string FileType { get; set; } = null!;
+        public long FileSize { get; set; }
         public bool IsDefault { get; set; }
         public DateTime UploadedAt { get; set; }
     }
@@ -51,11 +53,31 @@ namespace Sob_Need_Server.DTOs.User
         public Guid UserId { get; set; }
         public string FullName { get; set; } = null!;
         public string? Bio { get; set; }
+        public string? AboutMe { get; set; }
         public string? ProfilePicture { get; set; }
+        
+        // Salary Information
+        public decimal? CurrentSalary { get; set; }
+        public decimal? ExpectedSalary { get; set; }
+        public bool IsSalaryVisible { get; set; }
+        
+        // Experience Tracking
+        public bool IsFresher { get; set; }
+        public int? TotalExperienceMonths { get; set; }
         
         public List<UserEducationDto> Educations { get; set; } = new();
         public List<UserExperienceDto> Experiences { get; set; } = new();
         public List<UserSkillDto> Skills { get; set; } = new();
         public List<UserResumeDto> Resumes { get; set; } = new();
+    }
+
+    public class UpdateProfileDto
+    {
+        public string? Bio { get; set; }
+        public string? AboutMe { get; set; }
+        public decimal? CurrentSalary { get; set; }
+        public decimal? ExpectedSalary { get; set; }
+        public bool? IsSalaryVisible { get; set; }
+        public bool? IsFresher { get; set; }
     }
 }

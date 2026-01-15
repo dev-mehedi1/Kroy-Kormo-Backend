@@ -21,6 +21,12 @@ namespace Sob_Need_Server.DTOs.Jobs
         public string? ResumeUrl { get; set; }
         public Guid? AttachmentId { get; set; }
         
+        public decimal? CurrentSalary { get; set; }
+        public decimal? ExpectedSalary { get; set; }
+        public bool IsFresher { get; set; }
+        public int? TotalExperienceMonths { get; set; }
+        public string? AboutMeSnapshot { get; set; }
+        
         public bool IsShortlisted { get; set; }
         public bool IsRejected { get; set; }
         public string? EmployerNotes { get; set; }
@@ -43,6 +49,7 @@ namespace Sob_Need_Server.DTOs.Jobs
         public Guid JobId { get; set; }
         public string? CoverLetter { get; set; }
         public Guid? ResumeId { get; set; } // Link to uploaded UserResume or new Attachment
+        public decimal? ExpectedSalary { get; set; }
         public string? AdditionalInfo { get; set; }
     }
 

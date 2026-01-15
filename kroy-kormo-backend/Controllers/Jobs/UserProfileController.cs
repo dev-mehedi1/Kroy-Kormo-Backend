@@ -13,10 +13,12 @@ namespace Sob_Need_Server.Controllers.Jobs
     public class UserProfileController : ControllerBase
     {
         private readonly IUserProfileService _profileService;
+        private readonly IProfileValidationService _validationService;
 
-        public UserProfileController(IUserProfileService profileService)
+        public UserProfileController(IUserProfileService profileService, IProfileValidationService validationService)
         {
             _profileService = profileService;
+            _validationService = validationService;
         }
 
         [HttpGet]
@@ -29,13 +31,23 @@ namespace Sob_Need_Server.Controllers.Jobs
             return Ok(new ResponseDto<ExtendedProfileDto>(true, "Profile retrieved", profile!));
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet("{userId:guid}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetUserProfile(Guid userId)
         {
             var profile = await _profileService.GetProfileByUserIdAsync(userId);
             if (profile == null) return NotFound(new ResponseDto<object>(false, "Profile not found", null!));
             return Ok(new ResponseDto<ExtendedProfileDto>(true, "Profile retrieved", profile));
+        }
+
+        [HttpGet("validation-status")]
+        public async Task<IActionResult> GetValidationStatus()
+        {
+            var userIdStr = User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
+            var validation = await _validationService.ValidateProfileForJobApplicationAsync(userId);
+            return Ok(new ResponseDto<ProfileValidationResult>(true, "Validation status retrieved", validation));
         }
 
         // Education
@@ -107,11 +119,35 @@ namespace Sob_Need_Server.Controllers.Jobs
 
         // Resumes
         [HttpPost("resume")]
-        public async Task<IActionResult> UploadResume([FromBody] UserResumeDto dto)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadResume(IFormFile file, string? title = null)
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
-            var result = await _profileService.UploadResumeAsync(userId, dto);
+            var result = await _profileService.UploadResumeAsync(userId, file, title);
             return Ok(new ResponseDto<UserResumeDto>(true, "Resume uploaded", result));
+        }
+
+        [HttpPost("generate-cv")]
+        public async Task<IActionResult> GenerateCV()
+        {
+            var userId = Guid.Parse(User.FindFirstValue("UserId")!);
+            try
+            {
+                var result = await _profileService.GenerateAndUploadCVAsync(userId);
+                return Ok(new ResponseDto<UserResumeDto>(true, "CV generated and uploaded", result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto<object>(false, ex.Message, null!));
+            }
+        }
+
+        [HttpPatch]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+        {
+            var userId = Guid.Parse(User.FindFirstValue("UserId")!);
+            var result = await _profileService.UpdateProfileAsync(userId, dto);
+            return Ok(new ResponseDto<ExtendedProfileDto>(true, "Profile updated successfully", result));
         }
 
         [HttpPatch("resume/{id}/default")]

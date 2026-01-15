@@ -2,8 +2,9 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.User;
-using Sob_Need_Server.Models.Users;
 using Sob_Need_Server.Models.Jobs;
+using Sob_Need_Server.Models.Users;
+using Sob_Need_Server.Services.Storage;
 
 namespace Sob_Need_Server.Services.Jobs
 {
@@ -11,11 +12,19 @@ namespace Sob_Need_Server.Services.Jobs
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IFileUploadService _fileUploadService;
+        private readonly ICVGenerationService _cvGenerationService;
 
-        public UserProfileService(AppDbContext context, IMapper mapper)
+        public UserProfileService(
+            AppDbContext context, 
+            IMapper mapper, 
+            IFileUploadService fileUploadService,
+            ICVGenerationService cvGenerationService)
         {
             _context = context;
             _mapper = mapper;
+            _fileUploadService = fileUploadService;
+            _cvGenerationService = cvGenerationService;
         }
 
         public async Task<ExtendedProfileDto?> GetProfileByUserIdAsync(Guid userId)
@@ -135,22 +144,51 @@ namespace Sob_Need_Server.Services.Jobs
             return true;
         }
 
-        public async Task<UserResumeDto> UploadResumeAsync(Guid userId, UserResumeDto dto)
+        public async Task<UserResumeDto> UploadResumeAsync(Guid userId, IFormFile file, string? title = null)
         {
-            var resume = _mapper.Map<UserResume>(dto);
-            resume.UserId = userId;
-            
-            // If first resume or set as default, unset others
-            if (dto.IsDefault || !await _context.UserResumes.AnyAsync(r => r.UserId == userId))
+            var options = new FileUploadOptions
             {
-                var others = await _context.UserResumes.Where(r => r.UserId == userId).ToListAsync();
-                foreach (var r in others) r.IsDefault = false;
-                resume.IsDefault = true;
+                AllowedExtensions = new[] { "pdf" },
+                MaxFileSizeMB = 5
+            };
+
+            var uploadResult = await _fileUploadService.UploadAsync(file, options);
+            if (!uploadResult.Success)
+            {
+                throw new Exception(uploadResult.ErrorMessage ?? "File upload failed");
             }
+
+            var resume = new UserResume
+            {
+                UserId = userId,
+                FileName = uploadResult.FileName,
+                FileUrl = uploadResult.FileUrl,
+                FileId = uploadResult.FileId,
+                FileSize = uploadResult.FileSize,
+                FileType = "pdf",
+                ResumeTitle = title ?? Path.GetFileNameWithoutExtension(file.FileName),
+                IsDefault = !await _context.UserResumes.AnyAsync(r => r.UserId == userId),
+                UploadedAt = DateTime.UtcNow
+            };
 
             _context.UserResumes.Add(resume);
             await _context.SaveChangesAsync();
             return _mapper.Map<UserResumeDto>(resume);
+        }
+
+        public async Task<UserResumeDto> GenerateAndUploadCVAsync(Guid userId)
+        {
+            var pdfBytes = await _cvGenerationService.GeneratePdfCVAsync(userId);
+            var fileName = $"CV_{DateTime.UtcNow:yyyyMMddHHmmss}.pdf";
+            
+            using var stream = new MemoryStream(pdfBytes);
+            var file = new FormFile(stream, 0, pdfBytes.Length, "file", fileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "application/pdf"
+            };
+
+            return await UploadResumeAsync(userId, file, "Online Generated CV");
         }
 
         public async Task<bool> SetDefaultResumeAsync(Guid userId, Guid resumeId)
@@ -173,6 +211,23 @@ namespace Sob_Need_Server.Services.Jobs
             _context.UserResumes.Remove(resume);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<ExtendedProfileDto> UpdateProfileAsync(Guid userId, UpdateProfileDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user == null) throw new Exception("User not found");
+
+            // Update allowed fields
+            if (dto.Bio != null) user.Bio = dto.Bio;
+            if (dto.AboutMe != null) user.AboutMe = dto.AboutMe;
+            if (dto.CurrentSalary.HasValue) user.CurrentSalary = dto.CurrentSalary;
+            if (dto.ExpectedSalary.HasValue) user.ExpectedSalary = dto.ExpectedSalary;
+            if (dto.IsSalaryVisible.HasValue) user.IsSalaryVisible = dto.IsSalaryVisible.Value;
+            if (dto.IsFresher.HasValue) user.IsFresher = dto.IsFresher.Value;
+            
+            await _context.SaveChangesAsync();
+            return _mapper.Map<ExtendedProfileDto>(user);
         }
 
     }

@@ -217,6 +217,11 @@ namespace Mappings
                 .ForMember(dest => dest.Educations, opt => opt.MapFrom(src => src.Applicant != null ? src.Applicant.Educations : null))
                 .ForMember(dest => dest.Experiences, opt => opt.MapFrom(src => src.Applicant != null ? src.Applicant.Experiences : null))
                 .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.Applicant != null ? src.Applicant.Skills : null))
+                .ForMember(dest => dest.CurrentSalary, opt => opt.MapFrom(src => src.CurrentSalary))
+                .ForMember(dest => dest.ExpectedSalary, opt => opt.MapFrom(src => src.ExpectedSalary))
+                .ForMember(dest => dest.IsFresher, opt => opt.MapFrom(src => src.IsFresher))
+                .ForMember(dest => dest.TotalExperienceMonths, opt => opt.MapFrom(src => src.TotalExperienceMonths))
+                .ForMember(dest => dest.AboutMeSnapshot, opt => opt.MapFrom(src => src.AboutMeSnapshot))
                 .ReverseMap();
 
 

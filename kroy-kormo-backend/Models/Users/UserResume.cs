@@ -19,6 +19,9 @@ namespace Sob_Need_Server.Models.Users
         [MaxLength(1000)]
         public string FileUrl { get; set; } = null!;
         
+        [MaxLength(255)]
+        public string? FileId { get; set; }
+        
         [Required]
         public long FileSize { get; set; } // In bytes
         
