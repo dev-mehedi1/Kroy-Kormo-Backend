@@ -4,7 +4,6 @@ using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.User;
 using Sob_Need_Server.Models.Jobs;
 using Sob_Need_Server.Models.Users;
-using Sob_Need_Server.Services.Storage;
 
 namespace Sob_Need_Server.Services.Jobs
 {
@@ -12,19 +11,13 @@ namespace Sob_Need_Server.Services.Jobs
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IFileUploadService _fileUploadService;
-        private readonly ICVGenerationService _cvGenerationService;
 
         public UserProfileService(
             AppDbContext context, 
-            IMapper mapper, 
-            IFileUploadService fileUploadService,
-            ICVGenerationService cvGenerationService)
+            IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
-            _fileUploadService = fileUploadService;
-            _cvGenerationService = cvGenerationService;
         }
 
         public async Task<ExtendedProfileDto?> GetProfileByUserIdAsync(Guid userId)
@@ -144,29 +137,13 @@ namespace Sob_Need_Server.Services.Jobs
             return true;
         }
 
-        public async Task<UserResumeDto> UploadResumeAsync(Guid userId, IFormFile file, string? title = null)
+        public async Task<UserResumeDto> AddResumeAsync(Guid userId, string resumeUrl, string title)
         {
-            var options = new FileUploadOptions
-            {
-                AllowedExtensions = new[] { "pdf" },
-                MaxFileSizeMB = 5
-            };
-
-            var uploadResult = await _fileUploadService.UploadAsync(file, options);
-            if (!uploadResult.Success)
-            {
-                throw new Exception(uploadResult.ErrorMessage ?? "File upload failed");
-            }
-
             var resume = new UserResume
             {
                 UserId = userId,
-                FileName = uploadResult.FileName,
-                FileUrl = uploadResult.FileUrl,
-                FileId = uploadResult.FileId,
-                FileSize = uploadResult.FileSize,
-                FileType = "pdf",
-                ResumeTitle = title ?? Path.GetFileNameWithoutExtension(file.FileName),
+                ResumeUrl = resumeUrl,
+                ResumeTitle = title,
                 IsDefault = !await _context.UserResumes.AnyAsync(r => r.UserId == userId),
                 UploadedAt = DateTime.UtcNow
             };
@@ -174,21 +151,6 @@ namespace Sob_Need_Server.Services.Jobs
             _context.UserResumes.Add(resume);
             await _context.SaveChangesAsync();
             return _mapper.Map<UserResumeDto>(resume);
-        }
-
-        public async Task<UserResumeDto> GenerateAndUploadCVAsync(Guid userId)
-        {
-            var pdfBytes = await _cvGenerationService.GeneratePdfCVAsync(userId);
-            var fileName = $"CV_{DateTime.UtcNow:yyyyMMddHHmmss}.pdf";
-            
-            using var stream = new MemoryStream(pdfBytes);
-            var file = new FormFile(stream, 0, pdfBytes.Length, "file", fileName)
-            {
-                Headers = new HeaderDictionary(),
-                ContentType = "application/pdf"
-            };
-
-            return await UploadResumeAsync(userId, file, "Online Generated CV");
         }
 
         public async Task<bool> SetDefaultResumeAsync(Guid userId, Guid resumeId)

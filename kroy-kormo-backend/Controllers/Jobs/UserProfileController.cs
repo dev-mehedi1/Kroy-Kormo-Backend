@@ -117,30 +117,20 @@ namespace Sob_Need_Server.Controllers.Jobs
             return success ? Ok(new ResponseDto<object>(true, "Skill removed", null!)) : NotFound(new ResponseDto<object>(false, "Skill not found on profile", null!));
         }
 
-        // Resumes
         [HttpPost("resume")]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadResume(IFormFile file, string? title = null)
+        public async Task<IActionResult> AddResume([FromBody] AddResumeRequest request)
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
-            var result = await _profileService.UploadResumeAsync(userId, file, title);
-            return Ok(new ResponseDto<UserResumeDto>(true, "Resume uploaded", result));
+            var result = await _profileService.AddResumeAsync(userId, request.ResumeUrl, request.ResumeTitle);
+            return Ok(new ResponseDto<UserResumeDto>(true, "Resume added", result));
         }
 
-        [HttpPost("generate-cv")]
-        public async Task<IActionResult> GenerateCV()
+        public class AddResumeRequest
         {
-            var userId = Guid.Parse(User.FindFirstValue("UserId")!);
-            try
-            {
-                var result = await _profileService.GenerateAndUploadCVAsync(userId);
-                return Ok(new ResponseDto<UserResumeDto>(true, "CV generated and uploaded", result));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>(false, ex.Message, null!));
-            }
+            public string ResumeUrl { get; set; } = null!;
+            public string ResumeTitle { get; set; } = null!;
         }
+
 
         [HttpPatch]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)

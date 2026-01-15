@@ -26,7 +26,6 @@ using Sob_Need_Server.Services.Jobs;
 
 using Sob_Need_Server.Services.Jobs; // Added
 using Sob_Need_Server.Interface.Jobs; // Added
-using Sob_Need_Server.Services.Storage; // Added for Google Drive
 
 namespace Sob_Need_Server.Extensions;
 
@@ -71,11 +70,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IJobRecommendationService, JobRecommendationService>();
         services.AddScoped<ISavedJobService, SavedJobService>();
         services.AddScoped<IProfileValidationService, ProfileValidationService>();
-        services.AddScoped<ICVGenerationService, CVGenerationService>();
-
-        // Storage Services (Google Drive)
-        services.AddSingleton<IGoogleDriveService, GoogleDriveService>();
-        services.AddScoped<IFileUploadService, FileUploadService>();
 
         return services;
 

@@ -26,8 +26,7 @@ namespace Sob_Need_Server.Services.Jobs
         Task<ExtendedProfileDto> UpdateProfileAsync(Guid userId, UpdateProfileDto dto);
         
         // Resumes
-        Task<UserResumeDto> UploadResumeAsync(Guid userId, IFormFile file, string? title = null);
-        Task<UserResumeDto> GenerateAndUploadCVAsync(Guid userId);
+        Task<UserResumeDto> AddResumeAsync(Guid userId, string resumeUrl, string title);
         Task<bool> SetDefaultResumeAsync(Guid userId, Guid resumeId);
         Task<bool> DeleteResumeAsync(Guid userId, Guid resumeId);
     }

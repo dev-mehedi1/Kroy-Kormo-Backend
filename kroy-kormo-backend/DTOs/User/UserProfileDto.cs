@@ -39,11 +39,8 @@ namespace Sob_Need_Server.DTOs.User
     public class UserResumeDto
     {
         public Guid ResumeId { get; set; }
-        public string FileName { get; set; } = null!;
-        public string FileUrl { get; set; } = null!;
-        public string? FileId { get; set; }
-        public string FileType { get; set; } = null!;
-        public long FileSize { get; set; }
+        public string ResumeUrl { get; set; } = null!;
+        public string? ResumeTitle { get; set; }
         public bool IsDefault { get; set; }
         public DateTime UploadedAt { get; set; }
     }
