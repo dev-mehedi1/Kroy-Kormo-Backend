@@ -159,7 +159,14 @@ namespace Sob_Need_Server.Services.Jobs
 
             // Filtering
             if (!string.IsNullOrEmpty(filter.Keyword))
-                query = query.Where(j => j.Product!.Title.Contains(filter.Keyword) || j.Product!.Description.Contains(filter.Keyword));
+            {
+                var keyword = filter.Keyword.ToLower();
+
+                query = query.Where(j =>
+                    j.Product!.Title.ToLower().Contains(keyword) ||
+                    j.Product!.Description.ToLower().Contains(keyword)
+                );
+            }
 
             if (filter.CategoryId.HasValue)
                 query = query.Where(j => j.CategoryId == filter.CategoryId.Value);
