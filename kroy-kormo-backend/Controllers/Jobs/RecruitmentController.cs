@@ -30,6 +30,14 @@ namespace Sob_Need_Server.Controllers.Jobs
             return Ok(new ResponseDto<IEnumerable<CompanyProfileDto>>(true, "Company profiles retrieved", result));
         }
 
+        [HttpGet("company")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetCompanyProfiles()
+        {
+            var result = await _recruitmentService.GetAllCompanyProfilesAsync();
+            return Ok(new ResponseDto<IEnumerable<CompanyProfileDto>>(true, "All company profiles retrieved", result));
+        }
+
         [HttpPost("company")]
         public async Task<IActionResult> CreateCompany([FromBody] CompanyProfileDto dto)
         {

@@ -40,14 +40,46 @@ namespace Sob_Need_Server.Services.Jobs
 
         public async Task<CompanyProfileDto?> GetCompanyProfileAsync(Guid companyId)
         {
-            var profile = await _context.CompanyProfiles.FindAsync(companyId);
-            return _mapper.Map<CompanyProfileDto>(profile);
+            var profile = await _context.CompanyProfiles
+                .Include(p => p.JobListings)
+                .FirstOrDefaultAsync(p => p.CompanyId == companyId);
+            
+            if (profile == null) return null;
+
+            var dto = _mapper.Map<CompanyProfileDto>(profile);
+            dto.ActiveJobCount = profile.JobListings.Count(j => j.IsActive && j.JobStatus == "Active");
+            return dto;
         }
 
         public async Task<IEnumerable<CompanyProfileDto>> GetUserCompanyProfilesAsync(Guid userId)
         {
-            var profiles = await _context.CompanyProfiles.Where(p => p.UserId == userId).ToListAsync();
-            return _mapper.Map<IEnumerable<CompanyProfileDto>>(profiles);
+            var profiles = await _context.CompanyProfiles
+                .Include(p => p.JobListings)
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
+
+            var dtos = _mapper.Map<IEnumerable<CompanyProfileDto>>(profiles);
+            foreach (var dto in dtos)
+            {
+                var profile = profiles.First(p => p.CompanyId == dto.CompanyId);
+                dto.ActiveJobCount = profile.JobListings.Count(j => j.IsActive && j.JobStatus == "Active");
+            }
+            return dtos;
+        }
+
+        public async Task<IEnumerable<CompanyProfileDto>> GetAllCompanyProfilesAsync()
+        {
+            var profiles = await _context.CompanyProfiles
+                .Include(p => p.JobListings)
+                .ToListAsync();
+
+            var dtos = _mapper.Map<IEnumerable<CompanyProfileDto>>(profiles);
+            foreach (var dto in dtos)
+            {
+                var profile = profiles.First(p => p.CompanyId == dto.CompanyId);
+                dto.ActiveJobCount = profile.JobListings.Count(j => j.IsActive && j.JobStatus == "Active");
+            }
+            return dtos;
         }
 
         public async Task<InterviewDto> ScheduleInterviewAsync(Guid employerId, InterviewDto dto)

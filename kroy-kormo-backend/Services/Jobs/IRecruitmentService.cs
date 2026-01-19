@@ -9,6 +9,7 @@ namespace Sob_Need_Server.Services.Jobs
         Task<CompanyProfileDto> UpdateCompanyProfileAsync(Guid userId, CompanyProfileDto dto);
         Task<CompanyProfileDto?> GetCompanyProfileAsync(Guid companyId);
         Task<IEnumerable<CompanyProfileDto>> GetUserCompanyProfilesAsync(Guid userId);
+        Task<IEnumerable<CompanyProfileDto>> GetAllCompanyProfilesAsync();
         
         // Interviews
         Task<InterviewDto> ScheduleInterviewAsync(Guid employerId, InterviewDto dto);
