@@ -8,6 +8,7 @@ namespace Sob_Need_Server.Services.Jobs
         Task<CompanyProfileDto> CreateCompanyProfileAsync(Guid userId, CompanyProfileDto dto);
         Task<CompanyProfileDto> UpdateCompanyProfileAsync(Guid userId, CompanyProfileDto dto);
         Task<CompanyProfileDto?> GetCompanyProfileAsync(Guid companyId);
+        Task<CompanyProfileDto?> GetCompanyProfileBySlugAsync(string slug);
         Task<IEnumerable<CompanyProfileDto>> GetUserCompanyProfilesAsync(Guid userId);
         Task<IEnumerable<CompanyProfileDto>> GetAllCompanyProfilesAsync();
         

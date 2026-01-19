@@ -19,7 +19,18 @@ namespace Sob_Need_Server.Services.Jobs
         {
             var profile = _mapper.Map<CompanyProfile>(dto);
             profile.UserId = userId;
-            profile.Slug = dto.CompanyName.ToLower().Replace(" ", "-") + "-" + Guid.NewGuid().ToString().Substring(0, 5);
+            // Generate unique slug
+            string baseSlug = Sob_Need_Server.Utils.Helpers.StringUtilities.GenerateSlug(dto.CompanyName);
+            string slug = baseSlug;
+            int count = 1;
+
+            while (await _context.CompanyProfiles.AnyAsync(x => x.Slug == slug))
+            {
+                slug = $"{baseSlug}-{count}";
+                count++;
+            }
+            
+            profile.Slug = slug;
             
             _context.CompanyProfiles.Add(profile);
             await _context.SaveChangesAsync();
@@ -43,6 +54,19 @@ namespace Sob_Need_Server.Services.Jobs
             var profile = await _context.CompanyProfiles
                 .Include(p => p.JobListings)
                 .FirstOrDefaultAsync(p => p.CompanyId == companyId);
+            
+            if (profile == null) return null;
+
+            var dto = _mapper.Map<CompanyProfileDto>(profile);
+            dto.ActiveJobCount = profile.JobListings.Count(j => j.IsActive && j.JobStatus == "Active");
+            return dto;
+        }
+        
+        public async Task<CompanyProfileDto?> GetCompanyProfileBySlugAsync(string slug)
+        {
+            var profile = await _context.CompanyProfiles
+                .Include(p => p.JobListings)
+                .FirstOrDefaultAsync(p => p.Slug == slug);
             
             if (profile == null) return null;
 

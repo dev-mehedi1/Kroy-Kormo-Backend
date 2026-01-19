@@ -85,5 +85,14 @@ namespace Sob_Need_Server.Services.ProductService
                 return new ResponseDto<IEnumerable<ProductAttributeDto>>(false, ex.Message, null!);
             }
         }
+
+        public async Task<ResponseDto<IEnumerable<ProductAttributeDto>>> GetAttributesByCategorySlugAsync(string slug)
+        {
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Slug == slug);
+            if (category == null)
+                return new ResponseDto<IEnumerable<ProductAttributeDto>>(false, "Category not found", null!);
+
+            return await GetAttributesByCategoryAsync(category.CategoryId);
+        }
     }
 }

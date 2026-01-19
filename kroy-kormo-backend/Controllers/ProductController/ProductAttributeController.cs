@@ -29,11 +29,19 @@ namespace Sob_Need_Server.Controllers.ProductController
             return result.IsSuccess ? Ok(result) : NotFound(result);
         }
 
-        [HttpGet("category/{categoryId:guid}")]
-        public async Task<ActionResult<ResponseDto<IEnumerable<ProductAttributeDto>>>> GetAttributesByCategory(Guid categoryId)
+        [HttpGet("category/{categoryIdOrSlug}")]
+        public async Task<ActionResult<ResponseDto<IEnumerable<ProductAttributeDto>>>> GetAttributesByCategory(string categoryIdOrSlug)
         {
-            var result = await _productAttributeService.GetAttributesByCategoryAsync(categoryId);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            if (Guid.TryParse(categoryIdOrSlug, out Guid categoryId))
+            {
+                var result = await _productAttributeService.GetAttributesByCategoryAsync(categoryId);
+                return result.IsSuccess ? Ok(result) : BadRequest(result);
+            }
+            else
+            {
+                var result = await _productAttributeService.GetAttributesByCategorySlugAsync(categoryIdOrSlug);
+                return result.IsSuccess ? Ok(result) : BadRequest(result);
+            }
         }
     }
 }

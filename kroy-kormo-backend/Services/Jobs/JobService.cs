@@ -25,6 +25,17 @@ namespace Sob_Need_Server.Services.Jobs
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                // Generate unique slug
+                string baseSlug = Sob_Need_Server.Utils.Helpers.StringUtilities.GenerateSlug(dto.Title);
+                string slug = baseSlug;
+                int count = 1;
+
+                while (await _context.Products.AnyAsync(x => x.Slug == slug))
+                {
+                    slug = $"{baseSlug}-{count}";
+                    count++;
+                }
+
                 // 1. Create Product Entry
                 var product = new Product
                 {
@@ -35,7 +46,7 @@ namespace Sob_Need_Server.Services.Jobs
                     IsJobAd = true,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
-                    Slug = GenerateSlug(dto.Title) // Utility or manual for now
+                    Slug = slug
                 };
 
                 _context.Products.Add(product);
@@ -145,6 +156,21 @@ namespace Sob_Need_Server.Services.Jobs
             return _mapper.Map<JobListingDto>(job);
         }
 
+        public async Task<JobListingDto?> GetJobBySlugAsync(string slug)
+        {
+            var job = await _context.JobListings
+                .Include(j => j.Product)
+                .Include(j => j.Employer)
+                .Include(j => j.JobType)
+                .Include(j => j.ExperienceLevel)
+                .Include(j => j.Category)
+                .Include(j => j.CompanyProfile)
+                .Include(j => j.RequiredSkills).ThenInclude(rs => rs.Skill)
+                .FirstOrDefaultAsync(j => j.Product!.Slug == slug && j.IsActive);
+
+            return _mapper.Map<JobListingDto>(job);
+        }
+
         public async Task<PaginatedResponseDto<JobListingDto>> SearchJobsAsync(JobSearchFilter filter)
         {
             var query = _context.JobListings
@@ -168,8 +194,26 @@ namespace Sob_Need_Server.Services.Jobs
                 );
             }
 
-            if (filter.CategoryId.HasValue)
-                query = query.Where(j => j.CategoryId == filter.CategoryId.Value);
+            // Category Filtering including Subcategories
+            if (!string.IsNullOrEmpty(filter.CategorySlug) || filter.CategoryId.HasValue)
+            {
+                var category = await _context.Categories.FirstOrDefaultAsync(c => 
+                    (!string.IsNullOrEmpty(filter.CategorySlug) && c.Slug == filter.CategorySlug) ||
+                    (filter.CategoryId.HasValue && c.CategoryId == filter.CategoryId.Value));
+
+                if (category != null)
+                {
+                    var subCategoryIds = await _context.Categories
+                        .Where(c => c.ParentCategoryId == category.CategoryId)
+                        .Select(c => c.CategoryId)
+                        .ToListAsync();
+
+                    var categoryIds = new List<Guid> { category.CategoryId };
+                    categoryIds.AddRange(subCategoryIds);
+
+                    query = query.Where(j => categoryIds.Contains(j.CategoryId));
+                }
+            }
 
             if (filter.JobTypeId.HasValue)
                 query = query.Where(j => j.JobTypeId == filter.JobTypeId.Value);
@@ -197,6 +241,20 @@ namespace Sob_Need_Server.Services.Jobs
 
             if (filter.CompanyId.HasValue)
                 query = query.Where(j => j.CompanyProfileId == filter.CompanyId.Value);
+
+            if (!string.IsNullOrEmpty(filter.CompanySlug))
+            {
+                var company = await _context.CompanyProfiles.FirstOrDefaultAsync(c => c.Slug == filter.CompanySlug);
+                if (company != null)
+                {
+                    query = query.Where(j => j.CompanyProfileId == company.CompanyId);
+                }
+                else
+                {
+                    // If slug provided but company not found, return empty
+                    query = query.Where(j => false);
+                }
+            }
 
             // Sorting
             query = filter.SortBy?.ToLower() switch
@@ -312,9 +370,6 @@ namespace Sob_Need_Server.Services.Jobs
             return _mapper.Map<IEnumerable<SkillDto>>(skills);
         }
 
-        private string GenerateSlug(string title)
-        {
-            return title.ToLower().Replace(" ", "-") + "-" + Guid.NewGuid().ToString().Substring(0, 8);
-        }
+
     }
 }

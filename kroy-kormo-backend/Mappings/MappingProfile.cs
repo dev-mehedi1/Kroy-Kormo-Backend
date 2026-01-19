@@ -194,6 +194,7 @@ namespace Mappings
                 .ForMember(dest => dest.EmployerName, opt => opt.MapFrom(src => src.Employer != null ? src.Employer.FullName : null))
                 .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.CompanyProfile != null ? src.CompanyProfile.CompanyName : null))
                 .ForMember(dest => dest.CompanyLogoUrl, opt => opt.MapFrom(src => src.CompanyProfile != null ? src.CompanyProfile.LogoUrl : null))
+                .ForMember(dest => dest.CompanySlug, opt => opt.MapFrom(src => src.CompanyProfile != null ? src.CompanyProfile.Slug : null))
                 .ForMember(dest => dest.JobTypeName, opt => opt.MapFrom(src => src.JobType != null ? src.JobType.TypeName : null))
                 .ForMember(dest => dest.ExperienceLevelName, opt => opt.MapFrom(src => src.ExperienceLevel != null ? src.ExperienceLevel.LevelName : null))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : null))

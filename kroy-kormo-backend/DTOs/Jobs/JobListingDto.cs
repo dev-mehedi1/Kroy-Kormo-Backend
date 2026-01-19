@@ -29,6 +29,7 @@ namespace Sob_Need_Server.DTOs.Jobs
         public Guid? CompanyProfileId { get; set; }
         public string? CompanyName { get; set; }
         public string? CompanyLogoUrl { get; set; }
+        public string? CompanySlug { get; set; }
         
         public Guid JobTypeId { get; set; }
         public string JobTypeName { get; set; } = null!;

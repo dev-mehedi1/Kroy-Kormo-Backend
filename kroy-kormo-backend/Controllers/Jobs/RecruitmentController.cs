@@ -66,6 +66,15 @@ namespace Sob_Need_Server.Controllers.Jobs
             return Ok(new ResponseDto<CompanyProfileDto>(true, "Company profile retrieved", result!));
         }
 
+        [HttpGet("company/slug/{slug}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetCompanyBySlug(string slug)
+        {
+            var result = await _recruitmentService.GetCompanyProfileBySlugAsync(slug);
+            if (result == null) return NotFound(new ResponseDto<object>(false, "Company profile not found", null!));
+            return Ok(new ResponseDto<CompanyProfileDto>(true, "Company profile retrieved", result));
+        }
+
         // Interviews
         [HttpPost("interview")]
         public async Task<IActionResult> ScheduleInterview([FromBody] InterviewDto dto)

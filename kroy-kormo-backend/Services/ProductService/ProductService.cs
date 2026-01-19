@@ -183,9 +183,16 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            // Check if slug already exists in Products table
-            var existSlug = await _context.Products.AnyAsync(x => x.Title == productDto.Title);
-            if (existSlug) return new ResponseDto<ProductDto>(false, "A product with the same title already exists.", null!);
+            // Generate unique slug
+            string baseSlug = StringUtilities.GenerateSlug(productDto.Title);
+            string slug = baseSlug;
+            int count = 1;
+
+            while (await _context.Products.AnyAsync(x => x.Slug == slug))
+            {
+                slug = $"{baseSlug}-{count}";
+                count++;
+            }
 
             // Get UserId from token
             var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
@@ -198,7 +205,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             
             // Set fields from token/system
             product.UserId = userId;
-            product.Slug = StringUtilities.GenerateSlug(product.Title);
+            product.Slug = slug;
             product.CreatedAt = DateTime.UtcNow;
             product.CreatedBy = userIdStr;
             product.IsVerified = false;

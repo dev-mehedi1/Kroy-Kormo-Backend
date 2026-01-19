@@ -33,6 +33,14 @@ namespace Sob_Need_Server.Controllers.Jobs
             return Ok(new ResponseDto<JobListingDto>(true, "Job details retrieved", job));
         }
 
+        [HttpGet("slug/{slug}")]
+        public async Task<IActionResult> GetJobBySlug(string slug)
+        {
+            var job = await _jobService.GetJobBySlugAsync(slug);
+            if (job == null) return NotFound(new ResponseDto<object>(false, "Job not found", null!));
+            return Ok(new ResponseDto<JobListingDto>(true, "Job details retrieved", job));
+        }
+
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateJob([FromBody] CreateJobListingDto dto)
