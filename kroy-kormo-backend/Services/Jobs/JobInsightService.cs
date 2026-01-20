@@ -128,7 +128,7 @@ namespace Services.Jobs
             return recommendations
                 .OrderByDescending(r => r.MatchPercentage)
                 .ThenByDescending(r => r.MatchPercentage > 0)
-                .Take(6)
+                .Take(40)
                 .ToList();
         }
 
