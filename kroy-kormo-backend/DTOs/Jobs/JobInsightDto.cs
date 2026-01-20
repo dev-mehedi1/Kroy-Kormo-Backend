@@ -9,6 +9,7 @@ namespace Sob_Need_Server.DTOs.Jobs
         public List<JobRecommendationDto> RecommendedJobs { get; set; } = new();
         public List<ActionableStepDto> NextSteps { get; set; } = new();
         public ActivitySummaryDto ActivitySummary { get; set; } = new();
+        public string AiAnalysisSummary { get; set; } = string.Empty;
     }
 
     public class ProfileCompletenessDto
@@ -38,6 +39,7 @@ namespace Sob_Need_Server.DTOs.Jobs
         public decimal? SalaryMax { get; set; }
         public string? SalaryCurrency { get; set; }
         public bool IsRemote { get; set; }
+        public string? LocationName { get; set; }
     }
 
     public class ActionableStepDto
