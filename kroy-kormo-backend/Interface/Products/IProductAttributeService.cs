@@ -12,5 +12,8 @@ namespace Sob_Need_Server.Interface.Products
         Task<ResponseDto<IEnumerable<ProductAttributeDto>>> GetAttributesByCategorySlugAsync(string slug);
         Task<ResponseDto<ProductAttributeDto>> GetAttributeByIdAsync(Guid attributeId);
         Task<ResponseDto<IEnumerable<ProductAttributeDto>>> GetAllAttributesAsync();
+        Task<ResponseDto<ProductAttributeDto>> CreateAttributeAsync(ProductAttributeDto attributeDto);
+        Task<ResponseDto<ProductAttributeDto>> UpdateAttributeAsync(Guid attributeId, ProductAttributeDto attributeDto);
+        Task<ResponseDto<bool>> DeleteAttributeAsync(Guid attributeId);
     }
 }
