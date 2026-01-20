@@ -301,6 +301,37 @@ namespace Sob_Need_Server.Services.Jobs
             return stats;
         }
 
+        public async Task<JobStatisticsDto> GetRecruitmentStatisticsAsync(Guid userId, Guid? companyProfileId)
+        {
+            var query = _context.JobListings
+                .Include(j => j.Applications).ThenInclude(a => a.Status)
+                .Where(j => j.EmployerId == userId);
+
+            if (companyProfileId.HasValue)
+            {
+                query = query.Where(j => j.CompanyProfileId == companyProfileId.Value);
+            }
+
+            var jobs = await query.ToListAsync();
+
+            if (!jobs.Any()) return new JobStatisticsDto();
+
+            var jobIds = jobs.Select(j => j.JobId).ToList();
+
+            var stats = new JobStatisticsDto
+            {
+                ViewCount = jobs.Sum(j => j.ViewCount),
+                ApplicationCount = jobs.Sum(j => j.Applications.Count),
+                ShortlistedCount = jobs.Sum(j => j.Applications.Count(a => a.Status?.Slug == "shortlisted")),
+                InterviewCount = await _context.Interviews.CountAsync(i => jobIds.Contains(i.Application!.JobId)),
+                ApplicationsByStatus = jobs.SelectMany(j => j.Applications)
+                    .GroupBy(a => a.Status?.StatusName ?? "Unknown")
+                    .ToDictionary(g => g.Key, g => g.Count())
+            };
+
+            return stats;
+        }
+
         public async Task<InterviewDto?> SubmitInterviewFeedbackAsync(Guid employerId, InterviewFeedbackDto dto)
         {
             var interview = await _context.Interviews

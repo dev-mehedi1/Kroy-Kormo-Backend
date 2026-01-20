@@ -28,5 +28,6 @@ namespace Sob_Need_Server.Services.Jobs
         
         // Analytics
         Task<JobStatisticsDto> GetJobStatisticsAsync(Guid jobId, Guid employerId);
+        Task<JobStatisticsDto> GetRecruitmentStatisticsAsync(Guid userId, Guid? companyProfileId);
     }
 }
