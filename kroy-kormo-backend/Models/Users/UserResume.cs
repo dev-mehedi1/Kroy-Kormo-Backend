@@ -12,19 +12,8 @@ namespace Sob_Need_Server.Models.Users
         public Guid UserId { get; set; }
         
         [Required]
-        [MaxLength(500)]
-        public string FileName { get; set; } = null!;
-        
-        [Required]
         [MaxLength(1000)]
-        public string FileUrl { get; set; } = null!;
-        
-        [Required]
-        public long FileSize { get; set; } // In bytes
-        
-        [Required]
-        [MaxLength(50)]
-        public string FileType { get; set; } = null!; // PDF, DOCX, DOC
+        public string ResumeUrl { get; set; } = null!;
         
         [MaxLength(100)]
         public string? ResumeTitle { get; set; } // User-defined title (e.g., "Software Engineer Resume")
@@ -43,10 +32,6 @@ namespace Sob_Need_Server.Models.Users
         
         public DateTime? LastUsedAt { get; set; }
         
-        // Scan/Verification
-        public bool IsScanned { get; set; } = false; // Virus/malware scan
-        
-        public DateTime? ScannedAt { get; set; }
         
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
         

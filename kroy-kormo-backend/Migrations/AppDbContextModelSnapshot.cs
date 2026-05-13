@@ -302,6 +302,10 @@ namespace Sob_Need_Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AboutMe")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
                     b.Property<string>("Address")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -313,10 +317,16 @@ namespace Sob_Need_Server.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<decimal?>("CurrentSalary")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<decimal?>("ExpectedSalary")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -324,6 +334,12 @@ namespace Sob_Need_Server.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFresher")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSalaryVisible")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsVerified")
@@ -344,6 +360,9 @@ namespace Sob_Need_Server.Migrations
                     b.Property<string>("ProfilePicture")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<int?>("TotalExperienceMonths")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -1111,6 +1130,9 @@ namespace Sob_Need_Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AboutMeSnapshot")
+                        .HasColumnType("text");
+
                     b.Property<string>("AdditionalInfo")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
@@ -1138,14 +1160,23 @@ namespace Sob_Need_Server.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<decimal?>("CurrentSalary")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("EmployerNotes")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
+
+                    b.Property<decimal?>("ExpectedSalary")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("HiddenFromEmployers")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFresher")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsRejected")
@@ -1169,6 +1200,9 @@ namespace Sob_Need_Server.Migrations
 
                     b.Property<Guid?>("ReviewedBy")
                         .HasColumnType("uuid");
+
+                    b.Property<int?>("TotalExperienceMonths")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2476,31 +2510,10 @@ namespace Sob_Need_Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("FileType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("FileUrl")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsDefault")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsScanned")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastUsedAt")
@@ -2513,8 +2526,10 @@ namespace Sob_Need_Server.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<DateTime?>("ScannedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("ResumeUrl")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<int>("TimesUsed")
                         .HasColumnType("integer");

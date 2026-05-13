@@ -19,7 +19,18 @@ namespace Sob_Need_Server.Services.Jobs
         {
             var profile = _mapper.Map<CompanyProfile>(dto);
             profile.UserId = userId;
-            profile.Slug = dto.CompanyName.ToLower().Replace(" ", "-") + "-" + Guid.NewGuid().ToString().Substring(0, 5);
+            // Generate unique slug
+            string baseSlug = Sob_Need_Server.Utils.Helpers.StringUtilities.GenerateSlug(dto.CompanyName);
+            string slug = baseSlug;
+            int count = 1;
+
+            while (await _context.CompanyProfiles.AnyAsync(x => x.Slug == slug))
+            {
+                slug = $"{baseSlug}-{count}";
+                count++;
+            }
+            
+            profile.Slug = slug;
             
             _context.CompanyProfiles.Add(profile);
             await _context.SaveChangesAsync();
@@ -40,14 +51,59 @@ namespace Sob_Need_Server.Services.Jobs
 
         public async Task<CompanyProfileDto?> GetCompanyProfileAsync(Guid companyId)
         {
-            var profile = await _context.CompanyProfiles.FindAsync(companyId);
-            return _mapper.Map<CompanyProfileDto>(profile);
+            var profile = await _context.CompanyProfiles
+                .Include(p => p.JobListings)
+                .FirstOrDefaultAsync(p => p.CompanyId == companyId);
+            
+            if (profile == null) return null;
+
+            var dto = _mapper.Map<CompanyProfileDto>(profile);
+            dto.ActiveJobCount = profile.JobListings.Count(j => j.IsActive && j.JobStatus == "Active");
+            return dto;
+        }
+        
+        public async Task<CompanyProfileDto?> GetCompanyProfileBySlugAsync(string slug)
+        {
+            var profile = await _context.CompanyProfiles
+                .Include(p => p.JobListings)
+                .FirstOrDefaultAsync(p => p.Slug == slug);
+            
+            if (profile == null) return null;
+
+            var dto = _mapper.Map<CompanyProfileDto>(profile);
+            dto.ActiveJobCount = profile.JobListings.Count(j => j.IsActive && j.JobStatus == "Active");
+            return dto;
         }
 
         public async Task<IEnumerable<CompanyProfileDto>> GetUserCompanyProfilesAsync(Guid userId)
         {
-            var profiles = await _context.CompanyProfiles.Where(p => p.UserId == userId).ToListAsync();
-            return _mapper.Map<IEnumerable<CompanyProfileDto>>(profiles);
+            var profiles = await _context.CompanyProfiles
+                .Include(p => p.JobListings)
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
+
+            var dtos = _mapper.Map<IEnumerable<CompanyProfileDto>>(profiles);
+            foreach (var dto in dtos)
+            {
+                var profile = profiles.First(p => p.CompanyId == dto.CompanyId);
+                dto.ActiveJobCount = profile.JobListings.Count(j => j.IsActive && j.JobStatus == "Active");
+            }
+            return dtos;
+        }
+
+        public async Task<IEnumerable<CompanyProfileDto>> GetAllCompanyProfilesAsync()
+        {
+            var profiles = await _context.CompanyProfiles
+                .Include(p => p.JobListings)
+                .ToListAsync();
+
+            var dtos = _mapper.Map<IEnumerable<CompanyProfileDto>>(profiles);
+            foreach (var dto in dtos)
+            {
+                var profile = profiles.First(p => p.CompanyId == dto.CompanyId);
+                dto.ActiveJobCount = profile.JobListings.Count(j => j.IsActive && j.JobStatus == "Active");
+            }
+            return dtos;
         }
 
         public async Task<InterviewDto> ScheduleInterviewAsync(Guid employerId, InterviewDto dto)
@@ -238,6 +294,37 @@ namespace Sob_Need_Server.Services.Jobs
                 ShortlistedCount = job.Applications.Count(a => a.Status?.Slug == "shortlisted"),
                 InterviewCount = await _context.Interviews.CountAsync(i => i.Application!.JobId == jobId),
                 ApplicationsByStatus = job.Applications
+                    .GroupBy(a => a.Status?.StatusName ?? "Unknown")
+                    .ToDictionary(g => g.Key, g => g.Count())
+            };
+
+            return stats;
+        }
+
+        public async Task<JobStatisticsDto> GetRecruitmentStatisticsAsync(Guid userId, Guid? companyProfileId)
+        {
+            var query = _context.JobListings
+                .Include(j => j.Applications).ThenInclude(a => a.Status)
+                .Where(j => j.EmployerId == userId);
+
+            if (companyProfileId.HasValue)
+            {
+                query = query.Where(j => j.CompanyProfileId == companyProfileId.Value);
+            }
+
+            var jobs = await query.ToListAsync();
+
+            if (!jobs.Any()) return new JobStatisticsDto();
+
+            var jobIds = jobs.Select(j => j.JobId).ToList();
+
+            var stats = new JobStatisticsDto
+            {
+                ViewCount = jobs.Sum(j => j.ViewCount),
+                ApplicationCount = jobs.Sum(j => j.Applications.Count),
+                ShortlistedCount = jobs.Sum(j => j.Applications.Count(a => a.Status?.Slug == "shortlisted")),
+                InterviewCount = await _context.Interviews.CountAsync(i => jobIds.Contains(i.Application!.JobId)),
+                ApplicationsByStatus = jobs.SelectMany(j => j.Applications)
                     .GroupBy(a => a.Status?.StatusName ?? "Unknown")
                     .ToDictionary(g => g.Key, g => g.Count())
             };

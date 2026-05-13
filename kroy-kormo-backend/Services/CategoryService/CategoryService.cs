@@ -30,13 +30,14 @@ namespace Sob_Need_Server.Services.CategoryService
                 }
 
                 // Generate slug from the category name
-                string slug = StringUtilities.GenerateSlug(entity.CategoryName);
+                string baseSlug = StringUtilities.GenerateSlug(entity.CategoryName);
+                string slug = baseSlug;
+                int count = 1;
 
-                // Check if the slug already exists
-                bool slugExists = await _context.Categories.AnyAsync(x => x.Slug == slug);
-                if (slugExists)
+                while (await _context.Categories.AnyAsync(x => x.Slug == slug))
                 {
-                    return new ResponseDto<CategoryDto>(false, "A category with the same slug already exists.", null!);
+                    slug = $"{baseSlug}-{count}";
+                    count++;
                 }
 
                 // Map DTO to Entity
@@ -161,6 +162,7 @@ namespace Sob_Need_Server.Services.CategoryService
                     {
                         CategoryId = x.CategoryId,
                         CategoryName = x.CategoryName,
+                        Slug = x.Slug,
                         ParentCategoryId = x.ParentCategoryId,
                         Type = x.Type.ToString(),
                         ProductCount = x.Products.Count
@@ -245,6 +247,33 @@ namespace Sob_Need_Server.Services.CategoryService
         public Task<ResponseDto<CategoryDto>> UpdateAsync(Guid id, CategoryDto entity)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<ResponseDto<CategoryDto>> GetBySlugAsync(string slug)
+        {
+            try
+            {
+                var category = await _context.Categories
+                    .Include(c => c.Products)
+                    .FirstOrDefaultAsync(c => c.Slug == slug);
+
+                if (category == null)
+                {
+                    return new ResponseDto<CategoryDto>(false, "Category not found", null!);
+                }
+
+                var categoryDto = _mapper.Map<CategoryDto>(category);
+                
+                // If it's a parent category, we might want to fill children? 
+                // Currently GetAllAsync does full tree building, but GetBySlug usually views one category.
+                // Keeping it simple mapping for now.
+
+                return new ResponseDto<CategoryDto>(true, "Category retrieved successfully", categoryDto);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto<CategoryDto>(false, ex.Message, null!);
+            }
         }
     }
 }

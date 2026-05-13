@@ -30,6 +30,14 @@ namespace Sob_Need_Server.Controllers.Jobs
             return Ok(new ResponseDto<IEnumerable<CompanyProfileDto>>(true, "Company profiles retrieved", result));
         }
 
+        [HttpGet("company")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetCompanyProfiles()
+        {
+            var result = await _recruitmentService.GetAllCompanyProfilesAsync();
+            return Ok(new ResponseDto<IEnumerable<CompanyProfileDto>>(true, "All company profiles retrieved", result));
+        }
+
         [HttpPost("company")]
         public async Task<IActionResult> CreateCompany([FromBody] CompanyProfileDto dto)
         {
@@ -56,6 +64,15 @@ namespace Sob_Need_Server.Controllers.Jobs
         {
             var result = await _recruitmentService.GetCompanyProfileAsync(id);
             return Ok(new ResponseDto<CompanyProfileDto>(true, "Company profile retrieved", result!));
+        }
+
+        [HttpGet("company/slug/{slug}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetCompanyBySlug(string slug)
+        {
+            var result = await _recruitmentService.GetCompanyProfileBySlugAsync(slug);
+            if (result == null) return NotFound(new ResponseDto<object>(false, "Company profile not found", null!));
+            return Ok(new ResponseDto<CompanyProfileDto>(true, "Company profile retrieved", result));
         }
 
         // Interviews
@@ -179,6 +196,16 @@ namespace Sob_Need_Server.Controllers.Jobs
             var userId = Guid.Parse(userIdStr);
             var result = await _recruitmentService.GetJobStatisticsAsync(jobId, userId);
             return Ok(new ResponseDto<JobStatisticsDto>(true, "Job statistics retrieved", result));
+        }
+
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetRecruitmentStats([FromQuery] Guid? companyProfileId)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
+            var result = await _recruitmentService.GetRecruitmentStatisticsAsync(userId, companyProfileId);
+            return Ok(new ResponseDto<JobStatisticsDto>(true, "Recruitment statistics retrieved", result));
         }
     }
 

@@ -22,8 +22,11 @@ namespace Sob_Need_Server.Services.Jobs
         Task<bool> RemoveSkillAsync(Guid userId, Guid skillId);
         Task<bool> UpdateSkillProficiencyAsync(Guid userId, Guid skillId, string proficiency);
         
+        // Profile Update
+        Task<ExtendedProfileDto> UpdateProfileAsync(Guid userId, UpdateProfileDto dto);
+        
         // Resumes
-        Task<UserResumeDto> UploadResumeAsync(Guid userId, UserResumeDto dto);
+        Task<UserResumeDto> AddResumeAsync(Guid userId, string resumeUrl, string title);
         Task<bool> SetDefaultResumeAsync(Guid userId, Guid resumeId);
         Task<bool> DeleteResumeAsync(Guid userId, Guid resumeId);
     }

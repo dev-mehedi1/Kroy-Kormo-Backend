@@ -18,17 +18,26 @@ namespace Sob_Need_Server.Services.Jobs
         private readonly IMapper _mapper;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly INotificationService _notificationService;
+        private readonly IProfileValidationService _profileValidationService;
 
-        public JobApplicationService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext, INotificationService notificationService)
+        public JobApplicationService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext, INotificationService notificationService, IProfileValidationService profileValidationService)
         {
             _context = context;
             _mapper = mapper;
             _hubContext = hubContext;
             _notificationService = notificationService;
+            _profileValidationService = profileValidationService;
         }
 
         public async Task<JobApplicationDto> ApplyForJobAsync(Guid applicantId, CreateApplicationDto dto)
         {
+            // Validate profile completeness
+            var profileValidation = await _profileValidationService.ValidateProfileForJobApplicationAsync(applicantId);
+            if (!profileValidation.IsComplete)
+            {
+                throw new InvalidOperationException($"Profile incomplete: {profileValidation.Message}");
+            }
+            
             // Check if already applied
             var existing = await _context.JobApplications
                 .AnyAsync(a => a.JobId == dto.JobId && a.ApplicantId == applicantId);
@@ -42,6 +51,8 @@ namespace Sob_Need_Server.Services.Jobs
             var status = await _context.ApplicationStatuses
                 .FirstOrDefaultAsync(s => s.StatusName == "Applied" || s.Slug == "applied");
 
+            var userProfile = await _context.Users.FindAsync(applicantId);
+
             var application = new JobApplication
             {
                 JobId = dto.JobId,
@@ -49,6 +60,11 @@ namespace Sob_Need_Server.Services.Jobs
                 ApplicationStatusId = status?.ApplicationStatusId ?? Guid.Empty,
                 CoverLetter = dto.CoverLetter,
                 AttachmentId = dto.ResumeId,
+                ExpectedSalary = dto.ExpectedSalary ?? userProfile?.ExpectedSalary,
+                CurrentSalary = userProfile?.CurrentSalary,
+                IsFresher = userProfile?.IsFresher ?? true,
+                TotalExperienceMonths = userProfile?.TotalExperienceMonths,
+                AboutMeSnapshot = userProfile?.AboutMe,
                 CreatedAt = DateTime.UtcNow
             };
 

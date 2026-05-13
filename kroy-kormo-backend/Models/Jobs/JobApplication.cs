@@ -23,6 +23,12 @@ namespace Sob_Need_Server.Models.Jobs
         [MaxLength(5000)]
         public string? CoverLetter { get; set; }
         
+        public decimal? CurrentSalary { get; set; }
+        public decimal? ExpectedSalary { get; set; }
+        public bool IsFresher { get; set; }
+        public int? TotalExperienceMonths { get; set; }
+        public string? AboutMeSnapshot { get; set; }
+        
         [MaxLength(500)]
         public string? ResumeUrl { get; set; }
         

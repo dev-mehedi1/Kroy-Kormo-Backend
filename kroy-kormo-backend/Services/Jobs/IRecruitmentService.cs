@@ -8,7 +8,9 @@ namespace Sob_Need_Server.Services.Jobs
         Task<CompanyProfileDto> CreateCompanyProfileAsync(Guid userId, CompanyProfileDto dto);
         Task<CompanyProfileDto> UpdateCompanyProfileAsync(Guid userId, CompanyProfileDto dto);
         Task<CompanyProfileDto?> GetCompanyProfileAsync(Guid companyId);
+        Task<CompanyProfileDto?> GetCompanyProfileBySlugAsync(string slug);
         Task<IEnumerable<CompanyProfileDto>> GetUserCompanyProfilesAsync(Guid userId);
+        Task<IEnumerable<CompanyProfileDto>> GetAllCompanyProfilesAsync();
         
         // Interviews
         Task<InterviewDto> ScheduleInterviewAsync(Guid employerId, InterviewDto dto);
@@ -26,5 +28,6 @@ namespace Sob_Need_Server.Services.Jobs
         
         // Analytics
         Task<JobStatisticsDto> GetJobStatisticsAsync(Guid jobId, Guid employerId);
+        Task<JobStatisticsDto> GetRecruitmentStatisticsAsync(Guid userId, Guid? companyProfileId);
     }
 }

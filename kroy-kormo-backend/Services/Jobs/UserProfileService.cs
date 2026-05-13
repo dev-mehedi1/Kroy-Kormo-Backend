@@ -2,8 +2,8 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Sob_Need_Server.Context;
 using Sob_Need_Server.DTOs.User;
-using Sob_Need_Server.Models.Users;
 using Sob_Need_Server.Models.Jobs;
+using Sob_Need_Server.Models.Users;
 
 namespace Sob_Need_Server.Services.Jobs
 {
@@ -12,7 +12,9 @@ namespace Sob_Need_Server.Services.Jobs
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
 
-        public UserProfileService(AppDbContext context, IMapper mapper)
+        public UserProfileService(
+            AppDbContext context, 
+            IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -135,18 +137,16 @@ namespace Sob_Need_Server.Services.Jobs
             return true;
         }
 
-        public async Task<UserResumeDto> UploadResumeAsync(Guid userId, UserResumeDto dto)
+        public async Task<UserResumeDto> AddResumeAsync(Guid userId, string resumeUrl, string title)
         {
-            var resume = _mapper.Map<UserResume>(dto);
-            resume.UserId = userId;
-            
-            // If first resume or set as default, unset others
-            if (dto.IsDefault || !await _context.UserResumes.AnyAsync(r => r.UserId == userId))
+            var resume = new UserResume
             {
-                var others = await _context.UserResumes.Where(r => r.UserId == userId).ToListAsync();
-                foreach (var r in others) r.IsDefault = false;
-                resume.IsDefault = true;
-            }
+                UserId = userId,
+                ResumeUrl = resumeUrl,
+                ResumeTitle = title,
+                IsDefault = !await _context.UserResumes.AnyAsync(r => r.UserId == userId),
+                UploadedAt = DateTime.UtcNow
+            };
 
             _context.UserResumes.Add(resume);
             await _context.SaveChangesAsync();
@@ -173,6 +173,23 @@ namespace Sob_Need_Server.Services.Jobs
             _context.UserResumes.Remove(resume);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<ExtendedProfileDto> UpdateProfileAsync(Guid userId, UpdateProfileDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user == null) throw new Exception("User not found");
+
+            // Update allowed fields
+            if (dto.Bio != null) user.Bio = dto.Bio;
+            if (dto.AboutMe != null) user.AboutMe = dto.AboutMe;
+            if (dto.CurrentSalary.HasValue) user.CurrentSalary = dto.CurrentSalary;
+            if (dto.ExpectedSalary.HasValue) user.ExpectedSalary = dto.ExpectedSalary;
+            if (dto.IsSalaryVisible.HasValue) user.IsSalaryVisible = dto.IsSalaryVisible.Value;
+            if (dto.IsFresher.HasValue) user.IsFresher = dto.IsFresher.Value;
+            
+            await _context.SaveChangesAsync();
+            return _mapper.Map<ExtendedProfileDto>(user);
         }
 
     }

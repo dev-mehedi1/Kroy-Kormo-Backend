@@ -12,25 +12,32 @@ namespace Sob_Need_Server.Services.Background
         {
             _logger.LogInformation("Ranking Background Service is starting.");
 
-            using PeriodicTimer timer = new PeriodicTimer(_period);
-            while (!stoppingToken.IsCancellationRequested && await timer.WaitForNextTickAsync(stoppingToken))
+            try
             {
-                try
+                using PeriodicTimer timer = new PeriodicTimer(_period);
+                while (!stoppingToken.IsCancellationRequested && await timer.WaitForNextTickAsync(stoppingToken))
                 {
-                    _logger.LogInformation("Ranking Background Service is running score updates...");
-
-                    using (var scope = _serviceScopeFactory.CreateScope())
+                    try
                     {
-                        var rankingService = scope.ServiceProvider.GetRequiredService<IRankingService>();
-                        await rankingService.UpdateAllScoresAsync();
-                    }
+                        _logger.LogInformation("Ranking Background Service is running score updates...");
 
-                    _logger.LogInformation("Ranking Background Service completed score updates.");
+                        using (var scope = _serviceScopeFactory.CreateScope())
+                        {
+                            var rankingService = scope.ServiceProvider.GetRequiredService<IRankingService>();
+                            await rankingService.UpdateAllScoresAsync();
+                        }
+
+                        _logger.LogInformation("Ranking Background Service completed score updates.");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error occurred while updating ranking scores.");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error occurred while updating ranking scores.");
-                }
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("Ranking Background Service is stopping due to cancellation.");
             }
         }
     }

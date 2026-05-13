@@ -194,6 +194,7 @@ namespace Mappings
                 .ForMember(dest => dest.EmployerName, opt => opt.MapFrom(src => src.Employer != null ? src.Employer.FullName : null))
                 .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.CompanyProfile != null ? src.CompanyProfile.CompanyName : null))
                 .ForMember(dest => dest.CompanyLogoUrl, opt => opt.MapFrom(src => src.CompanyProfile != null ? src.CompanyProfile.LogoUrl : null))
+                .ForMember(dest => dest.CompanySlug, opt => opt.MapFrom(src => src.CompanyProfile != null ? src.CompanyProfile.Slug : null))
                 .ForMember(dest => dest.JobTypeName, opt => opt.MapFrom(src => src.JobType != null ? src.JobType.TypeName : null))
                 .ForMember(dest => dest.ExperienceLevelName, opt => opt.MapFrom(src => src.ExperienceLevel != null ? src.ExperienceLevel.LevelName : null))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : null))
@@ -217,6 +218,11 @@ namespace Mappings
                 .ForMember(dest => dest.Educations, opt => opt.MapFrom(src => src.Applicant != null ? src.Applicant.Educations : null))
                 .ForMember(dest => dest.Experiences, opt => opt.MapFrom(src => src.Applicant != null ? src.Applicant.Experiences : null))
                 .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.Applicant != null ? src.Applicant.Skills : null))
+                .ForMember(dest => dest.CurrentSalary, opt => opt.MapFrom(src => src.CurrentSalary))
+                .ForMember(dest => dest.ExpectedSalary, opt => opt.MapFrom(src => src.ExpectedSalary))
+                .ForMember(dest => dest.IsFresher, opt => opt.MapFrom(src => src.IsFresher))
+                .ForMember(dest => dest.TotalExperienceMonths, opt => opt.MapFrom(src => src.TotalExperienceMonths))
+                .ForMember(dest => dest.AboutMeSnapshot, opt => opt.MapFrom(src => src.AboutMeSnapshot))
                 .ReverseMap();
 
 

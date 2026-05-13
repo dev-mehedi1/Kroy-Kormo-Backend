@@ -13,10 +13,12 @@ namespace Sob_Need_Server.Controllers.Jobs
     public class UserProfileController : ControllerBase
     {
         private readonly IUserProfileService _profileService;
+        private readonly IProfileValidationService _validationService;
 
-        public UserProfileController(IUserProfileService profileService)
+        public UserProfileController(IUserProfileService profileService, IProfileValidationService validationService)
         {
             _profileService = profileService;
+            _validationService = validationService;
         }
 
         [HttpGet]
@@ -29,13 +31,23 @@ namespace Sob_Need_Server.Controllers.Jobs
             return Ok(new ResponseDto<ExtendedProfileDto>(true, "Profile retrieved", profile!));
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet("{userId:guid}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetUserProfile(Guid userId)
         {
             var profile = await _profileService.GetProfileByUserIdAsync(userId);
             if (profile == null) return NotFound(new ResponseDto<object>(false, "Profile not found", null!));
             return Ok(new ResponseDto<ExtendedProfileDto>(true, "Profile retrieved", profile));
+        }
+
+        [HttpGet("validation-status")]
+        public async Task<IActionResult> GetValidationStatus()
+        {
+            var userIdStr = User.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
+            var userId = Guid.Parse(userIdStr);
+            var validation = await _validationService.ValidateProfileForJobApplicationAsync(userId);
+            return Ok(new ResponseDto<ProfileValidationResult>(true, "Validation status retrieved", validation));
         }
 
         // Education
@@ -105,13 +117,27 @@ namespace Sob_Need_Server.Controllers.Jobs
             return success ? Ok(new ResponseDto<object>(true, "Skill removed", null!)) : NotFound(new ResponseDto<object>(false, "Skill not found on profile", null!));
         }
 
-        // Resumes
         [HttpPost("resume")]
-        public async Task<IActionResult> UploadResume([FromBody] UserResumeDto dto)
+        public async Task<IActionResult> AddResume([FromBody] AddResumeRequest request)
         {
             var userId = Guid.Parse(User.FindFirstValue("UserId")!);
-            var result = await _profileService.UploadResumeAsync(userId, dto);
-            return Ok(new ResponseDto<UserResumeDto>(true, "Resume uploaded", result));
+            var result = await _profileService.AddResumeAsync(userId, request.ResumeUrl, request.ResumeTitle);
+            return Ok(new ResponseDto<UserResumeDto>(true, "Resume added", result));
+        }
+
+        public class AddResumeRequest
+        {
+            public string ResumeUrl { get; set; } = null!;
+            public string ResumeTitle { get; set; } = null!;
+        }
+
+
+        [HttpPatch]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+        {
+            var userId = Guid.Parse(User.FindFirstValue("UserId")!);
+            var result = await _profileService.UpdateProfileAsync(userId, dto);
+            return Ok(new ResponseDto<ExtendedProfileDto>(true, "Profile updated successfully", result));
         }
 
         [HttpPatch("resume/{id}/default")]

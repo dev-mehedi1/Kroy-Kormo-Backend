@@ -46,5 +46,16 @@ namespace Sob_Need_Server.Controllers.CategoryController
 
             return BadRequest(response);
         }
+
+        [HttpGet("{slug}")]
+        public async Task<IActionResult> GetBySlug(string slug)
+        {
+            var response = await _categoryService.GetBySlugAsync(slug);
+            if (response.IsSuccess)
+            {
+                return Ok(response);
+            }
+            return NotFound(response);
+        }
     }
 }

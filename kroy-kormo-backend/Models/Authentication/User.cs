@@ -35,10 +35,26 @@ namespace Sob_Need_Server.Models.Authentication
         [MaxLength(1000)]
         public string? Bio { get; set; }
         
+        [MaxLength(2000)]
+        public string? AboutMe { get; set; } // Profile summary for job applications
+        
         [MaxLength(200)]
         public string? Address { get; set; }
         
         public Guid? UserTypeId { get; set; }
+        
+        // Job Application Profile Fields
+        public decimal? CurrentSalary { get; set; }
+        
+        public decimal? ExpectedSalary { get; set; }
+        
+        [Required]
+        public bool IsSalaryVisible { get; set; } = false;
+        
+        [Required]
+        public bool IsFresher { get; set; } = true;
+        
+        public int? TotalExperienceMonths { get; set; } // Calculated from experiences
         
         [Required]
         public bool IsVerified { get; set; } = false;

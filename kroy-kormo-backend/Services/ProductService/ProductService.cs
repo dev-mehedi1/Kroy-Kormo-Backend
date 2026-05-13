@@ -91,6 +91,9 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             // Is Urgent
             if (filters.IsUrgentAd.HasValue) query = query.Where(x => x.IsUrgentAd == filters.IsUrgentAd);
 
+            // Is Featured Member
+            if (filters.IsFeaturedMember.HasValue) query = query.Where(x => x.IsFeaturedMember == filters.IsFeaturedMember);
+
             if (filters.UserId.HasValue) query = query.Where(x => x.UserId == filters.UserId);
 
             if (filters.CountryId.HasValue) query = query.Where(x => x.Locations.Any(l => l.CountryId == filters.CountryId));
@@ -142,16 +145,40 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             // NEW RANKING LOGIC: Order by FinalScore
             
             // Apply sorting
-            if (filters.OrderByAsc.HasValue)
+            if (!string.IsNullOrEmpty(filters.SortBy))
+            {
+                switch (filters.SortBy.ToLower())
+                {
+                    case "newest":
+                        query = query.OrderByDescending(x => x.CreatedAt);
+                        break;
+                    case "price_low":
+                        query = query.OrderBy(x => x.Price);
+                        break;
+                    case "price_high":
+                        query = query.OrderByDescending(x => x.Price);
+                        break;
+                    case "popular":
+                        query = query.OrderByDescending(x => x.ViewCount);
+                        break;
+                    case "top":
+                        query = query.OrderByDescending(x => x.IsTopAd).ThenByDescending(x => x.CreatedAt);
+                        break;
+                    default:
+                        query = query.OrderByDescending(x => x.FinalScore).ThenByDescending(x => x.CreatedAt);
+                        break;
+                }
+            }
+            else if (filters.OrderByAsc.HasValue)
             {
                 query = filters.OrderByAsc.Value
-                    ? query.OrderBy(x => x.FinalScore)
-                    : query.OrderByDescending(x => x.FinalScore);
+                    ? query.OrderBy(x => x.FinalScore).ThenBy(x => x.CreatedAt)
+                    : query.OrderByDescending(x => x.FinalScore).ThenByDescending(x => x.CreatedAt);
             }
             else
             {
-                // Default: High Score First
-                query = query.OrderByDescending(x => x.FinalScore);
+                // Default: High Score First, then Newest
+                query = query.OrderByDescending(x => x.FinalScore).ThenByDescending(x => x.CreatedAt);
             }
             // Total count before paging
             var totalCount = await query.CountAsync();
@@ -183,9 +210,16 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            // Check if slug already exists in Products table
-            var existSlug = await _context.Products.AnyAsync(x => x.Title == productDto.Title);
-            if (existSlug) return new ResponseDto<ProductDto>(false, "A product with the same title already exists.", null!);
+            // Generate unique slug
+            string baseSlug = StringUtilities.GenerateSlug(productDto.Title);
+            string slug = baseSlug;
+            int count = 1;
+
+            while (await _context.Products.AnyAsync(x => x.Slug == slug))
+            {
+                slug = $"{baseSlug}-{count}";
+                count++;
+            }
 
             // Get UserId from token
             var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
@@ -198,7 +232,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             
             // Set fields from token/system
             product.UserId = userId;
-            product.Slug = StringUtilities.GenerateSlug(product.Title);
+            product.Slug = slug;
             product.CreatedAt = DateTime.UtcNow;
             product.CreatedBy = userIdStr;
             product.IsVerified = false;

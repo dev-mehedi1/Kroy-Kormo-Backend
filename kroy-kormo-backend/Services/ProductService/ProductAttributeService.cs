@@ -85,5 +85,82 @@ namespace Sob_Need_Server.Services.ProductService
                 return new ResponseDto<IEnumerable<ProductAttributeDto>>(false, ex.Message, null!);
             }
         }
+
+        public async Task<ResponseDto<IEnumerable<ProductAttributeDto>>> GetAttributesByCategorySlugAsync(string slug)
+        {
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Slug == slug);
+            if (category == null)
+                return new ResponseDto<IEnumerable<ProductAttributeDto>>(false, "Category not found", null!);
+
+            return await GetAttributesByCategoryAsync(category.CategoryId);
+        }
+
+        public async Task<ResponseDto<ProductAttributeDto>> CreateAttributeAsync(ProductAttributeDto attributeDto)
+        {
+            try
+            {
+                var attribute = _mapper.Map<ProductAttribute>(attributeDto);
+                attribute.AttributeId = Guid.NewGuid();
+                attribute.CreatedAt = DateTime.UtcNow;
+                attribute.IsActive = true;
+
+                await _context.ProductAttributes.AddAsync(attribute);
+                await _context.SaveChangesAsync();
+
+                var resultDto = _mapper.Map<ProductAttributeDto>(attribute);
+                return new ResponseDto<ProductAttributeDto>(true, "Attribute created successfully", resultDto);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto<ProductAttributeDto>(false, ex.Message, null!);
+            }
+        }
+
+        public async Task<ResponseDto<ProductAttributeDto>> UpdateAttributeAsync(Guid attributeId, ProductAttributeDto attributeDto)
+        {
+            try
+            {
+                var attribute = await _context.ProductAttributes.FindAsync(attributeId);
+                if (attribute == null)
+                    return new ResponseDto<ProductAttributeDto>(false, "Attribute not found", null!);
+
+                _mapper.Map(attributeDto, attribute);
+                attribute.AttributeId = attributeId; // Ensure ID doesn't change
+                attribute.UpdatedAt = DateTime.UtcNow;
+
+                _context.ProductAttributes.Update(attribute);
+                await _context.SaveChangesAsync();
+
+                var resultDto = _mapper.Map<ProductAttributeDto>(attribute);
+                return new ResponseDto<ProductAttributeDto>(true, "Attribute updated successfully", resultDto);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto<ProductAttributeDto>(false, ex.Message, null!);
+            }
+        }
+
+        public async Task<ResponseDto<bool>> DeleteAttributeAsync(Guid attributeId)
+        {
+            try
+            {
+                var attribute = await _context.ProductAttributes.FindAsync(attributeId);
+                if (attribute == null)
+                    return new ResponseDto<bool>(false, "Attribute not found", false);
+
+                // Soft delete
+                attribute.IsActive = false;
+                attribute.UpdatedAt = DateTime.UtcNow;
+
+                _context.ProductAttributes.Update(attribute);
+                await _context.SaveChangesAsync();
+
+                return new ResponseDto<bool>(true, "Attribute deleted (deactivated) successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto<bool>(false, ex.Message, false);
+            }
+        }
     }
 }

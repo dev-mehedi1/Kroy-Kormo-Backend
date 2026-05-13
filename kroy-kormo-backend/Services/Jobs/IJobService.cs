@@ -10,6 +10,7 @@ namespace Sob_Need_Server.Services.Jobs
         Task<JobListingDto> UpdateJobAsync(Guid jobId, Guid employerId, UpdateJobListingDto dto);
         Task<bool> DeleteJobAsync(Guid jobId, Guid employerId);
         Task<JobListingDto?> GetJobByIdAsync(Guid jobId);
+        Task<JobListingDto?> GetJobBySlugAsync(string slug);
         
         // Search and Filtering
         Task<PaginatedResponseDto<JobListingDto>> SearchJobsAsync(JobSearchFilter filter);
@@ -29,6 +30,7 @@ namespace Sob_Need_Server.Services.Jobs
     public class JobSearchFilter
     {
         public string? Keyword { get; set; }
+        public string? CategorySlug { get; set; }
         public Guid? CategoryId { get; set; }
         public Guid? JobTypeId { get; set; }
         public Guid? ExperienceLevelId { get; set; }
@@ -41,6 +43,7 @@ namespace Sob_Need_Server.Services.Jobs
         public List<Guid>? SkillIds { get; set; }
         public int? DaysAgo { get; set; }
         public Guid? CompanyId { get; set; }
+        public string? CompanySlug { get; set; }
         
         // Geospatial (Placeholder)
         public double? Latitude { get; set; }

@@ -12,6 +12,7 @@ namespace Sob_Need_Server.DTOs.Jobs
         public string? LogoUrl { get; set; }
         public string? CoverImageUrl { get; set; }
         public bool IsVerified { get; set; }
+        public int ActiveJobCount { get; set; }
     }
 
     public class InterviewDto
