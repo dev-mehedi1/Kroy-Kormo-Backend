@@ -88,6 +88,9 @@ builder.Services.AddAuthentication("Bearer")
 
 builder.Services.AddAutoMapper(typeof(MappingProfile)); // Register AutoMapper
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>();
+
 
 // Register extension 
 builder.Services.AddApplicationServices();
@@ -142,4 +145,6 @@ app.UseAuthorization();
 app.MapHub<NotificationHub>("/notificationHub");
 
 app.MapControllers();
+app.MapHealthChecks("/health");
+
 app.Run();
