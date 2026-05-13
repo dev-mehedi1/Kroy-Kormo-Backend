@@ -21,9 +21,13 @@ using Sob_Need_Server.Services.Analytics;
 using Sob_Need_Server.Services.ConditionService;
 using Sob_Need_Server.SignalR;
 using Sob_Need_Server.Utils.Helpers;
-
+using Services.ProductService;
+using Sob_Need_Server.Services.Jobs;
+using Sob_Need_Server.Interface.Jobs;
+using Services.Jobs; // Added
 
 namespace Sob_Need_Server.Extensions;
+
 
 public static class ServiceCollectionExtensions
 {
@@ -51,8 +55,23 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPromotionService, PromotionService>();
         services.AddScoped<IProductAttributeService, ProductAttributeService>();
         services.AddScoped<IAdminService, AdminService>();
+        services.AddScoped<IRankingService, RankingService>();
+        services.AddScoped<ISuggestionService, SuggestionService>();
+        
+        // Job Listing Platform Services
+        services.AddScoped<IJobService, JobService>();
+        services.AddScoped<IJobApplicationService, JobApplicationService>();
+        services.AddScoped<IUserProfileService, UserProfileService>();
+        services.AddScoped<IRecruitmentService, RecruitmentService>();
+        services.AddScoped<ISkillService, SkillService>();
+        services.AddScoped<IJobViewService, JobViewService>();
+        services.AddScoped<IJobAlertService, JobAlertService>();
+        services.AddScoped<IJobRecommendationService, JobRecommendationService>();
+        services.AddScoped<ISavedJobService, SavedJobService>();
+        services.AddScoped<IProfileValidationService, ProfileValidationService>();
+        services.AddScoped<IJobInsightService, JobInsightService>();
 
         return services;
+
     }
 }
-

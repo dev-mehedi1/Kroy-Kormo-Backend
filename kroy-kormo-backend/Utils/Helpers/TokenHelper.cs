@@ -21,11 +21,13 @@ namespace Sob_Need_Server.Utils.Helpers
             // Set JWT claims
             var claims = new[]
             {
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim("UserName", user.UserName), 
                 new Claim("TokenId", Guid.NewGuid().ToString()),
                 new Claim("UserId", user.UserId.ToString()),
                 new Claim("FullName", user.FullName),
-                new Claim("Email", user.Email)
+                new Claim("Email", user.Email),
+                new Claim(ClaimTypes.Role, user.UserType?.TypeName ?? "User")
             };
 
             // Generate token

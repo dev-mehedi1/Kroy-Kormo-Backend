@@ -19,13 +19,14 @@ using AttachmentEntity = Models.Attachment.Attachment;
 
 namespace Sob_Need_Server.Services.ProductService;
 
-public class ProductService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext, IHttpContextAccessor httpContextAccessor, IAnalyticsService analyticsService) : IProductService
+public class ProductService(AppDbContext context, IMapper mapper, IHubContext<NotificationHub> hubContext, IHttpContextAccessor httpContextAccessor, IAnalyticsService analyticsService, IRankingService rankingService) : IProductService
 {
     private readonly AppDbContext _context = context;
     private readonly IMapper _mapper = mapper;
     private readonly IHubContext<NotificationHub> _hubContext = hubContext;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IAnalyticsService _analyticsService = analyticsService;
+    private readonly IRankingService _rankingService = rankingService;
 
 
 
@@ -90,12 +91,26 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             // Is Urgent
             if (filters.IsUrgentAd.HasValue) query = query.Where(x => x.IsUrgentAd == filters.IsUrgentAd);
 
+            // Is Featured Member
+            if (filters.IsFeaturedMember.HasValue) query = query.Where(x => x.IsFeaturedMember == filters.IsFeaturedMember);
+
             if (filters.UserId.HasValue) query = query.Where(x => x.UserId == filters.UserId);
 
             if (filters.CountryId.HasValue) query = query.Where(x => x.Locations.Any(l => l.CountryId == filters.CountryId));
             if (filters.StateId.HasValue) query = query.Where(x => x.Locations.Any(l => l.StateId == filters.StateId));
             if (filters.CityId.HasValue) query = query.Where(x => x.Locations.Any(l => l.CityId == filters.CityId));
             if (filters.RegionId.HasValue) query = query.Where(x => x.Locations.Any(l => l.RegionId == filters.RegionId));
+
+            // IDs and Job Ads Filtering
+            if (filters.IsJobAd.HasValue)
+            {
+                query = query.Where(x => x.IsJobAd == filters.IsJobAd);
+            }
+            else
+            {
+                // Default: Hide Job Ads in standard product listings unless explicitly requested
+                query = query.Where(x => x.IsJobAd == false);
+            }
 
             // Is top ads
             if (filters.IsTopAd.HasValue)
@@ -115,7 +130,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             else
             {
                 // In public mode, filter out sold and Canceled
-                query = query.Where(x => x.Status != null && 
+                query = query.Where(x => x.Status == null || 
                                         x.Status.Slug != "sold" && 
                                         x.Status.Slug != "canceled");
                 
@@ -127,20 +142,43 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             }
 
             // Base ordering: Prioritize promoted products
-            query = query.OrderByDescending(x => x.IsTopAd)
-                        .ThenByDescending(x => x.IsFeaturedMember)
-                        .ThenByDescending(x => x.IsUrgentAd);
-
-            if (filters.OrderByAsc.HasValue)
+            // NEW RANKING LOGIC: Order by FinalScore
+            
+            // Apply sorting
+            if (!string.IsNullOrEmpty(filters.SortBy))
+            {
+                switch (filters.SortBy.ToLower())
+                {
+                    case "newest":
+                        query = query.OrderByDescending(x => x.CreatedAt);
+                        break;
+                    case "price_low":
+                        query = query.OrderBy(x => x.Price);
+                        break;
+                    case "price_high":
+                        query = query.OrderByDescending(x => x.Price);
+                        break;
+                    case "popular":
+                        query = query.OrderByDescending(x => x.ViewCount);
+                        break;
+                    case "top":
+                        query = query.OrderByDescending(x => x.IsTopAd).ThenByDescending(x => x.CreatedAt);
+                        break;
+                    default:
+                        query = query.OrderByDescending(x => x.FinalScore).ThenByDescending(x => x.CreatedAt);
+                        break;
+                }
+            }
+            else if (filters.OrderByAsc.HasValue)
             {
                 query = filters.OrderByAsc.Value
-                    ? ((IOrderedQueryable<Product>)query).ThenBy(x => x.CreatedAt)
-                    : ((IOrderedQueryable<Product>)query).ThenByDescending(x => x.CreatedAt);
+                    ? query.OrderBy(x => x.FinalScore).ThenBy(x => x.CreatedAt)
+                    : query.OrderByDescending(x => x.FinalScore).ThenByDescending(x => x.CreatedAt);
             }
             else
             {
-                // Default sub-sorting by CreatedAt DESC
-                query = ((IOrderedQueryable<Product>)query).ThenByDescending(x => x.CreatedAt);
+                // Default: High Score First, then Newest
+                query = query.OrderByDescending(x => x.FinalScore).ThenByDescending(x => x.CreatedAt);
             }
             // Total count before paging
             var totalCount = await query.CountAsync();
@@ -172,9 +210,16 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            // Check if slug already exists in Products table
-            var existSlug = await _context.Products.AnyAsync(x => x.Title == productDto.Title);
-            if (existSlug) return new ResponseDto<ProductDto>(false, "A product with the same title already exists.", null!);
+            // Generate unique slug
+            string baseSlug = StringUtilities.GenerateSlug(productDto.Title);
+            string slug = baseSlug;
+            int count = 1;
+
+            while (await _context.Products.AnyAsync(x => x.Slug == slug))
+            {
+                slug = $"{baseSlug}-{count}";
+                count++;
+            }
 
             // Get UserId from token
             var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
@@ -187,7 +232,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             
             // Set fields from token/system
             product.UserId = userId;
-            product.Slug = StringUtilities.GenerateSlug(product.Title);
+            product.Slug = slug;
             product.CreatedAt = DateTime.UtcNow;
             product.CreatedBy = userIdStr;
             product.IsVerified = false;
@@ -262,6 +307,9 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
             }
 
 
+            // Calculate Initial Score
+            product.FinalScore = _rankingService.CalculateScore(product);
+
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
@@ -313,6 +361,8 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                     _context.Locations.Add(location);
                 }
             }
+
+            product.FinalScore = _rankingService.CalculateScore(product);
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
@@ -565,9 +615,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 .Include(p => p.Locations)
                 .Include(p => p.Promotions)
                 .Where(p => p.IsActive)
-                .OrderByDescending(p => p.IsTopAd)
-                .ThenByDescending(p => p.IsFeaturedMember)
-                .ThenByDescending(p => p.IsUrgentAd)
+                .OrderByDescending(p => p.FinalScore) // Use FinalScore
                 .ThenByDescending(p => p.ViewCount)
                 .Take(count)
                 .ToListAsync();
@@ -597,10 +645,7 @@ public class ProductService(AppDbContext context, IMapper mapper, IHubContext<No
                 .Include(p => p.Locations)
                 .Include(p => p.Promotions)
                 .Where(p => p.CategoryId == product.CategoryId && p.ProductId != productId && p.IsActive)
-                .OrderByDescending(p => p.IsTopAd)
-                .ThenByDescending(p => p.IsFeaturedMember)
-                .ThenByDescending(p => p.IsUrgentAd)
-                .ThenByDescending(p => p.CreatedAt)
+                .OrderByDescending(p => p.FinalScore) // Use FinalScore
                 .Take(count)
                 .ToListAsync();
 

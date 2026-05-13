@@ -32,7 +32,7 @@ namespace Sob_Need_Server.Controllers.ProductController
         public async Task<ActionResult<ResponseDto<PromotionDto>>> ApplyPromotion([FromBody] ApplyPromotionRequest request)
         {
             var userId = GetCurrentUserId();
-            if (userId == null) return Unauthorized();
+            if (userId == null) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
             
             var res = await _promotionService.ApplyPromotionAsync(request.ProductId, request.PromotionType, request.DurationDays, userId.Value);
             return Ok(res);
@@ -42,7 +42,7 @@ namespace Sob_Need_Server.Controllers.ProductController
         public async Task<ActionResult<ResponseDto<bool>>> DeactivatePromotion(Guid promotionId)
         {
             var userId = GetCurrentUserId();
-            if (userId == null) return Unauthorized();
+            if (userId == null) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
 
             var res = await _promotionService.DeactivatePromotionAsync(promotionId, userId.Value);
             return Ok(res);

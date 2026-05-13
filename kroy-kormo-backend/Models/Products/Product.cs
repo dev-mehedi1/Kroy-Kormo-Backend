@@ -66,6 +66,14 @@ namespace Models.Products
         
         [Required]
         public bool IsActive { get; set; } = true;
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal BaseScore { get; set; } = 0;
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal FinalScore { get; set; } = 0;
+
+        public DateTime? LastBumpedAt { get; set; }
         
         public int ViewCount { get; set; } = 0;
         

@@ -35,10 +35,26 @@ namespace Sob_Need_Server.Models.Authentication
         [MaxLength(1000)]
         public string? Bio { get; set; }
         
+        [MaxLength(2000)]
+        public string? AboutMe { get; set; } // Profile summary for job applications
+        
         [MaxLength(200)]
         public string? Address { get; set; }
         
         public Guid? UserTypeId { get; set; }
+        
+        // Job Application Profile Fields
+        public decimal? CurrentSalary { get; set; }
+        
+        public decimal? ExpectedSalary { get; set; }
+        
+        [Required]
+        public bool IsSalaryVisible { get; set; } = false;
+        
+        [Required]
+        public bool IsFresher { get; set; } = true;
+        
+        public int? TotalExperienceMonths { get; set; } // Calculated from experiences
         
         [Required]
         public bool IsVerified { get; set; } = false;
@@ -60,5 +76,16 @@ namespace Sob_Need_Server.Models.Authentication
         public virtual ICollection<Review> ReviewsGiven { get; set; } = new List<Review>();
         public virtual ICollection<Review> ReviewsReceived { get; set; } = new List<Review>();
         public virtual ICollection<ProductView> ProductViews { get; set; } = new List<ProductView>();
+        
+        // Job-related navigation properties
+        public virtual ICollection<Models.Jobs.JobListing> JobListings { get; set; } = new List<Models.Jobs.JobListing>();
+        public virtual ICollection<Models.Jobs.JobApplication> JobApplications { get; set; } = new List<Models.Jobs.JobApplication>();
+        public virtual ICollection<UserEducation> Educations { get; set; } = new List<UserEducation>();
+        public virtual ICollection<UserExperience> Experiences { get; set; } = new List<UserExperience>();
+        public virtual ICollection<UserSkill> Skills { get; set; } = new List<UserSkill>();
+        public virtual ICollection<UserResume> Resumes { get; set; } = new List<UserResume>();
+        public virtual ICollection<Models.Jobs.SavedJob> SavedJobs { get; set; } = new List<Models.Jobs.SavedJob>();
+        public virtual ICollection<Models.Jobs.JobAlert> JobAlerts { get; set; } = new List<Models.Jobs.JobAlert>();
+        public virtual ICollection<Models.Jobs.CompanyProfile> CompanyProfiles { get; set; } = new List<Models.Jobs.CompanyProfile>();
     }
 }

@@ -24,7 +24,7 @@ namespace Sob_Need_Server.Controllers.User
         public async Task<ActionResult<ResponseDto<ReviewDto>>> AddReview([FromBody] ReviewDto reviewDto)
         {
             var userId = GetCurrentUserId();
-            if (userId == null) return Unauthorized();
+            if (userId == null) return Unauthorized(new ResponseDto<object>(false, "User not authenticated", null!));
 
             var response = await _reviewService.AddReviewAsync(userId.Value, reviewDto);
             

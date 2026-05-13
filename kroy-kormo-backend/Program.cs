@@ -12,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddMemoryCache(); // Add Memory Cache
 //builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -87,9 +88,14 @@ builder.Services.AddAuthentication("Bearer")
 
 builder.Services.AddAutoMapper(typeof(MappingProfile)); // Register AutoMapper
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>();
+
 
 // Register extension 
 builder.Services.AddApplicationServices();
+builder.Services.AddTransient<Sob_Need_Server.Services.Seeding.CategorySeeder>();
+builder.Services.AddHostedService<Sob_Need_Server.Services.Background.RankingBackgroundService>();
 
 
 //// Add CORS policy
@@ -109,7 +115,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowLocalhost", policy =>
     {
         // Specify the exact origin (don't use '*')
-        policy.WithOrigins("http://localhost:3000", "http://localhost:5173")  // Vue.js running on localhost:5173
+        policy.WithOrigins("http://localhost:3000", "http://localhost:5173","https://kroykormo.netlify.app")  // Vue.js running on localhost:5173
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();  // Allow credentials (cookies, authorization headers, etc.)
@@ -139,4 +145,6 @@ app.UseAuthorization();
 app.MapHub<NotificationHub>("/notificationHub");
 
 app.MapControllers();
+app.MapHealthChecks("/health");
+
 app.Run();

@@ -9,6 +9,10 @@ namespace Sob_Need_Server.Models.Categories
         public string CategoryName { get; set; } = null!;
         public string Slug { get; set; } = null!;
         public Guid? ParentCategoryId { get; set; }
+        
+        [Required]
+        public CategoryType Type { get; set; } = CategoryType.Marketplace;
+        
         [Required]
         public bool IsActive { get; set; } = true;
 

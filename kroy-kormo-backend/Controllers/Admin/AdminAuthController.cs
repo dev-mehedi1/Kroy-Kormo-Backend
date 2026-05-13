@@ -38,7 +38,7 @@ namespace Sob_Need_Server.Controllers.Admin
         public async Task<IActionResult> SeedAdmin([FromBody] AdminUser admin)
         {
             if (_context.AdminUsers.Any(a => a.UserName == admin.UserName))
-                return BadRequest("Admin already exists");
+                return BadRequest(new ResponseDto<object>(false, "Admin already exists", null!));
 
             // Hash password
             admin.Password = PasswordHelper.GenerateHashedPassword(admin.Password);
@@ -49,7 +49,7 @@ namespace Sob_Need_Server.Controllers.Admin
             await _context.AdminUsers.AddAsync(admin);
             await _context.SaveChangesAsync();
 
-            return Ok("Admin user seeded successfully");
+            return Ok(new ResponseDto<object>(true, "Admin user seeded successfully", null!));
         }
     }
 

@@ -1,0 +1,65 @@
+using Sob_Need_Server.DTOs.User;
+
+namespace Sob_Need_Server.DTOs.Jobs
+
+{
+    public class JobApplicationDto
+    {
+        public Guid ApplicationId { get; set; }
+        public Guid JobId { get; set; }
+        public string JobTitle { get; set; } = null!;
+        public string CompanyName { get; set; } = null!;
+        
+        public Guid ApplicantId { get; set; }
+        public string ApplicantName { get; set; } = null!;
+        
+        public Guid ApplicationStatusId { get; set; }
+        public string StatusName { get; set; } = null!;
+        public string? StatusColorCode { get; set; }
+        
+        public string? CoverLetter { get; set; }
+        public string? ResumeUrl { get; set; }
+        public Guid? AttachmentId { get; set; }
+        
+        public decimal? CurrentSalary { get; set; }
+        public decimal? ExpectedSalary { get; set; }
+        public bool IsFresher { get; set; }
+        public int? TotalExperienceMonths { get; set; }
+        public string? AboutMeSnapshot { get; set; }
+        
+        public bool IsShortlisted { get; set; }
+        public bool IsRejected { get; set; }
+        public string? EmployerNotes { get; set; }
+        public DateTime? ReviewedAt { get; set; }
+        
+        public bool IsWithdrawn { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        // Candidate Profile Details
+        public string? Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        public List<UserEducationDto> Educations { get; set; } = new();
+        public List<UserExperienceDto> Experiences { get; set; } = new();
+        public List<UserSkillDto> Skills { get; set; } = new();
+    }
+
+
+    public class CreateApplicationDto
+    {
+        public Guid JobId { get; set; }
+        public string? CoverLetter { get; set; }
+        public Guid? ResumeId { get; set; } // Link to uploaded UserResume or new Attachment
+        public decimal? ExpectedSalary { get; set; }
+        public string? AdditionalInfo { get; set; }
+    }
+
+    public class ApplicationStatusHistoryDto
+    {
+        public Guid HistoryId { get; set; }
+        public Guid StatusId { get; set; }
+        public string StatusName { get; set; } = null!;
+        public string? Notes { get; set; }
+        public string? ChangedByRole { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+}

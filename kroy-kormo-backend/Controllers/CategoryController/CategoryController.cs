@@ -5,6 +5,7 @@ using Sob_Need_Server.DTOs.Common;
 using Sob_Need_Server.DTOs.Product;
 using Sob_Need_Server.Interface;
 using Sob_Need_Server.Utils;
+using DTOs.Category;
 
 namespace Sob_Need_Server.Controllers.CategoryController
 {
@@ -15,7 +16,7 @@ namespace Sob_Need_Server.Controllers.CategoryController
         private readonly ICategoryService _categoryService = categoryService;
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "SuperAdmin,Admin,Owner")]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryDto categoryDto)
         {
             if (!ModelState.IsValid)
@@ -44,6 +45,17 @@ namespace Sob_Need_Server.Controllers.CategoryController
             }
 
             return BadRequest(response);
+        }
+
+        [HttpGet("{slug}")]
+        public async Task<IActionResult> GetBySlug(string slug)
+        {
+            var response = await _categoryService.GetBySlugAsync(slug);
+            if (response.IsSuccess)
+            {
+                return Ok(response);
+            }
+            return NotFound(response);
         }
     }
 }

@@ -1,0 +1,33 @@
+using Sob_Need_Server.DTOs.Jobs;
+
+namespace Sob_Need_Server.Services.Jobs
+{
+    public interface IRecruitmentService
+    {
+        // Company Profile
+        Task<CompanyProfileDto> CreateCompanyProfileAsync(Guid userId, CompanyProfileDto dto);
+        Task<CompanyProfileDto> UpdateCompanyProfileAsync(Guid userId, CompanyProfileDto dto);
+        Task<CompanyProfileDto?> GetCompanyProfileAsync(Guid companyId);
+        Task<CompanyProfileDto?> GetCompanyProfileBySlugAsync(string slug);
+        Task<IEnumerable<CompanyProfileDto>> GetUserCompanyProfilesAsync(Guid userId);
+        Task<IEnumerable<CompanyProfileDto>> GetAllCompanyProfilesAsync();
+        
+        // Interviews
+        Task<InterviewDto> ScheduleInterviewAsync(Guid employerId, InterviewDto dto);
+        Task<bool> UpdateInterviewStatusAsync(Guid interviewId, Guid userId, string status);
+        Task<IEnumerable<InterviewDto>> GetJobInterviewsAsync(Guid jobId, Guid employerId);
+        Task<IEnumerable<InterviewDto>> GetMyInterviewsAsync(Guid employerId);
+        Task<IEnumerable<InterviewDto>> GetMyCandidateInterviewsAsync(Guid candidateId);
+        Task<InterviewDto?> RescheduleInterviewAsync(Guid employerId, Guid interviewId, DateTime newTime, string? notes);
+        Task<InterviewDto?> SubmitInterviewFeedbackAsync(Guid employerId, InterviewFeedbackDto dto);
+        Task<bool> CompleteInterviewAsync(Guid interviewId, Guid employerId);
+        
+        // Offers
+        Task<JobOfferDto> CreateOfferAsync(Guid employerId, JobOfferDto dto);
+        Task<bool> RespondToOfferAsync(Guid offerId, Guid applicantId, string response, string? notes);
+        
+        // Analytics
+        Task<JobStatisticsDto> GetJobStatisticsAsync(Guid jobId, Guid employerId);
+        Task<JobStatisticsDto> GetRecruitmentStatisticsAsync(Guid userId, Guid? companyProfileId);
+    }
+}
