@@ -180,6 +180,7 @@ namespace Sob_Need_Server.Services.Jobs
                 .Include(j => j.ExperienceLevel)
                 .Include(j => j.Category)
                 .Include(j => j.CompanyProfile)
+                .Include(j => j.RequiredSkills).ThenInclude(rs => rs.Skill)
                 .Where(j => j.IsActive && j.JobStatus == "Active")
                 .AsQueryable();
 
@@ -254,6 +255,16 @@ namespace Sob_Need_Server.Services.Jobs
                     // If slug provided but company not found, return empty
                     query = query.Where(j => false);
                 }
+            }
+
+            if (!string.IsNullOrEmpty(filter.Location))
+            {
+                var loc = filter.Location.ToLower();
+                query = query.Where(j => 
+                    (j.OfficeLocation != null && j.OfficeLocation.ToLower().Contains(loc)) ||
+                    (j.Product != null && j.Product.Locations.Any(l => l.City != null && l.City.CityName.ToLower().Contains(loc))) ||
+                    (j.Product != null && j.Product.Locations.Any(l => l.AddressLine != null && l.AddressLine.ToLower().Contains(loc)))
+                );
             }
 
             // Sorting
