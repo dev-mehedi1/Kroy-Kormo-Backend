@@ -62,6 +62,8 @@ namespace Sob_Need_Server.DTOs.Jobs
         public int ApplicationCount { get; set; }
         public int ViewCount { get; set; }
         
+        public string? ExternalApplyUrl { get; set; }
+        
         public DateTime CreatedAt { get; set; }
         
         // From Product
@@ -102,6 +104,8 @@ namespace Sob_Need_Server.DTOs.Jobs
         
         public bool RequireResume { get; set; } = true;
         public bool RequireCoverLetter { get; set; } = false;
+        
+        public string? ExternalApplyUrl { get; set; }
         
         public List<Guid> SkillIds { get; set; } = new();
     }

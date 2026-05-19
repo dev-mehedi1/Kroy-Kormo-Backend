@@ -84,7 +84,8 @@ namespace Services.ProductService
                     .Where(p => topCategories.Contains(p.CategoryId) 
                                 && p.UserId != userId // Exclude own ads
                                 && p.IsActive 
-                                && p.IsSell) 
+                                && p.IsSell
+                                && !p.IsJobAd) 
                     .OrderByDescending(p => p.FinalScore) // Initial Ranking
                     .Take(count * 5) // Fetch pool
                     .ToListAsync();
@@ -160,6 +161,7 @@ namespace Services.ProductService
                     .Include(p => p.Attachments)
                     .Where(p => p.IsActive 
                                 && p.IsSell 
+                                && !p.IsJobAd
                                 && p.UserId != userId
                                 && p.Locations.Any(l => l.CityId.HasValue && targetCityIds.Contains(l.CityId.Value)))
                     .OrderByDescending(p => p.FinalScore)
@@ -193,7 +195,7 @@ namespace Services.ProductService
                     .Include(p => p.Status)
                     .Include(p => p.Locations).ThenInclude(l => l.City)
                     .Include(p => p.Attachments)
-                    .Where(p => p.IsActive && p.IsSell && p.UserId != userId)
+                    .Where(p => p.IsActive && p.IsSell && !p.IsJobAd && p.UserId != userId)
                     .OrderByDescending(p => p.FinalScore + p.ViewCount * 0.5m) // Simple formula
                     .Take(count)
                     .ToListAsync();
@@ -237,6 +239,7 @@ namespace Services.ProductService
                     .Include(p => p.Attachments)
                     .Where(p => p.IsActive 
                                 && p.IsSell 
+                                && !p.IsJobAd
                                 && p.CategoryId == targetCategory 
                                 && p.ProductId != excludeId
                                 && p.UserId != userId)

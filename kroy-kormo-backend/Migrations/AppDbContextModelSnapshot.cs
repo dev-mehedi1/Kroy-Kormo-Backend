@@ -17,7 +17,7 @@ namespace Sob_Need_Server.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -186,6 +186,10 @@ namespace Sob_Need_Server.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("PurchaseUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -1270,6 +1274,10 @@ namespace Sob_Need_Server.Migrations
 
                     b.Property<Guid>("ExperienceLevelId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ExternalApplyUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTime?>("FilledAt")
                         .HasColumnType("timestamp with time zone");
