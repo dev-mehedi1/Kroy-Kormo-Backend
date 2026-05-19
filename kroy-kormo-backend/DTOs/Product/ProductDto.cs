@@ -1,4 +1,4 @@
-﻿using Sob_Need_Server.DTOs.Attachment;
+using Sob_Need_Server.DTOs.Attachment;
 using Sob_Need_Server.DTOs.Authentication;
 using Sob_Need_Server.DTOs.Location;
 using Sob_Need_Server.DTOs.Product;
@@ -57,6 +57,7 @@ namespace DTOs.Product
         public bool IsSell { get; set; }
         public bool IsVerified { get; set; }
         public bool IsActive { get; set; }
+        public string? PurchaseUrl { get; set; }
         public string? ImageUrl { get; set; }
         
         // Statistics

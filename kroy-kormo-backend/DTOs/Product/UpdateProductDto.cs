@@ -17,5 +17,6 @@ namespace Sob_Need_Server.DTOs.Product
         public bool? IsSell { get; set; }
         public List<ProductAttributeValueDto>? Attributes { get; set; }
         public List<string>? ImageUrls { get; set; }
+        public string? PurchaseUrl { get; set; }
     }
 }

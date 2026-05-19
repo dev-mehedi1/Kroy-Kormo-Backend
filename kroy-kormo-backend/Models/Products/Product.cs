@@ -1,4 +1,4 @@
-﻿using Models.Locations;
+using Models.Locations;
 using Sob_Need_Server.Models.Authentication;
 using Sob_Need_Server.Models.Categories;
 using Sob_Need_Server.Models.Products;
@@ -66,6 +66,9 @@ namespace Models.Products
         
         [Required]
         public bool IsActive { get; set; } = true;
+        
+        [MaxLength(500)]
+        public string? PurchaseUrl { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal BaseScore { get; set; } = 0;
