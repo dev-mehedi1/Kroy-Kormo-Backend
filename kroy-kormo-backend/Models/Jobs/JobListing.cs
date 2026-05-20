@@ -75,6 +75,9 @@ namespace Sob_Need_Server.Models.Jobs
         public string? OfficeLocation { get; set; }
         
         // Application Settings
+        [MaxLength(500)]
+        public string? ExternalApplyUrl { get; set; }
+        
         [Required]
         public bool RequireResume { get; set; } = true;
         

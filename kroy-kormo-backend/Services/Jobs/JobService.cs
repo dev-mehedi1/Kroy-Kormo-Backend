@@ -180,6 +180,7 @@ namespace Sob_Need_Server.Services.Jobs
                 .Include(j => j.ExperienceLevel)
                 .Include(j => j.Category)
                 .Include(j => j.CompanyProfile)
+                .Include(j => j.RequiredSkills).ThenInclude(rs => rs.Skill)
                 .Where(j => j.IsActive && j.JobStatus == "Active")
                 .AsQueryable();
 
@@ -194,24 +195,42 @@ namespace Sob_Need_Server.Services.Jobs
                 );
             }
 
-            // Category Filtering including Subcategories
-            if (!string.IsNullOrEmpty(filter.CategorySlug) || filter.CategoryId.HasValue)
-            {
-                var category = await _context.Categories.FirstOrDefaultAsync(c => 
-                    (!string.IsNullOrEmpty(filter.CategorySlug) && c.Slug == filter.CategorySlug) ||
-                    (filter.CategoryId.HasValue && c.CategoryId == filter.CategoryId.Value));
+            // Category Filtering including Subcategories (Multi-Category Support)
+            var hasCategoryFilter = (filter.CategorySlugs != null && filter.CategorySlugs.Any()) || 
+                                    (filter.CategoryIds != null && filter.CategoryIds.Any()) ||
+                                    !string.IsNullOrEmpty(filter.CategorySlug) || 
+                                    filter.CategoryId.HasValue;
 
-                if (category != null)
+            if (hasCategoryFilter)
+            {
+                var queryCategorySlugs = new List<string>();
+                if (filter.CategorySlugs != null) queryCategorySlugs.AddRange(filter.CategorySlugs);
+                if (!string.IsNullOrEmpty(filter.CategorySlug)) queryCategorySlugs.Add(filter.CategorySlug);
+                
+                var queryCategoryIds = new List<Guid>();
+                if (filter.CategoryIds != null) queryCategoryIds.AddRange(filter.CategoryIds);
+                if (filter.CategoryId.HasValue) queryCategoryIds.Add(filter.CategoryId.Value);
+
+                var categories = await _context.Categories
+                    .Where(c => queryCategorySlugs.Contains(c.Slug) || queryCategoryIds.Contains(c.CategoryId))
+                    .ToListAsync();
+
+                if (categories.Any())
                 {
+                    var parentCategoryIds = categories.Select(c => c.CategoryId).ToList();
                     var subCategoryIds = await _context.Categories
-                        .Where(c => c.ParentCategoryId == category.CategoryId)
+                        .Where(c => c.ParentCategoryId.HasValue && parentCategoryIds.Contains(c.ParentCategoryId.Value))
                         .Select(c => c.CategoryId)
                         .ToListAsync();
 
-                    var categoryIds = new List<Guid> { category.CategoryId };
-                    categoryIds.AddRange(subCategoryIds);
-
-                    query = query.Where(j => categoryIds.Contains(j.CategoryId));
+                    var allCategoryIds = parentCategoryIds.Concat(subCategoryIds).Distinct().ToList();
+                    
+                    query = query.Where(j => allCategoryIds.Contains(j.CategoryId));
+                }
+                else
+                {
+                    // If filters are provided but no matching categories found, return empty results
+                    query = query.Where(j => false);
                 }
             }
 
@@ -254,6 +273,16 @@ namespace Sob_Need_Server.Services.Jobs
                     // If slug provided but company not found, return empty
                     query = query.Where(j => false);
                 }
+            }
+
+            if (!string.IsNullOrEmpty(filter.Location))
+            {
+                var loc = filter.Location.ToLower();
+                query = query.Where(j => 
+                    (j.OfficeLocation != null && j.OfficeLocation.ToLower().Contains(loc)) ||
+                    (j.Product != null && j.Product.Locations.Any(l => l.City != null && l.City.CityName.ToLower().Contains(loc))) ||
+                    (j.Product != null && j.Product.Locations.Any(l => l.AddressLine != null && l.AddressLine.ToLower().Contains(loc)))
+                );
             }
 
             // Sorting
