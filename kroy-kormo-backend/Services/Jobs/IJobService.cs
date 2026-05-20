@@ -31,7 +31,9 @@ namespace Sob_Need_Server.Services.Jobs
     {
         public string? Keyword { get; set; }
         public string? CategorySlug { get; set; }
+        public List<string>? CategorySlugs { get; set; }
         public Guid? CategoryId { get; set; }
+        public List<Guid>? CategoryIds { get; set; }
         public Guid? JobTypeId { get; set; }
         public Guid? ExperienceLevelId { get; set; }
         public decimal? MinSalary { get; set; }
